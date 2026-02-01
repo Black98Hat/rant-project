@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+</head>
+<body>
+
+<h2>Chat</h2>
+<div id="messages"></div>
+
+<input id="msg" placeholder="Type message">
+<button onclick="send()">Send</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+  authDomain: "rant-2me.firebaseapp.com",
+  projectId: "rant-2me"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const params = new URLSearchParams(window.location.search);
+const chatId = params.get("chatId");
+
+auth.onAuthStateChanged(user => {
+  if (!user || !chatId) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  db.collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("createdAt")
+    .onSnapshot(snapshot => {
+      const container = document.getElementById("messages");
+      container.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const m = doc.data();
+        container.innerHTML += `<p><b>${m.from}:</b> ${m.text}</p>`;
+      });
+    });
+});
+
+function send() {
+  const user = auth.currentUser;
+  const text = document.getElementById("msg").value;
+
+  if (!text) return;
+
+  db.collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .add({
+      from: user.email,
+      text: text,
+      createdAt: new Date()
+    });
+
+  document.getElementById("msg").value = "";
+}
+</script>
+
+</body>
+</html>

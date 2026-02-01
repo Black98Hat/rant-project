@@ -1,14 +1,15 @@
-<a href="sent.html">Sent Rants</a>
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Inbox</title>
+  <title>Sent Rants</title>
 </head>
 <body>
 
-<h2>Rant requests</h2>
-<div id="rants"></div>
+<a href="rant.html">Send New Rant</a> |
+<a href="inbox.html">Inbox</a>
+
+<h2>Sent Rants</h2>
+<div id="sent"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -33,38 +34,40 @@ auth.onAuthStateChanged(user => {
   }
 
   db.collection("rants")
-    .where("to", "==", user.email)
-    .where("status", "==", "pending")
+    .where("from", "==", user.email)
     .onSnapshot(snapshot => {
-      const container = document.getElementById("rants");
+      const container = document.getElementById("sent");
       container.innerHTML = "";
 
       snapshot.forEach(doc => {
         const rant = doc.data();
 
+        let action = "";
+        if (rant.status === "echoed") {
+          action = `<button onclick="acceptEcho('${doc.id}')">Accept Echo & Start Chat</button>`;
+        }
+
         container.innerHTML += `
           <div style="border:1px solid #ccc; padding:10px; margin:10px">
-            <p><b>Anonymous rant:</b></p>
-            <p>${rant.text}</p>
-            <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea><br><br>
-            <button onclick="submitEcho('${doc.id}')">Submit Echo</button>
+            <p><b>To:</b> ${rant.to}</p>
+            <p><b>Your rant:</b> ${rant.text}</p>
+            <p><b>Status:</b> ${rant.status}</p>
+            ${rant.echo ? `<p><b>Echo:</b> ${rant.echo}</p>` : ""}
+            ${action}
           </div>
         `;
       });
     });
 });
 
-function submitEcho(id) {
-  const echoText = document.getElementById(`echo-${id}`).value;
-
-  if (!echoText) {
-    alert("You must echo before proceeding");
-    return;
-  }
+function acceptEcho(id) {
+  const chatId = db.collection("chats").doc().id;
 
   db.collection("rants").doc(id).update({
-    echo: echoText,
-    status: "echoed"
+    status: "accepted",
+    chatId: chatId
+  }).then(() => {
+    window.location.href = `chat.html?chatId=${chatId}`;
   });
 }
 </script>
