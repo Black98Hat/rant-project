@@ -36,19 +36,27 @@ auth.onAuthStateChanged(user => {
     return;
   }
 
-  db.collection("chats")
-    .doc(chatId)
-    .collection("messages")
-    .orderBy("createdAt")
-    .onSnapshot(snapshot => {
-      const container = document.getElementById("messages");
-      container.innerHTML = "";
+  db.collection("chats").doc(chatId).get().then(doc => {
+    if (!doc.exists || !doc.data().users.includes(user.email)) {
+      alert("You are not allowed in this chat");
+      window.location.href = "index.html";
+      return;
+    }
 
-      snapshot.forEach(doc => {
-        const m = doc.data();
-        container.innerHTML += `<p><b>${m.from}:</b> ${m.text}</p>`;
+    db.collection("chats")
+      .doc(chatId)
+      .collection("messages")
+      .orderBy("createdAt")
+      .onSnapshot(snapshot => {
+        const container = document.getElementById("messages");
+        container.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          const m = doc.data();
+          container.innerHTML += `<p><b>${m.from}:</b> ${m.text}</p>`;
+        });
       });
-    });
+  });
 });
 
 function send() {

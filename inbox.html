@@ -1,5 +1,3 @@
-<a href="sent.html">Sent Rants</a>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +5,10 @@
 </head>
 <body>
 
-<h2>Rant requests</h2>
+<a href="rant.html">Send Rant</a> |
+<a href="sent.html">Sent Rants</a>
+
+<h2>Your Inbox</h2>
 <div id="rants"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -15,6 +16,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* ------------------ Firebase Setup ------------------ */
 const firebaseConfig = {
   apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
   authDomain: "rant-2me.firebaseapp.com",
@@ -26,46 +28,86 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+/* ------------------ Auth Guard ------------------ */
 auth.onAuthStateChanged(user => {
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
+  loadInbox(user.email);
+});
+
+/* ------------------ Load Inbox ------------------ */
+function loadInbox(email) {
   db.collection("rants")
-    .where("to", "==", user.email)
-    .where("status", "==", "pending")
+    .where("to", "==", email)
     .onSnapshot(snapshot => {
       const container = document.getElementById("rants");
       container.innerHTML = "";
 
+      if (snapshot.empty) {
+        container.innerHTML = "<p>No rants yet.</p>";
+        return;
+      }
+
       snapshot.forEach(doc => {
         const rant = doc.data();
-
-        container.innerHTML += `
+        let html = `
           <div style="border:1px solid #ccc; padding:10px; margin:10px">
             <p><b>Anonymous rant:</b></p>
             <p>${rant.text}</p>
-            <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea><br><br>
-            <button onclick="submitEcho('${doc.id}')">Submit Echo</button>
-          </div>
         `;
+
+        /* ---------- STATE: PENDING (needs echo) ---------- */
+        if (rant.status === "pending") {
+          html += `
+            <textarea id="echo-${doc.id}" placeholder="Echo what you understood" rows="3" cols="40"></textarea><br><br>
+            <button onclick="submitEcho('${doc.id}')">Submit Echo</button>
+          `;
+        }
+
+        /* ---------- STATE: ECHOED (waiting for sender) ---------- */
+        if (rant.status === "echoed") {
+          html += `
+            <p><b>Your echo:</b> ${rant.echo}</p>
+            <p><i>Waiting for sender to accept…</i></p>
+          `;
+        }
+
+        /* ---------- STATE: ACCEPTED (chat unlocked) ---------- */
+        if (rant.status === "accepted") {
+          html += `
+            <p><b>Your echo:</b> ${rant.echo}</p>
+            <button onclick="openChat('${rant.chatId}')">Go to Chat</button>
+          `;
+        }
+
+        html += `</div>`;
+        container.innerHTML += html;
       });
     });
-});
+}
 
-function submitEcho(id) {
-  const echoText = document.getElementById(`echo-${id}`).value;
+/* ------------------ Submit Echo ------------------ */
+function submitEcho(rantId) {
+  const echoInput = document.getElementById(`echo-${rantId}`);
+  const echoText = echoInput.value;
 
   if (!echoText) {
-    alert("You must echo before proceeding");
+    alert("You must echo before continuing");
     return;
   }
 
-  db.collection("rants").doc(id).update({
+  db.collection("rants").doc(rantId).update({
     echo: echoText,
     status: "echoed"
   });
+}
+
+/* ------------------ Open Chat ------------------ */
+function openChat(chatId) {
+  window.location.href = `chat.html?chatId=${chatId}`;
 }
 </script>
 

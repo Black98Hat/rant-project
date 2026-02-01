@@ -61,13 +61,22 @@ auth.onAuthStateChanged(user => {
 });
 
 function acceptEcho(id) {
-  const chatId = db.collection("chats").doc().id;
+  const chatRef = db.collection("chats").doc();
 
-  db.collection("rants").doc(id).update({
-    status: "accepted",
-    chatId: chatId
-  }).then(() => {
-    window.location.href = `chat.html?chatId=${chatId}`;
+  db.collection("rants").doc(id).get().then(doc => {
+    const rant = doc.data();
+
+    chatRef.set({
+      users: [rant.from, rant.to],
+      createdAt: new Date()
+    });
+
+    db.collection("rants").doc(id).update({
+      status: "accepted",
+      chatId: chatRef.id
+    }).then(() => {
+      window.location.href = `chat.html?chatId=${chatRef.id}`;
+    });
   });
 }
 </script>
