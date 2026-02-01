@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inbox</title>
+</head>
+<body>
+
+<h2>Your Inbox</h2>
+<div id="rants"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+  authDomain: "rant-2me.firebaseapp.com",
+  projectId: "rant-2me"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  db.collection("rants")
+    .where("to", "==", user.email)
+    .where("status", "==", "pending")
+    .onSnapshot(snapshot => {
+      const container = document.getElementById("rants");
+      container.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const rant = doc.data();
+
+        container.innerHTML += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px">
+            <p><b>Anonymous rant:</b></p>
+            <p>${rant.text}</p>
+            <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea><br><br>
+            <button onclick="submitEcho('${doc.id}')">Submit Echo</button>
+          </div>
+        `;
+      });
+    });
+});
+
+function submitEcho(id) {
+  const echoText = document.getElementById(`echo-${id}`).value;
+
+  if (!echoText) {
+    alert("You must echo before proceeding");
+    return;
+  }
+
+  db.collection("rants").doc(id).update({
+    echo: echoText,
+    status: "echoed"
+  });
+}
+</script>
+
+</body>
+</html>

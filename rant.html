@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Rant</title>
+</head>
+<body>
+
+<a href="inbox.html">Go to Inbox</a>
+<h2>Send a Rant</h2>
+
+<textarea id="rantText" placeholder="What happened?" rows="5" cols="40"></textarea><br><br>
+<input id="targetEmail" placeholder="Target email"><br><br>
+
+<button onclick="sendRant()">Send Anonymously</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+  authDomain: "rant-2me.firebaseapp.com",
+  projectId: "rant-2me"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "index.html";
+  }
+});
+
+function sendRant() {
+  const text = document.getElementById("rantText").value;
+  const target = document.getElementById("targetEmail").value;
+
+  if (!text || !target) {
+    alert("Fill both fields");
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Not logged in");
+    return;
+  }
+
+  db.collection("rants").add({
+    from: user.email,
+    to: target,
+    text: text,
+    status: "pending",
+    createdAt: new Date()
+  })
+  .then(() => {
+    alert("Rant sent anonymously");
+    document.getElementById("rantText").value = "";
+  })
+  .catch(err => alert(err.message));
+}
+</script>
+
+</body>
+</html>
