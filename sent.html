@@ -201,7 +201,7 @@
             }
 
             let action = "";
-            if (rant.status === "echoed") {
+            if (rant.status === "echoed" && rant.echo) {
               action = `
                 <div class="action">
                   <button onclick="acceptEcho('${doc.id}')">
@@ -213,7 +213,9 @@
 
             const statusText =
               rant.status === "pending"
-                ? "<span class='pending'>pending</span>"
+                ? "<span class='pending'>awaiting echo</span>"
+                : rant.status === "echoed"
+                ? "echo received"
                 : rant.status;
 
             container.innerHTML += `
