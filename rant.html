@@ -307,8 +307,8 @@
     function loadChats(userEmail) {
       db.collection("chats")
         .where("users", "array-contains", userEmail)
-        .orderBy("createdAt", "desc")
         .onSnapshot(snapshot => {
+          console.log("Chats snapshot size:", snapshot.size);
           const list = document.getElementById("chatList");
           list.innerHTML = "";
 
