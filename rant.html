@@ -58,21 +58,34 @@
       color: var(--ghost);
     }
 
+    /* PROMINENT TABS */
     .nav {
       display: flex;
-      gap: 22px;
-      margin-top: 18px;
+      gap: 10px;
+      margin-top: 22px;
     }
 
     .nav a {
-      font-size: 12px;
-      color: var(--muted);
+      flex: 1;
+      background: #fff;
+      color: #000;
       text-decoration: none;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 4px;
     }
 
-    .nav a::after {
-      content: " →";
-      opacity: 0.6;
+    .nav a span {
+      background: #d40000;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-weight: 600;
     }
 
     .context {
@@ -159,8 +172,14 @@
       <p>things not written down</p>
 
       <div class="nav">
-        <a href="sent.html">what I said</a>
-        <a href="inbox.html">what reached me</a>
+        <a href="sent.html">
+          Sent
+          <span>2</span>
+        </a>
+        <a href="inbox.html">
+          Inbox
+          <span>2</span>
+        </a>
       </div>
     </div>
 
