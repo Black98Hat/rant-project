@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Whisper</title>
+  <title>Whisper · Send</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Fonts -->
@@ -10,349 +10,256 @@
 
   <style>
     :root {
-      --bg:#000;
-      --fg:#fff;
-      --muted:rgba(255,255,255,.65);
-      --ghost:rgba(255,255,255,.45);
-      --line:rgba(255,255,255,.22);
-      --softbg:rgba(255,255,255,.04);
-      --danger:#d40000;
+      --bg: #000;
+      --fg: #fff;
+      --muted: rgba(255,255,255,0.65);
+      --ghost: rgba(255,255,255,0.45);
+      --line: rgba(255,255,255,0.22);
+      --softbg: rgba(255,255,255,0.04);
+      --danger: #d40000;
     }
 
-    * { box-sizing:border-box; }
+    * { box-sizing: border-box; }
 
     body {
-      margin:0;
-      background:var(--bg);
-      color:var(--fg);
-      font-family:"JetBrains Mono", monospace;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
     }
 
     .grain {
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
     }
 
     .wrap {
-      max-width:560px;
-      margin:0 auto;
-      padding:24px 18px 180px;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px 18px 120px;
     }
 
-    /* Header */
     .top h1 {
-      font-family:"Archivo",sans-serif;
-      font-size:32px;
-      font-weight:800;
-      margin:0;
+      font-family: "Archivo", sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
     }
 
     .top p {
-      margin-top:6px;
-      font-size:12px;
-      color:var(--ghost);
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--ghost);
     }
 
-    /* Toggle */
+    /* === SUPER PROMINENT TABS === */
     .tabs {
-      display:flex;
-      gap:12px;
-      margin-top:20px;
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
     }
 
     .tab {
-      flex:1;
-      background:#fff;
-      color:#000;
-      padding:14px;
-      font-family:"Archivo",sans-serif;
-      font-size:16px;
-      font-weight:800;
-      text-align:center;
-      border-radius:6px;
-      cursor:pointer;
+      flex: 1;
+      background: #fff;
+      color: #000;
+      text-decoration: none;
+      padding: 14px 16px;
+      font-family: "Archivo", sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 6px;
     }
 
-    .tab.inactive {
-      opacity:.35;
+    .count {
+      background: var(--danger);
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
     }
 
-    /* Threads */
-    .threads {
-      margin-top:28px;
+    .count.show {
+      display: inline-block;
     }
 
-    .thread {
-      border-top:1px solid var(--line);
-      padding:20px 0;
-      cursor:pointer;
+    .context {
+      margin: 26px 0 10px;
+      font-size: 13px;
+      color: var(--muted);
     }
 
-    .thread:first-child {
-      border-top:none;
+    textarea {
+      width: 100%;
+      background: var(--softbg);
+      border: 1px solid var(--line);
+      padding: 18px 16px;
+      color: var(--fg);
+      font-size: 15px;
+      font-family: "JetBrains Mono", monospace;
+      resize: none;
+      min-height: 160px;
+      line-height: 1.8;
     }
 
-    .thread .meta {
-      font-size:11px;
-      color:var(--ghost);
-      margin-bottom:6px;
+    textarea::placeholder { color: var(--ghost); }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--ghost);
     }
 
-    .thread .text {
-      font-size:14px;
-      line-height:1.8;
-      color:var(--muted);
+    input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 4px;
+      color: var(--fg);
+      font-size: 14px;
+      margin-top: 26px;
     }
 
-    .state {
-      margin-top:8px;
-      font-size:11px;
-      color:var(--ghost);
+    input::placeholder { color: var(--ghost); }
+
+    .action {
+      margin-top: 48px;
     }
 
-    .state.pending {
-      color:var(--danger);
+    .action button {
+      width: 100%;
+      padding: 18px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
     }
 
-    /* Expanded chat */
-    .messages {
-      margin-top:14px;
-      border-top:1px dashed var(--line);
-      padding-top:14px;
+    .action button:hover {
+      background: var(--fg);
+      color: var(--bg);
     }
 
-    .message {
-      margin-bottom:12px;
-    }
-
-    .from {
-      font-size:11px;
-      color:var(--ghost);
-      margin-bottom:4px;
-    }
-
-    .msg {
-      font-size:13px;
-      line-height:1.7;
-      color:var(--muted);
-      white-space:pre-wrap;
-    }
-
-    .reply {
-      margin-top:10px;
-    }
-
-    .reply textarea {
-      width:100%;
-      background:var(--softbg);
-      border:1px solid var(--line);
-      padding:12px;
-      color:var(--fg);
-      font-family:"JetBrains Mono",monospace;
-      font-size:13px;
-      resize:none;
-      min-height:60px;
-    }
-
-    .reply button {
-      margin-top:8px;
-      width:100%;
-      padding:12px;
-      background:transparent;
-      border:1px solid var(--line);
-      color:var(--fg);
-      font-size:12px;
-      letter-spacing:.2em;
-      text-transform:uppercase;
-      cursor:pointer;
-    }
-
-    /* Composer */
-    .composer {
-      position:fixed;
-      bottom:0;
-      left:0;
-      right:0;
-      background:#000;
-      border-top:1px solid var(--line);
-      padding:14px 18px;
-    }
-
-    .composer textarea {
-      width:100%;
-      background:var(--softbg);
-      border:1px solid var(--line);
-      padding:14px;
-      color:var(--fg);
-      font-size:14px;
-      font-family:"JetBrains Mono",monospace;
-      resize:none;
-      min-height:80px;
-    }
-
-    .composer input {
-      width:100%;
-      margin-top:10px;
-      background:transparent;
-      border:none;
-      border-bottom:1px solid var(--line);
-      color:var(--fg);
-      padding:10px 4px;
-      font-size:13px;
-    }
-
-    .composer button {
-      margin-top:12px;
-      width:100%;
-      padding:14px;
-      background:transparent;
-      border:1px solid var(--line);
-      color:var(--fg);
-      font-size:12px;
-      letter-spacing:.25em;
-      text-transform:uppercase;
-      cursor:pointer;
+    .footer {
+      margin-top: 28px;
+      font-size: 11px;
+      color: var(--ghost);
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
-<div class="grain"></div>
+  <div class="grain"></div>
 
-<div class="wrap">
-  <div class="top">
-    <h1>Whisper</h1>
-    <p>everything that’s already being said</p>
+  <div class="wrap">
+    <div class="top">
+      <h1>Leave a trace</h1>
+      <p>things not written down</p>
 
-    <div class="tabs">
-      <div id="sentTab" class="tab">Sent</div>
-      <div id="recvTab" class="tab inactive">Received</div>
+      <div class="tabs">
+        <a href="sent.html" class="tab">
+          Sent
+          <span id="sentCount" class="count">0</span>
+        </a>
+        <a href="inbox.html" class="tab">
+          Inbox
+          <span id="inboxCount" class="count">0</span>
+        </a>
+      </div>
     </div>
+
+    <div class="context">Write it how it happened.</div>
+
+    <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
+    <div class="hint">no name attached</div>
+
+    <input id="targetEmail" placeholder="who should hear this">
+    <div class="hint">delivery is quiet</div>
+
+    <div class="action">
+      <button onclick="sendRant()">Send quietly</button>
+    </div>
+
+    <div class="footer">once it’s out, it stays out</div>
   </div>
 
-  <div id="threads" class="threads"></div>
-</div>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<!-- Sticky Composer -->
-<div class="composer">
-  <textarea id="newText" placeholder="Say it the way you remember it"></textarea>
-  <input id="newTarget" placeholder="who should hear this">
-  <button onclick="sendNew()">Send quietly</button>
-</div>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+      authDomain: "rant-2me.firebaseapp.com",
+      projectId: "rant-2me"
+    };
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    firebase.initializeApp(firebaseConfig);
 
-<script>
-const firebaseConfig = {
-  apiKey:"AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
-  authDomain:"rant-2me.firebaseapp.com",
-  projectId:"rant-2me"
-};
-firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
 
-let mode="sent";
-let userEmail=null;
+      // Inbox: unread messages sent to me
+      db.collection("rants")
+        .where("to", "==", user.email)
+        .where("status", "!=", "read")
+        .onSnapshot(snap => {
+          const count = snap.size;
+          const el = document.getElementById("inboxCount");
+          el.textContent = count;
+          el.classList.toggle("show", count > 0);
+        });
 
-const sentTab = document.getElementById("sentTab");
-const recvTab = document.getElementById("recvTab");
-const threads = document.getElementById("threads");
-const newText = document.getElementById("newText");
-const newTarget = document.getElementById("newTarget");
-
-sentTab.onclick=()=>switchMode("sent");
-recvTab.onclick=()=>switchMode("received");
-
-auth.onAuthStateChanged(u=>{
-  if(!u){location.href="index.html";return;}
-  userEmail=u.email;
-  load();
-});
-
-function switchMode(m){
-  mode=m;
-  sentTab.classList.toggle("inactive",m!=="sent");
-  recvTab.classList.toggle("inactive",m!=="received");
-  load();
-}
-
-let unsubscribe = null;
-function load(){
-  if(unsubscribe) unsubscribe();
-  let q=db.collection("rants");
-  q=mode==="sent"
-    ? q.where("from","==",userEmail)
-    : q.where("to","==",userEmail);
-
-  unsubscribe = q.onSnapshot(snap=>{
-    threads.innerHTML="";
-    snap.forEach(d=>renderThread(d));
-  });
-}
-
-function renderThread(doc){
-  const r=doc.data();
-  const div=document.createElement("div");
-  div.className="thread";
-
-  div.innerHTML=`
-    <div class="meta">${mode==="sent"?"to":"from"} ${mode==="sent"?r.to:"anonymous"}</div>
-    <div class="text">${r.text}</div>
-    <div class="state ${r.status}">status · ${r.status}</div>
-  `;
-
-  div.onclick=()=>toggleChat(div,doc.id,r);
-  threads.appendChild(div);
-}
-
-function toggleChat(container,id,rant){
-  if(container.querySelector(".messages")) return;
-
-  if(!rant.chatId) return;
-
-  const box=document.createElement("div");
-  box.className="messages";
-  container.appendChild(box);
-
-  db.collection("chats").doc(rant.chatId)
-    .collection("messages")
-    .orderBy("createdAt")
-    .onSnapshot(s=>{
-      box.innerHTML="";
-      s.forEach(m=>{
-        const d=m.data();
-        box.innerHTML+=`
-          <div class="message">
-            <div class="from">${d.from}</div>
-            <div class="msg">${d.text}</div>
-          </div>`;
-      });
+      // Sent: pending messages sent by me
+      db.collection("rants")
+        .where("from", "==", user.email)
+        .where("status", "==", "pending")
+        .onSnapshot(snap => {
+          const count = snap.size;
+          const el = document.getElementById("sentCount");
+          el.textContent = count;
+          el.classList.toggle("show", count > 0);
+        });
     });
-}
 
-function sendNew(){
-  const t=newText.value.trim();
-  const to=newTarget.value.trim();
-  if(!t||!to) return;
+    function sendRant() {
+      const text = document.getElementById("rantText").value;
+      const target = document.getElementById("targetEmail").value;
+      const user = auth.currentUser;
 
-  db.collection("rants").add({
-    from:userEmail,
-    to,
-    text:t,
-    status:"pending",
-    createdAt:new Date()
-  });
+      if (!text || !target || !user) return;
 
-  newText.value="";
-  newTarget.value="";
-}
-</script>
+      db.collection("rants").add({
+        from: user.email,
+        to: target,
+        text,
+        status: "pending",
+        createdAt: new Date()
+      }).then(() => {
+        document.getElementById("rantText").value = "";
+        document.getElementById("targetEmail").value = "";
+      });
+    }
+  </script>
 </body>
 </html>
