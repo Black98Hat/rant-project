@@ -158,6 +158,43 @@
       color: var(--ghost);
       text-align: center;
     }
+
+    .chat-list {
+      margin-top: 28px;
+      padding-bottom: 360px;
+    }
+
+    .chat-item {
+      border-top: 1px solid var(--line);
+      padding: 18px 0;
+      cursor: pointer;
+    }
+
+    .chat-item:first-child {
+      border-top: none;
+    }
+
+    .chat-peer {
+      font-size: 13px;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+
+    .chat-preview {
+      font-size: 12px;
+      color: var(--ghost);
+      line-height: 1.6;
+    }
+
+    .composer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg);
+      padding: 18px;
+      border-top: 1px solid var(--line);
+    }
   </style>
 </head>
 
@@ -181,19 +218,23 @@
       </div>
     </div>
 
-    <div class="context">Write it how it happened.</div>
+    <div class="chat-list" id="chatList"></div>
 
-    <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
-    <div class="hint">no name attached</div>
+    <div class="composer">
+      <div class="context">Write it how it happened.</div>
 
-    <input id="targetEmail" placeholder="who should hear this">
-    <div class="hint">delivery is quiet</div>
+      <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
+      <div class="hint">no name attached</div>
 
-    <div class="action">
-      <button onclick="sendRant()">Send quietly</button>
+      <input id="targetEmail" placeholder="who should hear this">
+      <div class="hint">delivery is quiet</div>
+
+      <div class="action">
+        <button onclick="sendRant()">Send quietly</button>
+      </div>
+
+      <div class="footer">once it’s out, it stays out</div>
     </div>
-
-    <div class="footer">once it’s out, it stays out</div>
   </div>
 
   <!-- Firebase -->
@@ -240,6 +281,8 @@
           el.textContent = count;
           el.classList.toggle("show", count > 0);
         });
+
+      loadChats(user.email);
     });
 
     function sendRant() {
@@ -259,6 +302,37 @@
         document.getElementById("rantText").value = "";
         document.getElementById("targetEmail").value = "";
       });
+    }
+
+    function loadChats(userEmail) {
+      db.collection("chats")
+        .where("users", "array-contains", userEmail)
+        .orderBy("createdAt", "desc")
+        .onSnapshot(snapshot => {
+          const list = document.getElementById("chatList");
+          list.innerHTML = "";
+
+          if (snapshot.empty) {
+            list.innerHTML = "<div class='empty'>no conversations yet</div>";
+            return;
+          }
+
+          snapshot.forEach(doc => {
+            const chat = doc.data();
+            const peer = chat.users.find(u => u !== userEmail);
+
+            list.innerHTML += `
+              <div class="chat-item" onclick="openChat('${doc.id}')">
+                <div class="chat-peer">${peer}</div>
+                <div class="chat-preview">a quiet thread</div>
+              </div>
+            `;
+          });
+        });
+    }
+
+    function openChat(chatId) {
+      window.location.href = `chat.html?chatId=${chatId}`;
     }
   </script>
 </body>
