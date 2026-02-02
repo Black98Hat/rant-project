@@ -149,7 +149,6 @@
     <div class="top">
       <h1>Sent</h1>
       <p>things you put out there</p>
-      <div id="actionableCount" class="status"></div>
 
       <div class="nav">
         <a href="rant.html">Write</a>
@@ -189,14 +188,8 @@
           const container = document.getElementById("sent");
           container.innerHTML = "";
 
-          let actionable = 0;
-
           snapshot.forEach(doc => {
             const rant = doc.data();
-
-            if (rant.status === "echoed" && rant.echo) {
-              actionable++;
-            }
 
             const echoBlock = rant.echo
               ? `<div class="echo">${rant.echo}</div>`
@@ -230,13 +223,6 @@
               </div>
             `;
           });
-
-          const countEl = document.getElementById("actionableCount");
-          if (actionable > 0) {
-            countEl.innerText = `${actionable} awaiting acceptance`;
-          } else {
-            countEl.innerText = "";
-          }
         });
     });
 
