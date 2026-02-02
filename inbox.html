@@ -263,12 +263,21 @@
 
     function submitEcho(rantId) {
       const input = document.getElementById(`echo-${rantId}`);
-      const text = input.value;
+      if (!input) return;
+
+      const text = input.value.trim();
       if (!text) return;
 
-      db.collection("rants").doc(rantId).update({
-        echo: text,
-        status: "echoed"
+      input.disabled = true;
+
+      db.collection("rants").doc(rantId).get().then(doc => {
+        const rant = doc.data();
+        if (rant.status !== "pending") return;
+
+        db.collection("rants").doc(rantId).update({
+          echo: text,
+          status: "echoed"
+        });
       });
     }
 
