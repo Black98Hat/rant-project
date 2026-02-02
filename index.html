@@ -5,20 +5,22 @@
   <title>Whisper</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Minimal Black & White Design System -->
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #000000;
-      --fg: #ffffff;
-      --muted: rgba(255,255,255,0.6);
-      --soft: rgba(255,255,255,0.12);
+      --bg: #000;
+      --fg: #fff;
+      --muted: rgba(255,255,255,0.65);
+      --ghost: rgba(255,255,255,0.35);
+      --line: rgba(255,255,255,0.18);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
     }
 
     body {
@@ -28,47 +30,61 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+    }
+
+    /* subtle grain */
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
     }
 
     .container {
       width: 100%;
       max-width: 420px;
-      padding: 32px;
+      padding: 36px 28px;
       text-align: center;
-      animation: fadeIn 1.2s ease;
+      z-index: 1;
+      animation: enter 1.2s ease;
+    }
+
+    .signals {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ghost);
+      margin-bottom: 18px;
+      animation: flicker 5s infinite;
     }
 
     .brand {
-      font-size: 42px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      margin-bottom: 16px;
+      font-family: "Archivo", sans-serif;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
     }
 
     .tagline {
-      font-size: 15px;
-      line-height: 1.6;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 14px;
+      line-height: 1.9;
       color: var(--muted);
-      margin-bottom: 40px;
-    }
-
-    .whispers {
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--soft);
-      margin-bottom: 12px;
-      animation: pulse 3s infinite;
+      margin-bottom: 48px;
     }
 
     button {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       background: transparent;
+      border: 1px solid var(--line);
       color: var(--fg);
-      border: 1px solid var(--soft);
-      font-size: 14px;
-      letter-spacing: 0.06em;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -80,52 +96,55 @@
     }
 
     .footnote {
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--soft);
+      margin-top: 28px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--ghost);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.8; }
+    @keyframes flicker {
+      0%,100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
     }
 
     @media (max-width: 480px) {
-      .brand {
-        font-size: 36px;
-      }
-      .container {
-        padding: 24px;
-      }
+      .brand { font-size: 44px; }
     }
   </style>
 </head>
 
 <body>
+  <div class="grain"></div>
+
   <div class="container">
-    <div class="whispers">something is being said</div>
+    <div class="signals">voices · glances · silence</div>
 
     <div class="brand">Whisper</div>
 
     <div class="tagline">
-      The unofficial office network.<br />
-      Gossip. Rants. Signals.<br />
-      What everyone knows—but no one says.
+      Today’s office energy.<br />
+      Unspoken things.<br />
+      Circulated quietly.
     </div>
 
-    <button onclick="googleLogin()">Enter quietly</button>
+    <button onclick="enter()">Enter quietly</button>
 
     <div class="footnote">
-      Anonymous. Ephemeral. Too real.
+      you didn’t hear this here
     </div>
   </div>
 
-  <!-- Firebase (unchanged logic) -->
+  <!-- ambient -->
+  <audio id="ambience" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b9a6a2d5a.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
@@ -140,12 +159,12 @@
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    function googleLogin() {
+    function enter() {
+      const a = document.getElementById("ambience");
+      a.volume = 0.15;
+      a.play().catch(()=>{});
       auth.signInWithPopup(provider)
-        .then(() => {
-          window.location.href = "rant.html";
-        })
-        .catch(err => alert(err.message));
+        .then(() => window.location.href = "rant.html");
     }
   </script>
 </body>
