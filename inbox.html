@@ -1,115 +1,280 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Inbox</title>
+  <meta charset="UTF-8" />
+  <title>Whisper · Inbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: rgba(255,255,255,0.65);
+      --ghost: rgba(255,255,255,0.45);
+      --line: rgba(255,255,255,0.22);
+      --softbg: rgba(255,255,255,0.04);
+      --danger: #d40000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px 18px 120px;
+    }
+
+    .top h1 {
+      font-family: "Archivo", sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    .top p {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--ghost);
+    }
+
+    .nav {
+      margin-top: 22px;
+      display: flex;
+      gap: 14px;
+    }
+
+    .nav a {
+      flex: 1;
+      background: #fff;
+      color: #000;
+      text-decoration: none;
+      padding: 14px 16px;
+      font-family: "Archivo", sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .list {
+      margin-top: 28px;
+    }
+
+    .empty {
+      font-size: 13px;
+      color: var(--ghost);
+      margin-top: 40px;
+    }
+
+    .item {
+      border-top: 1px solid var(--line);
+      padding: 22px 0;
+    }
+
+    .item:first-child {
+      border-top: none;
+    }
+
+    .meta {
+      font-size: 11px;
+      color: var(--ghost);
+      margin-bottom: 10px;
+    }
+
+    .text {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .prompt {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--danger);
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--softbg);
+      border: 1px solid var(--line);
+      padding: 14px;
+      color: var(--fg);
+      font-size: 14px;
+      font-family: "JetBrains Mono", monospace;
+      resize: none;
+      min-height: 100px;
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+    textarea::placeholder { color: var(--ghost); }
+
+    .action {
+      margin-top: 12px;
+    }
+
+    .action button {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .action button:hover {
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--ghost);
+    }
+
+    .echo {
+      margin-top: 14px;
+      padding: 14px;
+      background: var(--softbg);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="grain"></div>
 
-<a href="rant.html">Send Rant</a> |
-<a href="sent.html">Sent Rants</a>
+  <div class="wrap">
+    <div class="top">
+      <h1>Inbox</h1>
+      <p>things meant for you</p>
 
-<h2>Your Inbox</h2>
-<div id="rants"></div>
+      <div class="nav">
+        <a href="rant.html">Write</a>
+        <a href="sent.html">Sent</a>
+      </div>
+    </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <div id="rants" class="list"></div>
+  </div>
 
-<script>
-/* ------------------ Firebase Setup ------------------ */
-const firebaseConfig = {
-  apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
-  authDomain: "rant-2me.firebaseapp.com",
-  projectId: "rant-2me"
-};
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-firebase.initializeApp(firebaseConfig);
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+      authDomain: "rant-2me.firebaseapp.com",
+      projectId: "rant-2me"
+    };
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
 
-/* ------------------ Auth Guard ------------------ */
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  loadInbox(user.email);
-});
-
-/* ------------------ Load Inbox ------------------ */
-function loadInbox(email) {
-  db.collection("rants")
-    .where("to", "==", email)
-    .onSnapshot(snapshot => {
-      const container = document.getElementById("rants");
-      container.innerHTML = "";
-
-      if (snapshot.empty) {
-        container.innerHTML = "<p>No rants yet.</p>";
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
         return;
       }
-
-      snapshot.forEach(doc => {
-        const rant = doc.data();
-        let html = `
-          <div style="border:1px solid #ccc; padding:10px; margin:10px">
-            <p><b>Anonymous rant:</b></p>
-            <p>${rant.text}</p>
-        `;
-
-        /* ---------- STATE: PENDING (needs echo) ---------- */
-        if (rant.status === "pending") {
-          html += `
-            <textarea id="echo-${doc.id}" placeholder="Echo what you understood" rows="3" cols="40"></textarea><br><br>
-            <button onclick="submitEcho('${doc.id}')">Submit Echo</button>
-          `;
-        }
-
-        /* ---------- STATE: ECHOED (waiting for sender) ---------- */
-        if (rant.status === "echoed") {
-          html += `
-            <p><b>Your echo:</b> ${rant.echo}</p>
-            <p><i>Waiting for sender to accept…</i></p>
-          `;
-        }
-
-        /* ---------- STATE: ACCEPTED (chat unlocked) ---------- */
-        if (rant.status === "accepted") {
-          html += `
-            <p><b>Your echo:</b> ${rant.echo}</p>
-            <button onclick="openChat('${rant.chatId}')">Go to Chat</button>
-          `;
-        }
-
-        html += `</div>`;
-        container.innerHTML += html;
-      });
+      loadInbox(user.email);
     });
-}
 
-/* ------------------ Submit Echo ------------------ */
-function submitEcho(rantId) {
-  const echoInput = document.getElementById(`echo-${rantId}`);
-  const echoText = echoInput.value;
+    function loadInbox(email) {
+      db.collection("rants")
+        .where("to", "==", email)
+        .onSnapshot(snapshot => {
+          const container = document.getElementById("rants");
+          container.innerHTML = "";
 
-  if (!echoText) {
-    alert("You must echo before continuing");
-    return;
-  }
+          if (snapshot.empty) {
+            container.innerHTML = "<div class='empty'>nothing yet</div>";
+            return;
+          }
 
-  db.collection("rants").doc(rantId).update({
-    echo: echoText,
-    status: "echoed"
-  });
-}
+          snapshot.forEach(doc => {
+            const rant = doc.data();
+            let block = "";
 
-/* ------------------ Open Chat ------------------ */
-function openChat(chatId) {
-  window.location.href = `chat.html?chatId=${chatId}`;
-}
-</script>
+            if (rant.status === "pending") {
+              block = `
+                <div class="prompt">needs a response</div>
+                <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea>
+                <div class="action">
+                  <button onclick="submitEcho('${doc.id}')">Echo back</button>
+                </div>
+              `;
+            }
 
+            if (rant.status === "echoed") {
+              block = `
+                <div class="echo">${rant.echo}</div>
+                <div class="status">waiting on the other side</div>
+              `;
+            }
+
+            if (rant.status === "accepted") {
+              block = `
+                <div class="echo">${rant.echo}</div>
+                <div class="action">
+                  <button onclick="openChat('${rant.chatId}')">Continue</button>
+                </div>
+              `;
+            }
+
+            container.innerHTML += `
+              <div class="item">
+                <div class="meta">anonymous</div>
+                <div class="text">${rant.text}</div>
+                ${block}
+              </div>
+            `;
+          });
+        });
+    }
+
+    function submitEcho(rantId) {
+      const input = document.getElementById(`echo-${rantId}`);
+      const text = input.value;
+      if (!text) return;
+
+      db.collection("rants").doc(rantId).update({
+        echo: text,
+        status: "echoed"
+      });
+    }
+
+    function openChat(chatId) {
+      window.location.href = `chat.html?chatId=${chatId}`;
+    }
+  </script>
 </body>
 </html>
