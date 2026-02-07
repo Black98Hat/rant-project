@@ -190,6 +190,9 @@
 
           snapshot.forEach(doc => {
             const rant = doc.data();
+            if (rant.status === "accepted") {
+              return;
+            }
 
             const echoBlock = rant.echo
               ? `<div class="echo">${rant.echo}</div>`
