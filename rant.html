@@ -330,13 +330,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
+    // --- Hot new Goss global counters and readiness flags ---
+    window.__hotInboxPending = 0;
+    window.__hotSentPending = 0;
+    window.__inboxReady = false;
+    window.__sentReady = false;
+
     // --- Hot new Goss counter/visibility helper ---
     function updateHotGossVisibility() {
+      // Do nothing until both listeners have reported at least once
+      if (!window.__inboxReady || !window.__sentReady) return;
+
       const hot = document.getElementById("hotGoss");
       const countEl = document.getElementById("hotGossCount");
-      const total =
-        (window.__hotInboxPending || 0) +
-        (window.__hotSentPending || 0);
+
+      const inbox = window.__hotInboxPending || 0;
+      const sent = window.__hotSentPending || 0;
+      const total = inbox + sent;
 
       if (total > 0) {
         hot.style.display = "block";
@@ -394,8 +404,9 @@
       db.collection("rants")
         .where("from", "==", email)
         .onSnapshot(snapshot => {
-          // --- Track sender-side pending/echoed for Hot new Goss ---
+          // --- Mark sent listener as ready and clear global pending count ---
           window.__hotSentPending = 0;
+          window.__sentReady = true;
           let localIndex = 0;
           const container = document.getElementById("sentInline");
           container.innerHTML = "";
@@ -463,11 +474,12 @@
     }
 
     function loadInboxInline(email) {
-      // At the very top, reset global pending count
-      window.__hotInboxPending = 0;
       db.collection("rants")
         .where("to", "==", email)
         .onSnapshot(snapshot => {
+          // --- Mark inbox listener as ready and clear global pending count ---
+          window.__hotInboxPending = 0;
+          window.__inboxReady = true;
           const container = document.getElementById("inboxList");
           container.innerHTML = "";
           let pendingCount = 0; // inbox-side pending
