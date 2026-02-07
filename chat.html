@@ -192,6 +192,35 @@
           return;
         }
 
+        // Hydrate seed messages into messages collection if empty
+        const chat = doc.data();
+
+        // hydrate seed messages into messages collection if empty
+        if (chat.seed && Array.isArray(chat.seed)) {
+          db.collection("chats")
+            .doc(chatId)
+            .collection("messages")
+            .limit(1)
+            .get()
+            .then(snapshot => {
+              if (!snapshot.empty) return;
+
+              const batch = db.batch();
+              chat.seed.forEach(m => {
+                const ref = db.collection("chats")
+                  .doc(chatId)
+                  .collection("messages")
+                  .doc();
+                batch.set(ref, {
+                  from: m.from,
+                  text: m.text,
+                  createdAt: m.createdAt || new Date()
+                });
+              });
+              batch.commit();
+            });
+        }
+
         db.collection("chats")
           .doc(chatId)
           .collection("messages")
