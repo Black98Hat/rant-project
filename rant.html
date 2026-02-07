@@ -198,6 +198,52 @@
       border-top: 1px solid var(--line);
       padding-bottom: 12px;
     }
+
+    .list {
+      margin-top: 16px;
+    }
+
+    .item {
+      border-top: 1px solid var(--line);
+      padding: 22px 0;
+    }
+
+    .item:first-child {
+      border-top: none;
+    }
+
+    .meta {
+      font-size: 11px;
+      color: var(--ghost);
+      margin-bottom: 10px;
+    }
+
+    .text {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .prompt {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--danger);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--ghost);
+    }
+
+    .echo {
+      margin-top: 14px;
+      padding: 14px;
+      background: var(--softbg);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.7;
+    }
   </style>
 </head>
 
@@ -206,8 +252,8 @@
 
   <div class="wrap">
     <div class="top">
-      <h1>Leave a trace</h1>
-      <p>things not written down</p>
+      <h1>Today's Goss</h1>
+      <p>things not written down but mostly true</p>
 
       <div class="tabs">
         <a href="sent.html" class="tab">
@@ -220,6 +266,17 @@
         </a>
       </div>
     </div>
+
+    <div id="hotGoss">
+      <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 28px 0 8px;">
+        Hot new Goss
+      </h2>
+      <div id="inboxList" class="list"></div>
+    </div>
+
+    <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 32px 0 8px;">
+      Continue the energy
+    </h2>
 
     <div class="chat-list" id="chatList"></div>
 
@@ -285,8 +342,83 @@
           el.classList.toggle("show", count > 0);
         });
 
+      loadInboxInline(user.email);
+
       loadChats(user.email);
     });
+
+    function loadInboxInline(email) {
+      db.collection("rants")
+        .where("to", "==", email)
+        .onSnapshot(snapshot => {
+          const container = document.getElementById("inboxList");
+          container.innerHTML = "";
+
+          if (snapshot.empty) {
+            container.innerHTML = "<div class='empty'>nothing hot yet</div>";
+            return;
+          }
+
+          snapshot.forEach(doc => {
+            const rant = doc.data();
+            let block = "";
+
+            if (rant.status === "pending") {
+              block = `
+                <div class="prompt">needs a response</div>
+                <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea>
+                <div class="action">
+                  <button onclick="submitEcho('${doc.id}')">Echo back</button>
+                </div>
+              `;
+            }
+
+            if (rant.status === "echoed") {
+              block = `
+                <div class="echo">${rant.echo}</div>
+                <div class="status">waiting on the other side</div>
+              `;
+            }
+
+            if (rant.status === "accepted") {
+              block = `
+                <div class="echo">${rant.echo}</div>
+                <div class="action">
+                  <button onclick="openChat('${rant.chatId}')">Continue the energy</button>
+                </div>
+              `;
+            }
+
+            container.innerHTML += `
+              <div class="item">
+                <div class="meta">anonymous</div>
+                <div class="text">${rant.text}</div>
+                ${block}
+              </div>
+            `;
+          });
+        });
+    }
+
+    function submitEcho(rantId) {
+      const input = document.getElementById(`echo-${rantId}`);
+      if (!input) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.disabled = true;
+
+      db.collection("rants").doc(rantId).get().then(doc => {
+        const rant = doc.data();
+        if (rant.status !== "pending") return;
+
+        db.collection("rants").doc(rantId).update({
+          echo: text,
+          status: "echoed"
+        });
+      });
+    }
 
     function sendRant() {
       const text = document.getElementById("rantText").value;
