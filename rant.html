@@ -437,6 +437,8 @@
 
           snapshot.forEach(doc => {
             const rant = doc.data();
+            // once accepted, it becomes a chat — do not show in Hot new Goss
+            if (rant.status === "accepted") return;
             let block = "";
 
             if (rant.status === "pending") {
@@ -456,14 +458,7 @@
               `;
             }
 
-            if (rant.status === "accepted") {
-              block = `
-                <div class="echo">${rant.echo}</div>
-                <div class="action">
-                  <button onclick="openChat('${rant.chatId}')">Continue the energy</button>
-                </div>
-              `;
-            }
+            // removed accepted block for Hot new Goss
 
             container.innerHTML += `
               <div class="item">
