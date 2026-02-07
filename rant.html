@@ -306,15 +306,15 @@
 
     <div class="chat-list" id="chatList"></div>
 
-    <div class="composer collapsed">
+    <div class="composer">
       <div class="collapse-toggle" onclick="toggleComposer()">collapse</div>
       <div class="context">Write it how it happened.</div>
 
-      <input id="targetEmail" placeholder="who should hear this">
-      <div class="hint">delivery is quiet</div>
-
       <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
       <div class="hint">no name attached</div>
+
+      <input id="targetEmail" placeholder="who should hear this">
+      <div class="hint">delivery is quiet</div>
 
       <div class="action">
         <button onclick="sendRant()">Send quietly</button>
@@ -329,33 +329,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <div id="decisionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000;">
-    <div style="max-width:420px; margin:20vh auto; background:#000; border:1px solid var(--line); padding:20px;">
-      <div id="modalTitle" style="font-family:Archivo; font-size:18px; margin-bottom:12px;"></div>
-      <div id="modalContext" style="font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:18px;"></div>
-      <div style="display:flex; gap:10px;">
-        <button id="modalPrimary" style="flex:1; border:1px solid var(--danger); color:var(--danger); background:none; padding:12px; cursor:pointer;"></button>
-        <button id="modalSecondary" style="flex:1; border:1px solid var(--line); background:none; color:var(--fg); padding:12px; cursor:pointer;"></button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    function showDecisionModal({ title, context, primary, secondary, onPrimary, onSecondary }) {
-      const modal = document.getElementById("decisionModal");
-      modal.style.display = "block";
-      document.getElementById("modalTitle").textContent = title;
-      document.getElementById("modalContext").innerHTML = context;
-
-      const p = document.getElementById("modalPrimary");
-      const s = document.getElementById("modalSecondary");
-
-      p.textContent = primary;
-      s.textContent = secondary;
-
-      p.onclick = () => { modal.style.display = "none"; onPrimary(); };
-      s.onclick = () => { modal.style.display = "none"; onSecondary(); };
-    }
     // --- Hot new Goss global counters and readiness flags ---
     window.__hotInboxPending = 0;
     window.__hotSentPending = 0;
@@ -480,15 +454,10 @@
                 ? "echo received"
                 : rant.status;
 
-            // Support messages[] array, fallback to text
-            const msgs = rant.messages || [{ text: rant.text }];
-            const preview = msgs.slice(0,3).map(m => m.text).join("<br>");
-            const more = msgs.length > 3 ? "<div class='ghost'>…</div>" : "";
-
             container.innerHTML += `
               <div class="item">
                 <div class="meta">#${localIndex} · to ${rant.to}</div>
-                <div class="text">${preview}${more}</div>
+                <div class="text">${rant.text}</div>
                 <div class="status">status · ${statusText}</div>
                 ${echoBlock}
                 ${actionBlock}
@@ -557,17 +526,12 @@
               `;
             }
 
-            // Support messages[] array, fallback to text
-            const msgs = rant.messages || [{ text: rant.text }];
-            const preview = msgs.slice(0,3).map(m => m.text).join("<br>");
-            const more = msgs.length > 3 ? "<div class='ghost'>…</div>" : "";
-
             // removed accepted block for Hot new Goss
 
             container.innerHTML += `
               <div class="item">
                 <div class="meta">#${pendingCount} · anonymous</div>
-                <div class="text">${preview}${more}</div>
+                <div class="text">${rant.text}</div>
                 ${block}
               </div>
             `;
@@ -630,115 +594,27 @@
     }
 
     const rantBox = document.getElementById("rantText");
-    const targetBox = document.getElementById("targetEmail");
-
-    [targetBox, rantBox].forEach(el => {
-      el.addEventListener("focus", () => {
-        document.querySelector(".composer").classList.remove("collapsed");
-      });
+    rantBox.addEventListener("focus", () => {
+      document.querySelector(".composer").classList.remove("collapsed");
     });
 
-    async function sendRant() {
-      const text = rantBox.value.trim();
-      const target = targetBox.value.trim();
+    function sendRant() {
+      const text = document.getElementById("rantText").value;
+      const target = document.getElementById("targetEmail").value;
       const user = auth.currentUser;
+
       if (!text || !target || !user) return;
 
-      const me = user.email;
-      const now = new Date();
-
-      // lookups
-      const rantSnap = await db.collection("rants")
-        .where("status", "!=", "accepted")
-        .where("from", "in", [me, target])
-        .where("to", "in", [me, target])
-        .get();
-
-      const chatSnap = await db.collection("chats")
-        .where("users", "array-contains", me)
-        .get();
-
-      const chat = chatSnap.docs.find(d => d.data().users.includes(target));
-      if (chat) {
-        await db.collection("chats").doc(chat.id).update({
-          seed: firebase.firestore.FieldValue.arrayUnion({
-            from: me,
-            text,
-            createdAt: now
-          })
-        });
-        window.location.href = `chat.html?chatId=${chat.id}`;
-        return;
-      }
-
-      const rantDoc = rantSnap.docs[0];
-      if (!rantDoc) {
-        await db.collection("rants").add({
-          from: me,
-          to: target,
-          status: "pending",
-          messages: [{ from: me, text, createdAt: now }],
-          createdAt: now,
-          updatedAt: now
-        });
-        rantBox.value = "";
-        targetBox.value = "";
-        return;
-      }
-
-      const rant = rantDoc.data();
-      const isSender = rant.from === me;
-
-      const append = async (newStatus = rant.status) => {
-        await db.collection("rants").doc(rantDoc.id).update({
-          status: newStatus,
-          messages: firebase.firestore.FieldValue.arrayUnion({
-            from: me,
-            text,
-            createdAt: now
-          }),
-          updatedAt: now
-        });
-        rantBox.value = "";
-        targetBox.value = "";
-      };
-
-      if (isSender && rant.status === "pending") {
-        await append("pending");
-        return;
-      }
-
-      if (isSender && rant.status === "echoed") {
-        showDecisionModal({
-          title: "Accept & continue?",
-          context: (rant.messages || [{ text: rant.text }]).map(m => m.text).join("<br>"),
-          primary: "Accept",
-          secondary: "Cancel",
-          onPrimary: async () => {
-            await append("accepted");
-          },
-          onSecondary: () => {}
-        });
-        return;
-      }
-
-      if (!isSender && rant.status === "pending") {
-        showDecisionModal({
-          title: "Echo back?",
-          context: (rant.messages || [{ text: rant.text }]).map(m => m.text).join("<br>"),
-          primary: "Echo",
-          secondary: "Cancel",
-          onPrimary: async () => {
-            await append("echoed");
-          },
-          onSecondary: () => {}
-        });
-        return;
-      }
-
-      if (!isSender && rant.status === "echoed") {
-        await append("echoed");
-      }
+      db.collection("rants").add({
+        from: user.email,
+        to: target,
+        text,
+        status: "pending",
+        createdAt: new Date()
+      }).then(() => {
+        document.getElementById("rantText").value = "";
+        document.getElementById("targetEmail").value = "";
+      });
     }
 
     function loadChats(userEmail) {
