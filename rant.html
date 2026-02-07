@@ -374,6 +374,8 @@
           let localIndex = 0;
           const container = document.getElementById("sentInline");
           container.innerHTML = "";
+          // Reset sender-side pending/echoed count for this inline render
+          window.__hotSentPending = 0;
 
           snapshot.forEach(doc => {
             const rant = doc.data();
@@ -384,7 +386,7 @@
             // Count sender-side pending/echoed for Hot new Goss
             if (rant.status === "pending" || rant.status === "echoed") {
               localIndex++;
-              window.__hotGossPending++;
+              window.__hotSentPending++;
             }
 
             const echoBlock = rant.echo
@@ -423,43 +425,45 @@
           if (!container.innerHTML) {
             container.innerHTML = "<div class='empty'>nothing sent yet</div>";
           }
-          // --- Ensure Hot new Goss is revealed when sender has pending ---
+          // --- SINGLE source of truth for Hot new Goss visibility ---
           const hot = document.getElementById("hotGoss");
           const countEl = document.getElementById("hotGossCount");
-
-          if (window.__hotGossPending > 0) {
+          const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
+          if (total > 0) {
             hot.style.display = "block";
-            countEl.textContent = `(${window.__hotGossPending})`;
+            countEl.textContent = `(${total})`;
+          } else {
+            hot.style.display = "none";
           }
         });
     }
 
     function loadInboxInline(email) {
       // At the very top, reset global pending count
-      window.__hotGossPending = 0;
+      window.__hotInboxPending = 0;
       db.collection("rants")
         .where("to", "==", email)
-        .orderBy("createdAt", "desc")
         .onSnapshot(snapshot => {
           const container = document.getElementById("inboxList");
           container.innerHTML = "";
           let pendingCount = 0; // inbox-side pending
+          // Sort receiver docs client-side (recency preserved)
+          const docs = snapshot.docs.sort((a, b) => {
+            const ta = a.data().createdAt?.toMillis?.() || 0;
+            const tb = b.data().createdAt?.toMillis?.() || 0;
+            return tb - ta;
+          });
 
-          if (snapshot.empty) {
+          if (docs.length === 0) {
             container.innerHTML = "<div class='empty'>nothing hot yet</div>";
-            // show/hide Hot new Goss
-            const hot = document.getElementById("hotGoss");
-            const countEl = document.getElementById("hotGossCount");
-            hot.style.display = "none";
-            return;
           }
 
-          snapshot.forEach(doc => {
+          docs.forEach(doc => {
             const rant = doc.data();
             // once accepted, it becomes a chat — do not show in Hot new Goss
             if (rant.status === "accepted") return;
             if (rant.status === "pending") pendingCount++;
-            if (rant.status === "pending") window.__hotGossPending++;
+            if (rant.status === "pending") window.__hotInboxPending++;
             let block = "";
 
             if (rant.status === "pending") {
@@ -490,13 +494,13 @@
             `;
           });
 
-          // Show/hide Hot new Goss based on total pending (from inbox and sent)
+          // SINGLE source of truth for Hot new Goss visibility (final, correct)
           const hot = document.getElementById("hotGoss");
           const countEl = document.getElementById("hotGossCount");
-
-          if (window.__hotGossPending > 0) {
+          const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
+          if (total > 0) {
             hot.style.display = "block";
-            countEl.textContent = `(${window.__hotGossPending})`;
+            countEl.textContent = `(${total})`;
           } else {
             hot.style.display = "none";
           }
