@@ -244,14 +244,6 @@
       padding-bottom: 8px;
     }
 
-    .composer.collapsed .context,
-    .composer.collapsed .hint,
-    .composer.collapsed input,
-    .composer.collapsed .action,
-    .composer.collapsed .footer {
-      display: none;
-    }
-
     .composer.collapsed textarea {
       min-height: 48px;
       max-height: 72px;
@@ -268,6 +260,36 @@
     font-size: 10px;
     color: var(--ghost);
     margin-top: 6px;
+  }
+
+  /* Collapsed row styles for new composer */
+  .collapsed-row {
+    display: block;
+  }
+
+  .composer.collapsed .collapsed-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .composer.collapsed .collapsed-row input,
+  .composer.collapsed .collapsed-row textarea {
+    flex: 1;
+    min-height: 42px;
+    max-height: 42px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .composer.collapsed .collapsed-row textarea {
+    resize: none;
+  }
+
+  .composer.collapsed .hint,
+  .composer.collapsed .context,
+  .composer.collapsed .action,
+  .composer.collapsed .footer {
+    display: none;
   }
   </style>
 </head>
@@ -306,15 +328,17 @@
 
     <div class="chat-list" id="chatList"></div>
 
-    <div class="composer">
+    <div class="composer collapsed">
       <div class="collapse-toggle" onclick="toggleComposer()">collapse</div>
       <div class="context">Write it how it happened.</div>
 
-      <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
-      <div class="hint">no name attached</div>
+      <div class="collapsed-row">
+        <input id="targetEmail" placeholder="who should hear this">
+        <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
+      </div>
 
-      <input id="targetEmail" placeholder="who should hear this">
       <div class="hint">delivery is quiet</div>
+      <div class="hint">no name attached</div>
 
       <div class="action">
         <button onclick="sendRant()">Send quietly</button>
@@ -593,8 +617,15 @@
       composer.classList.toggle("collapsed");
     }
 
-    const rantBox = document.getElementById("rantText");
-    rantBox.addEventListener("focus", () => {
+    // Magical expansion on interaction
+    ["targetEmail", "rantText"].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener("focus", () => {
+        document.querySelector(".composer").classList.remove("collapsed");
+      });
+    });
+
+    document.querySelector(".collapsed-row").addEventListener("click", () => {
       document.querySelector(".composer").classList.remove("collapsed");
     });
 
