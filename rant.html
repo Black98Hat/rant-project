@@ -293,6 +293,7 @@
         Hot new Goss
       </h2>
       <div id="inboxList" class="list"></div>
+      <div id="sentInline" class="list"></div>
     </div>
 
     <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 32px 0 8px;">
@@ -354,6 +355,7 @@
         });
 
       // Sent: pending messages sent by me
+      // (removed sent count listener for pending, since sentInline will show all except accepted)
       db.collection("rants")
         .where("from", "==", user.email)
         .where("status", "==", "pending")
@@ -365,9 +367,61 @@
         });
 
       loadInboxInline(user.email);
+      loadSentInline(user.email);
 
       loadChats(user.email);
     });
+    function loadSentInline(email) {
+      db.collection("rants")
+        .where("from", "==", email)
+        .onSnapshot(snapshot => {
+          const container = document.getElementById("sentInline");
+          container.innerHTML = "";
+
+          snapshot.forEach(doc => {
+            const rant = doc.data();
+
+            // once accepted, it becomes a chat — do not show here
+            if (rant.status === "accepted") return;
+
+            const echoBlock = rant.echo
+              ? `<div class="echo">${rant.echo}</div>`
+              : "";
+
+            const actionBlock =
+              rant.status === "echoed" && rant.echo
+                ? `
+                  <div class="action">
+                    <button onclick="acceptEchoInline('${doc.id}')">
+                      Accept & continue
+                    </button>
+                  </div>
+                `
+                : "";
+
+            const statusText =
+              rant.status === "pending"
+                ? "<span class='pending'>awaiting echo</span>"
+                : rant.status === "echoed"
+                ? "echo received"
+                : rant.status;
+
+            container.innerHTML += `
+              <div class="item">
+                <div class="meta">to ${rant.to}</div>
+                <div class="text">${rant.text}</div>
+                <div class="status">status · ${statusText}</div>
+                ${echoBlock}
+                ${actionBlock}
+              </div>
+            `;
+          });
+
+          if (!container.innerHTML) {
+            container.innerHTML = "<div class='empty'>nothing sent yet</div>";
+          }
+        });
+    }
 
     function loadInboxInline(email) {
       db.collection("rants")
@@ -438,6 +492,30 @@
         db.collection("rants").doc(rantId).update({
           echo: text,
           status: "echoed"
+        });
+      });
+    }
+
+    function acceptEchoInline(rantId) {
+      const chatRef = db.collection("chats").doc();
+
+      db.collection("rants").doc(rantId).get().then(doc => {
+        const rant = doc.data();
+
+        chatRef.set({
+          users: [rant.from, rant.to],
+          createdAt: new Date(),
+          seed: [
+            { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() },
+            { from: rant.to, text: rant.echo, createdAt: new Date() }
+          ]
+        });
+
+        db.collection("rants").doc(rantId).update({
+          status: "accepted",
+          chatId: chatRef.id
+        }).then(() => {
+          window.location.href = `chat.html?chatId=${chatRef.id}`;
         });
       });
     }
