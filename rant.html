@@ -112,12 +112,6 @@
 
     textarea::placeholder { color: var(--ghost); }
 
-    .hint {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--ghost);
-    }
-
     input {
       width: 100%;
       background: transparent;
@@ -194,9 +188,9 @@
       right: 0;
       bottom: 0;
       background: var(--bg);
-      padding: 18px;
+      padding: 12px;
       border-top: 1px solid var(--line);
-      padding-bottom: 12px;
+      padding-bottom: 8px;
     }
 
     .list {
@@ -244,6 +238,32 @@
       font-size: 13px;
       line-height: 1.7;
     }
+
+    .composer.collapsed {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .composer.collapsed .context,
+    .composer.collapsed .hint,
+    .composer.collapsed input,
+    .composer.collapsed .action,
+    .composer.collapsed .footer {
+      display: none;
+    }
+
+    .composer.collapsed textarea {
+      min-height: 48px;
+      max-height: 72px;
+    }
+
+    .collapse-toggle {
+      font-size: 11px;
+      color: var(--ghost);
+      cursor: pointer;
+      text-align: right;
+      margin-bottom: 6px;
+    }
   </style>
 </head>
 
@@ -259,10 +279,6 @@
         <a href="sent.html" class="tab">
           Sent
           <span id="sentCount" class="count">0</span>
-        </a>
-        <a href="inbox.html" class="tab">
-          Inbox
-          <span id="inboxCount" class="count">0</span>
         </a>
       </div>
     </div>
@@ -281,6 +297,7 @@
     <div class="chat-list" id="chatList"></div>
 
     <div class="composer">
+      <div class="collapse-toggle" onclick="toggleComposer()">collapse</div>
       <div class="context">Write it how it happened.</div>
 
       <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
@@ -419,6 +436,16 @@
         });
       });
     }
+
+    function toggleComposer() {
+      const composer = document.querySelector(".composer");
+      composer.classList.toggle("collapsed");
+    }
+
+    const rantBox = document.getElementById("rantText");
+    rantBox.addEventListener("focus", () => {
+      document.querySelector(".composer").classList.remove("collapsed");
+    });
 
     function sendRant() {
       const text = document.getElementById("rantText").value;
