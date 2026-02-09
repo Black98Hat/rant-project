@@ -27,7 +27,7 @@
      font-family: "JetBrains Mono", monospace;
      overflow-x: hidden;
      min-height: 100vh;
-     padding-bottom: 140px; 
+     padding-bottom: 200px; /* More space for larger composer */
    }
 
    .grain {
@@ -198,6 +198,15 @@
      letter-spacing: 0.05em;
      border-bottom: 2px solid var(--grey);
      padding-bottom: 8px;
+     display: flex; 
+     justify-content: space-between;
+   }
+   
+   .req-timer {
+     color: var(--ink);
+     background: var(--bg-color);
+     padding: 2px 4px;
+     font-size: 10px;
    }
 
    .text {
@@ -344,7 +353,7 @@
      bottom: 0;
      background: var(--ink);
      border-top: 4px solid var(--accent);
-     padding: 16px 20px;
+     padding: 24px;
      z-index: 50;
      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
      display: block; 
@@ -352,29 +361,47 @@
   
    .composer.hidden { display: none !important; }
 
+   /* Collapsed State */
    .composer.collapsed {
-     padding: 12px 20px;
+     padding: 16px 24px;
      background: var(--paper);
      border-top: 4px solid var(--ink);
-   }
-
-   .collapse-toggle {
-     font-size: 10px;
-     font-weight: 800;
-     color: var(--paper);
-     text-transform: uppercase;
-     text-align: right;
      cursor: pointer;
-     margin-bottom: 8px;
    }
-   .composer.collapsed .collapse-toggle { color: var(--ink); }
 
-   .context {
+   /* New Header Style */
+   .comp-header {
+     margin-bottom: 20px;
+   }
+   .comp-title {
      font-family: "Archivo", sans-serif;
-     font-size: 14px;
-     font-weight: 700;
+     font-size: 24px; /* Big emotional header */
+     font-weight: 900;
+     font-style: italic;
      color: var(--bg-color);
-     margin-bottom: 12px;
+     text-transform: uppercase;
+     line-height: 0.9;
+   }
+   .comp-sub {
+     color: var(--paper);
+     font-size: 12px;
+     font-weight: 600;
+     margin-top: 4px;
+     opacity: 0.8;
+   }
+
+   /* Toggle Button */
+   .toggle-btn {
+     position: absolute;
+     top: -20px;
+     right: 20px;
+     background: var(--ink);
+     color: var(--bg-color);
+     border: 2px solid var(--accent);
+     font-size: 12px;
+     font-weight: 800;
+     padding: 4px 12px;
+     cursor: pointer;
      text-transform: uppercase;
    }
 
@@ -389,15 +416,17 @@
    }
    .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
   
+   /* Style for collapsed inputs (teaser) */
    .composer.collapsed textarea, .composer.collapsed input {
      border: 2px solid var(--ink);
-     background: var(--paper);
+     background: var(--grey);
      color: var(--ink);
      margin: 0;
-     height: 44px;
+     height: 40px;
      padding: 10px;
+     pointer-events: none; /* Make click trigger expand */
    }
-   .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
+   .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); font-weight: 700; }
 
    .composer button {
      background: var(--bg-color);
@@ -406,11 +435,22 @@
      border-color: var(--paper);
    }
 
+   /* Hide elements when collapsed */
+   .composer.collapsed .comp-header,
    .composer.collapsed .hint,
-   .composer.collapsed .context,
    .composer.collapsed .action,
    .composer.collapsed .footer { display: none; }
-  
+   
+   /* Show simple context when collapsed */
+   .composer .collapsed-label { display: none; }
+   .composer.collapsed .collapsed-label { 
+      display: block; 
+      font-weight: 800; 
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 12px;
+   }
+
    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
    .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
@@ -478,15 +518,7 @@
    }
    .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
 
-   .empty {
-     padding: 24px;
-     text-align: center;
-     border: 2px dashed var(--ink);
-     color: var(--ink);
-     font-size: 12px;
-     opacity: 0.6;
-   }
-  
+   /* Helpers */
    #hotGoss {
      border: 3px solid var(--accent);
      background: rgba(255, 255, 255, 0.5);
@@ -515,6 +547,8 @@
      text-transform: uppercase;
      margin-bottom: 8px;
    }
+   
+   .empty { display: none; } /* Hide empty messages completely */
 
  </style>
 </head>
@@ -563,15 +597,22 @@
      <div class="chat-list" id="chatList"></div>
    </div>
 
-   <div class="composer collapsed" id="mainComposer">
-     <div class="context">Drop an anonymous note</div>
+   <div class="composer collapsed" id="mainComposer" onclick="expandComposer()">
+     <div class="toggle-btn" id="toggleBtn" onclick="toggleComposer(event)">▲</div>
+     
+     <div class="comp-header">
+       <div class="comp-title">UNBURDEN YOURSELF.</div>
+       <div class="comp-sub">SECRETS ROT IF YOU KEEP THEM INSIDE.</div>
+     </div>
+     
+     <div class="collapsed-label">DROP AN ANONYMOUS NOTE</div>
 
      <div class="collapsed-row">
        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
        <textarea id="rantText" placeholder="WHAT'S THE SCOOP?"></textarea>
      </div>
 
-     <div class="hint">delivery is quiet · no name attached</div>
+     <div class="hint">delivery is quiet · no name attached · expires in 12h</div>
 
      <div class="action">
        <button onclick="sendRant()">DROP ANONYMOUS MSG</button>
@@ -599,6 +640,8 @@
  <script>
    // --- CONFIGURATION ---
    const CHAT_TTL_MINUTES = 15; 
+   const REQUEST_TTL_HOURS = 12;
+
    document.getElementById('timeLimitDisplay').innerText = CHAT_TTL_MINUTES;
 
    // --- Global State ---
@@ -608,39 +651,58 @@
    window.__sentReady = false;
    let currentInviteTarget = "";
    let currentTab = "desk";
-   let activeChats = []; // To track chats for countdown
+   
+   let activeChats = []; 
+   let activeRequests = []; // Track pending requests for expiry
   
    const userExistenceCache = {};
 
-   // --- TIMER LOGIC (Runs every second) ---
+   // --- TIMER LOGIC (Unified) ---
    setInterval(() => {
-     if(activeChats.length === 0) return;
+     const now = new Date();
 
-     activeChats.forEach(chat => {
-       const el = document.getElementById(`timer-${chat.id}`);
-       if (!el) return;
+     // 1. Chat Timers (TTL: Minutes)
+     if(activeChats.length > 0) {
+       activeChats.forEach(chat => {
+         const el = document.getElementById(`timer-${chat.id}`);
+         if (!el) return;
+         const expiresAt = new Date(chat.createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
+         const diff = expiresAt - now;
+         if (diff <= 0) {
+           deleteChat(chat.id);
+         } else {
+           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+           const secs = Math.floor((diff % (1000 * 60)) / 1000);
+           el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+         }
+       });
+     }
 
-       const createdAt = chat.createdAt.toDate();
-       const expiresAt = new Date(createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
-       const now = new Date();
-       const diff = expiresAt - now;
-
-       if (diff <= 0) {
-         // EXPIRED: Delete chat
-         deleteChat(chat.id);
-       } else {
-         // UPDATE UI
-         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-         const secs = Math.floor((diff % (1000 * 60)) / 1000);
-         el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-       }
-     });
+     // 2. Request Timers (TTL: Hours)
+     if(activeRequests.length > 0) {
+       activeRequests.forEach(req => {
+         const el = document.getElementById(`req-timer-${req.id}`);
+         if (!el) return;
+         const expiresAt = new Date(req.createdAt.getTime() + REQUEST_TTL_HOURS * 3600000);
+         const diff = expiresAt - now;
+         if (diff <= 0) {
+           // Expire Request
+           deleteRequest(req.id);
+         } else {
+           const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+           el.innerText = `⏳ ${hours}h ${mins}m REMAINING`;
+         }
+       });
+     }
    }, 1000);
 
    function deleteChat(chatId) {
-     db.collection("chats").doc(chatId).delete().then(() => {
-       console.log("Chat expired and deleted");
-     }).catch(err => console.error(err));
+     db.collection("chats").doc(chatId).delete().catch(err => console.error(err));
+   }
+   
+   function deleteRequest(rantId) {
+     db.collection("rants").doc(rantId).delete().catch(err => console.error(err));
    }
 
    // --- TAB LOGIC ---
@@ -725,6 +787,15 @@
          window.__sentReady = true;
          const container = document.getElementById("sentInline");
          container.innerHTML = "";
+         
+         // Remove from tracking to avoid dupes
+         activeRequests = activeRequests.filter(r => r.type !== 'sent');
+
+         if (snapshot.empty) {
+           // Intentionally left empty - no placeholder text
+           updateHotGossVisibility();
+           return;
+         }
 
          const docs = snapshot.docs.sort((a, b) => {
            const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
@@ -735,11 +806,19 @@
            const rant = doc.data();
            if (rant.status === "accepted") return;
 
-           if (rant.status === "pending" || rant.status === "echoed") {
-             window.__hotSentPending++;
+           // Check expiry before rendering
+           const createdAt = rant.createdAt.toDate();
+           if(new Date() - createdAt > REQUEST_TTL_HOURS * 3600000) {
+              deleteRequest(doc.id);
+              return;
            }
 
-           // RENAMED COPY: "Echo" -> "Reply"
+           if (rant.status === "pending" || rant.status === "echoed") {
+             window.__hotSentPending++;
+             // Track for timer
+             activeRequests.push({ id: doc.id, createdAt: createdAt, type: 'sent' });
+           }
+
            const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
           
            let actionBlock = "";
@@ -758,7 +837,10 @@
 
            container.innerHTML += `
              <div class="item">
-               <div class="meta">OUTGOING · TO ${rant.to}</div>
+               <div class="meta">
+                  <span>OUTGOING · TO ${rant.to}</span>
+                  <span class="req-timer" id="req-timer-${doc.id}">...</span>
+               </div>
                <div class="text">${rant.text}</div>
                <div class="status">STATUS: ${statusText}</div>
                ${echoBlock}
@@ -780,10 +862,6 @@
              });
            }
          });
-
-         if (!container.innerHTML) {
-           container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
-         }
          updateHotGossVisibility();
        });
    }
@@ -796,10 +874,12 @@
          window.__inboxReady = true;
          const container = document.getElementById("inboxList");
          container.innerHTML = "";
-         let pendingCount = 0;
+         
+         // Remove old inbox requests from tracking
+         activeRequests = activeRequests.filter(r => r.type !== 'inbox');
 
          if (snapshot.empty) {
-           container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
+           // Intentionally left empty
            updateHotGossVisibility();
            return;
          }
@@ -812,13 +892,21 @@
          docs.forEach(doc => {
            const rant = doc.data();
            if (rant.status === "accepted") return;
+           
+           // Check expiry
+           const createdAt = rant.createdAt.toDate();
+           if(new Date() - createdAt > REQUEST_TTL_HOURS * 3600000) {
+              deleteRequest(doc.id);
+              return;
+           }
+
            if (rant.status === "pending" || rant.status === "echoed") {
-             pendingCount++;
              window.__hotInboxPending++;
+             // Track for timer
+             activeRequests.push({ id: doc.id, createdAt: createdAt, type: 'inbox' });
            }
 
            let block = "";
-           // UPDATED COPY: "Echo" -> "Reply/Unlock"
            if (rant.status === "pending") {
              block = `
                <div class="prompt">ACTION REQUIRED</div>
@@ -836,7 +924,10 @@
 
            container.innerHTML += `
              <div class="item">
-               <div class="meta">INCOMING · ANONYMOUS</div>
+               <div class="meta">
+                 <span>INCOMING · ANONYMOUS</span>
+                 <span class="req-timer" id="req-timer-${doc.id}">...</span>
+               </div>
                <div class="text">${rant.text}</div>
                ${block}
              </div>
@@ -865,7 +956,6 @@
      const chatRef = db.collection("chats").doc();
      db.collection("rants").doc(rantId).get().then(doc => {
        const rant = doc.data();
-       // Create Chat (Timer starts based on createdAt)
        chatRef.set({
          users: [rant.from, rant.to],
          createdAt: new Date(),
@@ -922,7 +1012,9 @@
      }).then(() => {
        textEl.value = "";
        targetEl.value = "";
+       // Auto collapse after send
        document.querySelector(".composer").classList.add("collapsed");
+       document.getElementById("toggleBtn").innerText = "▲";
 
        checkUserExists(target).then(exists => {
          if (!exists) {
@@ -932,19 +1024,26 @@
      });
    }
 
-   function toggleComposer() {
-     document.querySelector(".composer").classList.toggle("collapsed");
+   // --- COMPOSER UI LOGIC ---
+   function toggleComposer(e) {
+     e.stopPropagation();
+     const composer = document.querySelector(".composer");
+     const btn = document.getElementById("toggleBtn");
+     
+     if (composer.classList.contains("collapsed")) {
+       expandComposer();
+     } else {
+       composer.classList.add("collapsed");
+       btn.innerText = "▲";
+     }
    }
 
-   ["targetEmail", "rantText"].forEach(id => {
-     document.getElementById(id).addEventListener("focus", () => {
-       document.querySelector(".composer").classList.remove("collapsed");
-     });
-   });
-
-   document.querySelector(".collapsed-row").addEventListener("click", () => {
-     document.querySelector(".composer").classList.remove("collapsed");
-   });
+   function expandComposer() {
+     const composer = document.querySelector(".composer");
+     const btn = document.getElementById("toggleBtn");
+     composer.classList.remove("collapsed");
+     btn.innerText = "▼";
+   }
 
    function loadChats(userEmail) {
      db.collection("chats")
@@ -952,7 +1051,7 @@
        .onSnapshot(snapshot => {
          const list = document.getElementById("chatList");
          list.innerHTML = "";
-         activeChats = []; // Reset list for timer loop
+         activeChats = []; 
 
          if (snapshot.empty) {
            list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
@@ -963,14 +1062,15 @@
            const chat = doc.data();
            const peer = chat.users.find(u => u !== userEmail);
            
-           // Push to activeChats for the interval timer to pick up
-           activeChats.push({ id: doc.id, createdAt: chat.createdAt });
+           // Convert timestamp
+           const created = chat.createdAt ? chat.createdAt.toDate() : new Date();
+           activeChats.push({ id: doc.id, createdAt: created });
 
            list.innerHTML += `
              <div class="chat-item" onclick="openChat('${doc.id}')">
                <div class="chat-row">
                  <div class="chat-peer">${peer}</div>
-                 <div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div>
+                 <div class="countdown-timer" id="timer-${doc.id}">...</div>
                </div>
                <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
              </div>
