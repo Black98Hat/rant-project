@@ -1,1087 +1,1085 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <title>Goss · Central</title>
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="UTF-8" />
+<title>Goss · Central</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
- <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
- <style>
-   :root {
-     /* Palette */
-     --bg-color: #FFD600; /* Electric Yellow */
-     --accent: #FF4800;   /* Hot Orange */
-     --ink: #101010;      /* Pure Black */
-     --paper: #FFFFFF;
-     --grey: #F0F0F0;
-   }
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
-   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-   body {
-     margin: 0;
-     background-color: var(--bg-color);
-     background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
-     color: var(--ink);
-     font-family: "JetBrains Mono", monospace;
-     overflow-x: hidden;
-     min-height: 100vh;
-     padding-bottom: 200px; /* More space for larger composer */
-   }
+<style>
+  :root {
+    /* Palette */
+    --bg-color: #FFD600; /* Electric Yellow */
+    --accent: #FF4800;   /* Hot Orange */
+    --ink: #101010;      /* Pure Black */
+    --paper: #FFFFFF;
+    --grey: #F0F0F0;
+  }
 
-   .grain {
-     position: fixed;
-     inset: 0;
-     pointer-events: none;
-     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-     z-index: 0;
-     mix-blend-mode: multiply;
-   }
 
-   .wrap {
-     max-width: 500px;
-     margin: 0 auto;
-     padding: 20px;
-     position: relative;
-     z-index: 1;
-   }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-   /* --- HEADER --- */
-   .top {
-     margin-bottom: 24px;
-     border-bottom: 4px solid var(--ink);
-     padding-bottom: 16px;
-   }
 
-   .top h1 {
-     font-family: "Archivo", sans-serif;
-     font-size: 52px;
-     font-weight: 900;
-     font-style: italic;
-     letter-spacing: -0.04em;
-     margin: 0;
-     text-transform: uppercase;
-     line-height: 0.9;
-   }
+  body {
+    margin: 0;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-bottom: 140px;
+  }
 
-   .top p {
-     margin-top: 8px;
-     font-size: 13px;
-     font-weight: 700;
-     background: var(--ink);
-     color: var(--bg-color);
-     display: inline-block;
-     padding: 4px 8px;
-     transform: rotate(-1deg);
-   }
-   
-   .top .warning-ticker {
-     display: block;
-     background: var(--accent);
-     color: white;
-     font-size: 11px;
-     font-weight: 800;
-     padding: 6px;
-     margin-top: 12px;
-     text-transform: uppercase;
-     text-align: center;
-     border: 2px solid var(--ink);
-   }
 
-   /* --- TABS --- */
-   .tab-nav {
-     display: flex;
-     border: 3px solid var(--ink);
-     background: var(--paper);
-     margin-bottom: 32px;
-     box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
-   }
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    z-index: 0;
+    mix-blend-mode: multiply;
+  }
 
-   .tab-btn {
-     flex: 1;
-     background: transparent;
-     border: none;
-     border-right: 3px solid var(--ink);
-     padding: 16px 8px;
-     font-family: "Archivo", sans-serif;
-     font-weight: 800;
-     font-size: 14px;
-     text-transform: uppercase;
-     cursor: pointer;
-     position: relative;
-     color: var(--ink);
-     transition: all 0.2s;
-     box-shadow: none;
-     margin: 0;
-   }
 
-   .tab-btn:last-child { border-right: none; }
+  .wrap {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
 
-   .tab-btn.active {
-     background: var(--ink);
-     color: var(--bg-color);
-   }
 
-   .tab-btn:hover:not(.active) {
-     background: #FFFDF0;
-   }
+  /* --- HEADER --- */
+  .top {
+    margin-bottom: 24px;
+    border-bottom: 4px solid var(--ink);
+    padding-bottom: 16px;
+  }
 
-   /* Notification Counter */
-   .badge {
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     background: var(--accent);
-     color: white;
-     font-size: 10px;
-     height: 18px;
-     min-width: 18px;
-     padding: 0 5px;
-     border-radius: 99px;
-     position: absolute;
-     top: 10px;
-     right: 10px;
-     border: 2px solid var(--ink);
-     font-family: "JetBrains Mono", monospace;
-   }
-   
-   .tab-btn.active .badge { border-color: var(--bg-color); }
 
-   /* --- SECTIONS & CARDS --- */
-   .tab-content { display: none; }
-   .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+  .top h1 {
+    font-family: "Archivo", sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.04em;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 0.9;
+  }
 
-   @keyframes fadeIn {
-     from { opacity: 0; transform: translateY(10px); }
-     to { opacity: 1; transform: translateY(0); }
-   }
 
-   h2 {
-     font-family: "Archivo", sans-serif;
-     font-size: 18px;
-     font-weight: 800;
-     text-transform: uppercase;
-     margin: 32px 0 16px;
-     display: flex;
-     align-items: center;
-     gap: 12px;
-   }
-  
+  .top p {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--bg-color);
+    display: inline-block;
+    padding: 4px 8px;
+    transform: rotate(-1deg);
+  }
+ 
+  .top .warning-ticker {
+    display: block;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px;
+    margin-top: 12px;
+    text-transform: uppercase;
+    text-align: center;
+    border: 2px solid var(--ink);
+  }
+
+
+  /* --- TABS --- */
+  .tab-nav {
+    display: flex;
+    border: 3px solid var(--ink);
+    background: var(--paper);
+    margin-bottom: 32px;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+  }
+
+
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-right: 3px solid var(--ink);
+    padding: 16px 8px;
+    font-family: "Archivo", sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    color: var(--ink);
+    transition: all 0.2s;
+    box-shadow: none;
+    margin: 0;
+  }
+
+
+  .tab-btn:last-child { border-right: none; }
+
+
+  .tab-btn.active {
+    background: var(--ink);
+    color: var(--bg-color);
+  }
+
+
+  .tab-btn:hover:not(.active) {
+    background: #FFFDF0;
+  }
+
+
+  /* Notification Counter */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    height: 18px;
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: 99px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: 2px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+  }
+ 
+  .tab-btn.active .badge { border-color: var(--bg-color); }
+
+
+  /* --- SECTIONS & CARDS --- */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+
+  h2 {
+    font-family: "Archivo", sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 32px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
    h2::before {
-     content: '';
-     display: block;
-     width: 12px;
-     height: 12px;
-     background: var(--ink);
-   }
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+  }
 
-   .list { display: flex; flex-direction: column; gap: 16px; }
 
-   .item {
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
-     padding: 20px;
-     position: relative;
-     transition: transform 0.1s;
-   }
-  
+  .list { display: flex; flex-direction: column; gap: 16px; }
+
+
+  .item {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+    padding: 20px;
+    position: relative;
+    transition: transform 0.1s;
+  }
    .item:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.15); }
 
-   .meta {
-     font-size: 10px;
-     font-weight: 700;
-     text-transform: uppercase;
-     color: var(--accent);
-     margin-bottom: 12px;
-     letter-spacing: 0.05em;
-     border-bottom: 2px solid var(--grey);
-     padding-bottom: 8px;
-     display: flex; 
-     justify-content: space-between;
-   }
-   
-   .req-timer {
-     color: var(--ink);
-     background: var(--bg-color);
-     padding: 2px 4px;
-     font-size: 10px;
-   }
 
-   .text {
-     font-size: 15px;
-     line-height: 1.5;
-     font-weight: 600;
-     color: var(--ink);
-   }
+  .meta {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--grey);
+    padding-bottom: 8px;
+  }
 
-   .status {
-     margin-top: 16px;
-     font-size: 11px;
-     font-weight: 700;
-     display: inline-block;
-     padding: 4px 8px;
-     border: 2px solid var(--ink);
-     background: var(--grey);
-     text-transform: uppercase;
-   }
 
-   .prompt {
-     margin-top: 16px;
-     font-size: 12px;
-     font-weight: 800;
-     color: var(--accent);
-     background: rgba(255, 85, 0, 0.1);
-     padding: 4px 8px;
-     display: inline-block;
-   }
+  .text {
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--ink);
+  }
 
-   .reply-box {
-     margin-top: 16px;
-     padding: 12px;
-     background: var(--bg-color);
-     border: 2px solid var(--ink);
-     font-size: 13px;
-     font-style: italic;
-     position: relative;
-   }
-   .reply-box::before {
-     content: "↳ RE:";
-     font-weight: 800;
-     font-size: 10px;
-     display: block;
-     margin-bottom: 4px;
-   }
 
-   textarea, input {
-     width: 100%;
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     padding: 14px;
-     color: var(--ink);
-     font-family: "JetBrains Mono", monospace;
-     font-size: 14px;
-     resize: none;
-     outline: none;
-     border-radius: 0;
-     margin-top: 12px;
-   }
-  
+  .status {
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid var(--ink);
+    background: var(--grey);
+    text-transform: uppercase;
+  }
+
+
+  .prompt {
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--accent);
+    background: rgba(255, 85, 0, 0.1);
+    padding: 4px 8px;
+    display: inline-block;
+  }
+
+
+  .reply-box {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-color);
+    border: 2px solid var(--ink);
+    font-size: 13px;
+    font-style: italic;
+    position: relative;
+  }
+  .reply-box::before {
+    content: "↳ RE:";
+    font-weight: 800;
+    font-size: 10px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+
+  textarea, input {
+    width: 100%;
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    padding: 14px;
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    border-radius: 0;
+    margin-top: 12px;
+  }
    textarea:focus, input:focus {
-     border-color: var(--accent);
-     background: #FFFDF0;
-   }
+    border-color: var(--accent);
+    background: #FFFDF0;
+  }
 
-   button {
-     width: 100%;
-     padding: 16px;
-     background: var(--ink);
-     border: 3px solid var(--ink);
-     color: var(--bg-color);
-     font-family: "Archivo", sans-serif;
-     font-weight: 800;
-     font-size: 14px;
-     text-transform: uppercase;
-     cursor: pointer;
-     margin-top: 12px;
-     transition: all 0.1s;
-     box-shadow: 4px 4px 0px var(--accent);
-   }
 
-   button:hover {
-     transform: translate(-2px, -2px);
-     box-shadow: 6px 6px 0px var(--accent);
-   }
-  
+  button {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    border: 3px solid var(--ink);
+    color: var(--bg-color);
+    font-family: "Archivo", sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.1s;
+    box-shadow: 4px 4px 0px var(--accent);
+  }
+
+
+  button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--accent);
+  }
    button:active {
-     transform: translate(2px, 2px);
-     box-shadow: 0px 0px 0px var(--accent);
-   }
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px var(--accent);
+  }
 
-   .invite-btn {
-     background: var(--accent);
-     color: white;
-     border-color: var(--ink);
-     box-shadow: 4px 4px 0 var(--ink);
-   }
 
-   /* --- CHAT LIST --- */
-   .chat-item {
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     padding: 16px;
-     margin-bottom: 12px;
-     cursor: pointer;
-     transition: transform 0.1s;
-     display: flex;
-     flex-direction: column;
-     gap: 8px;
-   }
-   .chat-item:hover { transform: translateX(4px); }
-   
-   .chat-row {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-   }
-  
+  .invite-btn {
+    background: var(--accent);
+    color: white;
+    border-color: var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+
+  /* --- CHAT LIST --- */
+  .chat-item {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-item:hover { transform: translateX(4px); }
+ 
+  .chat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
    .chat-peer {
-     font-weight: 800;
-     font-size: 14px;
-   }
-   
-   .countdown-timer {
-     font-size: 11px;
-     font-weight: 800;
-     color: var(--accent);
-     background: rgba(255, 72, 0, 0.1);
-     padding: 2px 6px;
-     border: 1px solid var(--accent);
-   }
+    font-weight: 800;
+    font-size: 14px;
+  }
+ 
+  .countdown-timer {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--accent);
+    background: rgba(255, 72, 0, 0.1);
+    padding: 2px 6px;
+    border: 1px solid var(--accent);
+  }
 
-   .chat-preview {
-     font-size: 11px;
-     opacity: 0.6;
-   }
 
-   /* --- COMPOSER --- */
-   .composer {
-     position: fixed;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: var(--ink);
-     border-top: 4px solid var(--accent);
-     padding: 24px;
-     z-index: 50;
-     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-     display: block; 
-   }
-  
+  .chat-preview {
+    font-size: 11px;
+    opacity: 0.6;
+  }
+
+
+  /* --- COMPOSER --- */
+  .composer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ink);
+    border-top: 4px solid var(--accent);
+    padding: 16px 20px;
+    z-index: 50;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: block;
+  }
    .composer.hidden { display: none !important; }
 
-   /* Collapsed State */
-   .composer.collapsed {
-     padding: 16px 24px;
-     background: var(--paper);
-     border-top: 4px solid var(--ink);
-     cursor: pointer;
-   }
 
-   /* New Header Style */
-   .comp-header {
-     margin-bottom: 20px;
-   }
-   .comp-title {
-     font-family: "Archivo", sans-serif;
-     font-size: 24px; /* Big emotional header */
-     font-weight: 900;
-     font-style: italic;
-     color: var(--bg-color);
-     text-transform: uppercase;
-     line-height: 0.9;
-   }
-   .comp-sub {
-     color: var(--paper);
-     font-size: 12px;
-     font-weight: 600;
-     margin-top: 4px;
-     opacity: 0.8;
-   }
+  .composer.collapsed {
+    padding: 12px 20px;
+    background: var(--paper);
+    border-top: 4px solid var(--ink);
+  }
 
-   /* Toggle Button */
-   .toggle-btn {
-     position: absolute;
-     top: -20px;
-     right: 20px;
-     background: var(--ink);
-     color: var(--bg-color);
-     border: 2px solid var(--accent);
-     font-size: 12px;
-     font-weight: 800;
-     padding: 4px 12px;
-     cursor: pointer;
-     text-transform: uppercase;
-   }
 
-   .collapsed-row { display: block; }
-   .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
-  
+  .collapse-toggle {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--paper);
+    text-transform: uppercase;
+    text-align: right;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .composer.collapsed .collapse-toggle { color: var(--ink); }
+
+
+  .context {
+    font-family: "Archivo", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bg-color);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+
+  .collapsed-row { display: block; }
+  .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
    .composer textarea, .composer input {
-     border: 2px solid var(--bg-color);
-     background: #222;
-     color: var(--bg-color);
-     margin-top: 8px;
-   }
-   .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
-  
-   /* Style for collapsed inputs (teaser) */
+    border: 2px solid var(--bg-color);
+    background: #222;
+    color: var(--bg-color);
+    margin-top: 8px;
+  }
+  .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
    .composer.collapsed textarea, .composer.collapsed input {
-     border: 2px solid var(--ink);
-     background: var(--grey);
-     color: var(--ink);
-     margin: 0;
-     height: 40px;
-     padding: 10px;
-     pointer-events: none; /* Make click trigger expand */
-   }
-   .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); font-weight: 700; }
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    margin: 0;
+    height: 44px;
+    padding: 10px;
+  }
+  .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
 
-   .composer button {
-     background: var(--bg-color);
-     color: var(--ink);
-     box-shadow: 4px 4px 0 var(--paper);
-     border-color: var(--paper);
-   }
 
-   /* Hide elements when collapsed */
-   .composer.collapsed .comp-header,
-   .composer.collapsed .hint,
-   .composer.collapsed .action,
-   .composer.collapsed .footer { display: none; }
-   
-   /* Show simple context when collapsed */
-   .composer .collapsed-label { display: none; }
-   .composer.collapsed .collapsed-label { 
-      display: block; 
-      font-weight: 800; 
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      font-size: 12px;
-   }
+  .composer button {
+    background: var(--bg-color);
+    color: var(--ink);
+    box-shadow: 4px 4px 0 var(--paper);
+    border-color: var(--paper);
+  }
 
+
+  .composer.collapsed .hint,
+  .composer.collapsed .context,
+  .composer.collapsed .action,
+  .composer.collapsed .footer { display: none; }
    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
-   .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
+  .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
-   /* --- BOTTOM SHEET --- */
-   .overlay {
-     position: fixed;
-     inset: 0;
-     background: rgba(16, 16, 16, 0.85);
-     backdrop-filter: blur(4px);
-     z-index: 99;
-     opacity: 0;
-     pointer-events: none;
-     transition: opacity 0.3s;
-   }
-   .overlay.active { opacity: 1; pointer-events: auto; }
 
-   .bottom-sheet {
-     position: fixed;
-     left: 0; right: 0; bottom: -100%;
-     background: var(--bg-color);
-     border-top: 4px solid var(--ink);
-     padding: 32px 24px 48px;
-     z-index: 100;
-     transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-     box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
-   }
-   .bottom-sheet.active { bottom: 0; }
+  /* --- BOTTOM SHEET --- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 16, 16, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .overlay.active { opacity: 1; pointer-events: auto; }
 
-   .drag-handle {
-     width: 60px; height: 6px;
-     background: var(--ink);
-     margin: 0 auto 24px;
-   }
 
-   .bs-title {
-     font-family: "Archivo", sans-serif;
-     font-size: 28px;
-     font-weight: 900;
-     font-style: italic;
-     text-transform: uppercase;
-     margin-bottom: 16px;
-   }
+  .bottom-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: -100%;
+    background: var(--bg-color);
+    border-top: 4px solid var(--ink);
+    padding: 32px 24px 48px;
+    z-index: 100;
+    transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+  }
+  .bottom-sheet.active { bottom: 0; }
 
-   .bs-body {
-     font-size: 14px;
-     margin-bottom: 24px;
-     font-weight: 600;
-     line-height: 1.5;
-   }
 
-   .bs-btn {
-     background: var(--ink);
-     color: var(--bg-color);
-     border: none;
-     box-shadow: 6px 6px 0 white;
-   }
-   .bs-btn-secondary {
-     background: transparent;
-     color: var(--ink);
-     border: none;
-     font-size: 12px;
-     margin-top: 16px;
-     text-decoration: underline;
-     box-shadow: none;
-   }
-   .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
+  .drag-handle {
+    width: 60px; height: 6px;
+    background: var(--ink);
+    margin: 0 auto 24px;
+  }
 
-   /* Helpers */
+
+  .bs-title {
+    font-family: "Archivo", sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+
+  .bs-body {
+    font-size: 14px;
+    margin-bottom: 24px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+
+  .bs-btn {
+    background: var(--ink);
+    color: var(--bg-color);
+    border: none;
+    box-shadow: 6px 6px 0 white;
+  }
+  .bs-btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: none;
+    font-size: 12px;
+    margin-top: 16px;
+    text-decoration: underline;
+    box-shadow: none;
+  }
+  .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
+
+
+  .empty {
+    padding: 24px;
+    text-align: center;
+    border: 2px dashed var(--ink);
+    color: var(--ink);
+    font-size: 12px;
+    opacity: 0.6;
+  }
    #hotGoss {
-     border: 3px solid var(--accent);
-     background: rgba(255, 255, 255, 0.5);
-     padding: 16px;
-     margin: 20px 0;
-     box-shadow: 8px 8px 0 var(--accent);
-   }
-   #hotGoss h2 { margin-top: 0; color: var(--accent); }
-   #hotGossCount {
-       background: var(--accent);
-       color: white;
-       padding: 2px 8px;
-       border-radius: 4px;
-       font-size: 12px;
-   }
-   
-   .coming-soon-box {
-     text-align: center;
-     padding: 40px 20px;
-     border: 3px dashed var(--ink);
-     opacity: 0.5;
-   }
-   .coming-soon-box h3 {
-     font-family: "Archivo", sans-serif;
-     font-size: 24px;
-     text-transform: uppercase;
-     margin-bottom: 8px;
-   }
-   
-   .empty { display: none; } /* Hide empty messages completely */
+    border: 3px solid var(--accent);
+    background: rgba(255, 255, 255, 0.5);
+    padding: 16px;
+    margin: 20px 0;
+    box-shadow: 8px 8px 0 var(--accent);
+  }
+  #hotGoss h2 { margin-top: 0; color: var(--accent); }
+  #hotGossCount {
+      background: var(--accent);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+  }
+ 
+  .coming-soon-box {
+    text-align: center;
+    padding: 40px 20px;
+    border: 3px dashed var(--ink);
+    opacity: 0.5;
+  }
+  .coming-soon-box h3 {
+    font-family: "Archivo", sans-serif;
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
 
- </style>
+
+</style>
 </head>
 
+
 <body>
- <div class="grain"></div>
+<div class="grain"></div>
 
- <div class="wrap">
-   <div class="top">
-     <h1>Goss · Central</h1>
-     <p>UNOFFICIAL TRUTHS ONLY</p>
-     <div class="warning-ticker">
-       ⚠️ ALL CHATS SELF-DESTRUCT IN <span id="timeLimitDisplay"></span> MINS
-     </div>
-   </div>
 
-   <div class="tab-nav">
-     <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
-       THE TAPRI
-     </button>
-     <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
-       MY DESK
-       <span id="deskBadge" class="badge" style="display:none">0</span>
-     </button>
-   </div>
+<div class="wrap">
+  <div class="top">
+    <h1>Goss · Central</h1>
+    <p>UNOFFICIAL TRUTHS ONLY</p>
+    <div class="warning-ticker">
+      ⚠️ ALL CHATS SELF-DESTRUCT IN <span id="timeLimitDisplay"></span> MINS
+    </div>
+  </div>
 
-   <div id="view-tapri" class="tab-content">
-     <div class="coming-soon-box">
-       <h3>Chai Break</h3>
-       <p>The townhall is under construction.</p>
-       <p style="font-size:10px; margin-top:10px">ESTIMATED ARRIVAL: SOON</p>
-     </div>
-   </div>
 
-   <div id="view-desk" class="tab-content active">
-     <div id="hotGoss" style="display:none;">
-       <h2>
-         URGENT FILES
-         <span id="hotGossCount"></span>
-       </h2>
-       <div id="inboxList" class="list"></div>
-       <div id="sentInline" class="list"></div>
-     </div>
+  <div class="tab-nav">
+    <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
+      THE TAPRI
+    </button>
+    <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
+      MY DESK
+      <span id="deskBadge" class="badge" style="display:none">0</span>
+    </button>
+  </div>
 
-     <h2>Previous Signals</h2>
-     <div class="chat-list" id="chatList"></div>
-   </div>
 
-   <div class="composer collapsed" id="mainComposer" onclick="expandComposer()">
-     <div class="toggle-btn" id="toggleBtn" onclick="toggleComposer(event)">▲</div>
-     
-     <div class="comp-header">
-       <div class="comp-title">UNBURDEN YOURSELF.</div>
-       <div class="comp-sub">SECRETS ROT IF YOU KEEP THEM INSIDE.</div>
-     </div>
-     
-     <div class="collapsed-label">DROP AN ANONYMOUS NOTE</div>
+  <div id="view-tapri" class="tab-content">
+    <div class="coming-soon-box">
+      <h3>Chai Break</h3>
+      <p>The townhall is under construction.</p>
+      <p style="font-size:10px; margin-top:10px">ESTIMATED ARRIVAL: SOON</p>
+    </div>
+  </div>
 
-     <div class="collapsed-row">
-       <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
-       <textarea id="rantText" placeholder="WHAT'S THE SCOOP?"></textarea>
-     </div>
 
-     <div class="hint">delivery is quiet · no name attached · expires in 12h</div>
+  <div id="view-desk" class="tab-content active">
+    <div id="hotGoss" style="display:none;">
+      <h2>
+        URGENT FILES
+        <span id="hotGossCount"></span>
+      </h2>
+      <div id="inboxList" class="list"></div>
+      <div id="sentInline" class="list"></div>
+    </div>
 
-     <div class="action">
-       <button onclick="sendRant()">DROP ANONYMOUS MSG</button>
-     </div>
 
-     <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
-   </div>
- </div>
+    <h2>Previous Signals</h2>
+    <div class="chat-list" id="chatList"></div>
+  </div>
 
- <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
- <div class="bottom-sheet" id="inviteSheet">
-   <div class="drag-handle"></div>
-   <div class="bs-title">They aren't here yet</div>
-   <div class="bs-body">
-     This person hasn't signed up for Oh my Goss. Your whisper is pending, but they won't see it until they join.
-   </div>
-   <button class="bs-btn" onclick="sendInviteEmail()">SEND MYSTERIOUS INVITE</button>
-   <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
- </div>
 
- <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
- <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
- <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <div class="composer collapsed" id="mainComposer">
+    <div class="context">Drop an anonymous note</div>
 
- <script>
-   // --- CONFIGURATION ---
-   const CHAT_TTL_MINUTES = 15; 
-   const REQUEST_TTL_HOURS = 12;
 
-   document.getElementById('timeLimitDisplay').innerText = CHAT_TTL_MINUTES;
+    <div class="collapsed-row">
+      <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
+      <textarea id="rantText" placeholder="WHAT'S THE SCOOP?"></textarea>
+    </div>
 
-   // --- Global State ---
-   window.__hotInboxPending = 0;
-   window.__hotSentPending = 0;
-   window.__inboxReady = false;
-   window.__sentReady = false;
-   let currentInviteTarget = "";
-   let currentTab = "desk";
-   
-   let activeChats = []; 
-   let activeRequests = []; // Track pending requests for expiry
-  
+
+    <div class="hint">delivery is quiet · no name attached</div>
+
+
+    <div class="action">
+      <button onclick="sendRant()">DROP ANONYMOUS MSG</button>
+    </div>
+
+
+    <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
+  </div>
+</div>
+
+
+<div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
+<div class="bottom-sheet" id="inviteSheet">
+  <div class="drag-handle"></div>
+  <div class="bs-title">They aren't here yet</div>
+  <div class="bs-body">
+    This person hasn't signed up for Oh my Goss. Your whisper is pending, but they won't see it until they join.
+  </div>
+  <button class="bs-btn" onclick="sendInviteEmail()">SEND MYSTERIOUS INVITE</button>
+  <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+
+<script>
+  // --- CONFIGURATION ---
+  const CHAT_TTL_MINUTES = 15;
+  document.getElementById('timeLimitDisplay').innerText = CHAT_TTL_MINUTES;
+
+
+  // --- Global State ---
+  window.__hotInboxPending = 0;
+  window.__hotSentPending = 0;
+  window.__inboxReady = false;
+  window.__sentReady = false;
+  let currentInviteTarget = "";
+  let currentTab = "desk";
+  let activeChats = []; // To track chats for countdown
    const userExistenceCache = {};
 
-   // --- TIMER LOGIC (Unified) ---
-   setInterval(() => {
-     const now = new Date();
 
-     // 1. Chat Timers (TTL: Minutes)
-     if(activeChats.length > 0) {
-       activeChats.forEach(chat => {
-         const el = document.getElementById(`timer-${chat.id}`);
-         if (!el) return;
-         const expiresAt = new Date(chat.createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
-         const diff = expiresAt - now;
-         if (diff <= 0) {
-           deleteChat(chat.id);
-         } else {
-           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-           const secs = Math.floor((diff % (1000 * 60)) / 1000);
-           el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-         }
-       });
-     }
+  // --- TIMER LOGIC (Runs every second) ---
+  setInterval(() => {
+    if(activeChats.length === 0) return;
 
-     // 2. Request Timers (TTL: Hours)
-     if(activeRequests.length > 0) {
-       activeRequests.forEach(req => {
-         const el = document.getElementById(`req-timer-${req.id}`);
-         if (!el) return;
-         const expiresAt = new Date(req.createdAt.getTime() + REQUEST_TTL_HOURS * 3600000);
-         const diff = expiresAt - now;
-         if (diff <= 0) {
-           // Expire Request
-           deleteRequest(req.id);
-         } else {
-           const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-           el.innerText = `⏳ ${hours}h ${mins}m REMAINING`;
-         }
-       });
-     }
-   }, 1000);
 
-   function deleteChat(chatId) {
-     db.collection("chats").doc(chatId).delete().catch(err => console.error(err));
-   }
-   
-   function deleteRequest(rantId) {
-     db.collection("rants").doc(rantId).delete().catch(err => console.error(err));
-   }
+    activeChats.forEach(chat => {
+      const el = document.getElementById(`timer-${chat.id}`);
+      if (!el) return;
 
-   // --- TAB LOGIC ---
-   function switchTab(tabName) {
-     currentTab = tabName;
-     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-     document.getElementById(`view-${tabName}`).classList.add('active');
-     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-     document.getElementById(`btn-${tabName}`).classList.add('active');
-     const composer = document.getElementById('mainComposer');
-     if (tabName === 'tapri') {
-       composer.classList.add('hidden');
-     } else {
-       composer.classList.remove('hidden');
-     }
-   }
 
-   function updateHotGossVisibility() {
-     if (!window.__inboxReady || !window.__sentReady) return;
+      const createdAt = chat.createdAt.toDate();
+      const expiresAt = new Date(createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
+      const now = new Date();
+      const diff = expiresAt - now;
 
-     const hot = document.getElementById("hotGoss");
-     const countEl = document.getElementById("hotGossCount");
-     const badgeEl = document.getElementById("deskBadge");
-     const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
 
-     if (total > 0) {
-       hot.style.display = "block";
-       countEl.textContent = total + " PENDING";
-       badgeEl.style.display = "inline-flex";
-       badgeEl.textContent = total;
-     } else {
-       hot.style.display = "none";
-       badgeEl.style.display = "none";
-     }
-   }
+      if (diff <= 0) {
+        // EXPIRED: Delete chat
+        deleteChat(chat.id);
+      } else {
+        // UPDATE UI
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+    });
+  }, 1000);
 
-   const firebaseConfig = {
-     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
-     authDomain: "rant-2me.firebaseapp.com",
-     projectId: "rant-2me"
-   };
 
-   firebase.initializeApp(firebaseConfig);
-   const auth = firebase.auth();
-   const db = firebase.firestore();
+  function deleteChat(chatId) {
+    db.collection("chats").doc(chatId).delete().then(() => {
+      console.log("Chat expired and deleted");
+    }).catch(err => console.error(err));
+  }
 
-   auth.onAuthStateChanged(user => {
-     if (!user) {
-       window.location.href = "index.html";
-       return;
-     }
 
-     db.collection("users").doc(user.email).set({
-       email: user.email,
-       lastSeen: new Date()
-     }, { merge: true });
+  // --- TAB LOGIC ---
+  function switchTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById(`view-${tabName}`).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`btn-${tabName}`).classList.add('active');
+    const composer = document.getElementById('mainComposer');
+    if (tabName === 'tapri') {
+      composer.classList.add('hidden');
+    } else {
+      composer.classList.remove('hidden');
+    }
+  }
 
-     loadInboxInline(user.email);
-     loadSentInline(user.email);
-     loadChats(user.email);
-   });
 
-   async function checkUserExists(email) {
-     if (userExistenceCache[email] !== undefined) {
-       return userExistenceCache[email];
-     }
-     try {
-       const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-       const exists = !snap.empty;
-       userExistenceCache[email] = exists;
-       return exists;
-     } catch (e) {
-       return false;
-     }
-   }
+  function updateHotGossVisibility() {
+    if (!window.__inboxReady || !window.__sentReady) return;
 
-   function loadSentInline(email) {
-     db.collection("rants")
-       .where("from", "==", email)
-       .onSnapshot(snapshot => {
-         window.__hotSentPending = 0;
-         window.__sentReady = true;
-         const container = document.getElementById("sentInline");
-         container.innerHTML = "";
+
+    const hot = document.getElementById("hotGoss");
+    const countEl = document.getElementById("hotGossCount");
+    const badgeEl = document.getElementById("deskBadge");
+    const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
+
+
+    if (total > 0) {
+      hot.style.display = "block";
+      countEl.textContent = total + " PENDING";
+      badgeEl.style.display = "inline-flex";
+      badgeEl.textContent = total;
+    } else {
+      hot.style.display = "none";
+      badgeEl.style.display = "none";
+    }
+  }
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+    authDomain: "rant-2me.firebaseapp.com",
+    projectId: "rant-2me"
+  };
+
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
+
+
+    db.collection("users").doc(user.email).set({
+      email: user.email,
+      lastSeen: new Date()
+    }, { merge: true });
+
+
+    loadInboxInline(user.email);
+    loadSentInline(user.email);
+    loadChats(user.email);
+  });
+
+
+  async function checkUserExists(email) {
+    if (userExistenceCache[email] !== undefined) {
+      return userExistenceCache[email];
+    }
+    try {
+      const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+      const exists = !snap.empty;
+      userExistenceCache[email] = exists;
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+
+  function loadSentInline(email) {
+    db.collection("rants")
+      .where("from", "==", email)
+      .onSnapshot(snapshot => {
+        window.__hotSentPending = 0;
+        window.__sentReady = true;
+        const container = document.getElementById("sentInline");
+        container.innerHTML = "";
+
+
+        const docs = snapshot.docs.sort((a, b) => {
+          const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
+          return getTime(b) - getTime(a);
+        });
+
+
+        docs.forEach(doc => {
+          const rant = doc.data();
+          if (rant.status === "accepted") return;
+
+
+          if (rant.status === "pending" || rant.status === "echoed") {
+            window.__hotSentPending++;
+          }
+
+
+          // RENAMED COPY: "Echo" -> "Reply"
+          const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
+        
+          let actionBlock = "";
+          if (rant.status === "echoed" && rant.echo) {
+              actionBlock = `
+                <div class="action">
+                  <button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button>
+                </div>`;
+          }
+
+
+          const statusText = rant.status === "pending"
+            ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>"
+            : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
+
+
+          const inviteContainerId = `invite-ui-${doc.id}`;
+
+
+          container.innerHTML += `
+            <div class="item">
+              <div class="meta">OUTGOING · TO ${rant.to}</div>
+              <div class="text">${rant.text}</div>
+              <div class="status">STATUS: ${statusText}</div>
+              ${echoBlock}
+              ${actionBlock}
+              <div id="${inviteContainerId}" style="display:none; margin-top:12px;">
+                 <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
+                   INVITE THEM TO GOSS
+                 </button>
+              </div>
+            </div>
+          `;
+
+
+          if (rant.status === "pending") {
+            checkUserExists(rant.to).then(exists => {
+              if (!exists) {
+                const el = document.getElementById(inviteContainerId);
+                if (el) el.style.display = "block";
+              }
+            });
+          }
+        });
+
+
+        if (!container.innerHTML) {
+          container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
+        }
+        updateHotGossVisibility();
+      });
+  }
+
+
+  function loadInboxInline(email) {
+    db.collection("rants")
+      .where("to", "==", email)
+      .onSnapshot(snapshot => {
+        window.__hotInboxPending = 0;
+        window.__inboxReady = true;
+        const container = document.getElementById("inboxList");
+        container.innerHTML = "";
+        let pendingCount = 0;
+
+
+        if (snapshot.empty) {
+          container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
+          updateHotGossVisibility();
+          return;
+        }
+
+
+        const docs = snapshot.docs.sort((a, b) => {
+          const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
+          return getTime(b) - getTime(a);
+        });
+
+
+        docs.forEach(doc => {
+          const rant = doc.data();
+          if (rant.status === "accepted") return;
+          if (rant.status === "pending" || rant.status === "echoed") {
+            pendingCount++;
+            window.__hotInboxPending++;
+          }
+
+
+          let block = "";
+          // UPDATED COPY: "Echo" -> "Reply/Unlock"
+          if (rant.status === "pending") {
+            block = `
+              <div class="prompt">ACTION REQUIRED</div>
+              <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
+              <div class="action">
+                <button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button>
+              </div>
+            `;
+          } else if (rant.status === "echoed") {
+            block = `
+              <div class="reply-box">${rant.echo}</div>
+              <div class="status">WAITING ON SENDER TO UNLOCK</div>
+            `;
+          }
+
+
+          container.innerHTML += `
+            <div class="item">
+              <div class="meta">INCOMING · ANONYMOUS</div>
+              <div class="text">${rant.text}</div>
+              ${block}
+            </div>
+          `;
+        });
+        updateHotGossVisibility();
+      });
+  }
+
+
+  function submitEcho(rantId) {
+    const input = document.getElementById(`echo-${rantId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    input.disabled = true;
+  
+    db.collection("rants").doc(rantId).get().then(doc => {
+      if (doc.data().status !== "pending") return;
+      db.collection("rants").doc(rantId).update({
+        echo: text, status: "echoed", updatedAt: new Date()
+      });
+    });
+  }
+
+
+  function acceptEchoInline(rantId) {
+    const chatRef = db.collection("chats").doc();
+    db.collection("rants").doc(rantId).get().then(doc => {
+      const rant = doc.data();
+      // Create Chat (Timer starts based on createdAt)
+      chatRef.set({
+        users: [rant.from, rant.to],
+        createdAt: new Date(),
+        seed: [
+          { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() },
+          { from: rant.to, text: rant.echo, createdAt: new Date() }
+        ]
+      });
+      db.collection("rants").doc(rantId).update({
+        status: "accepted", chatId: chatRef.id, updatedAt: new Date()
+      }).then(() => {
+        window.location.href = `chat.html?chatId=${chatRef.id}`;
+      });
+    });
+  }
+
+
+  function openInviteBottomSheet(email) {
+    currentInviteTarget = email;
+    document.getElementById('sheetOverlay').classList.add('active');
+    document.getElementById('inviteSheet').classList.add('active');
+  }
+
+
+  function closeBottomSheet() {
+    document.getElementById('sheetOverlay').classList.remove('active');
+    document.getElementById('inviteSheet').classList.remove('active');
+  }
+
+
+  function sendInviteEmail() {
+    if (!currentInviteTarget) return;
+
+
+    const subject = "Someone is talking about you 🤫";
+    const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
+  
+    const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+    closeBottomSheet();
+  }
+
+
+  function sendRant() {
+    const textEl = document.getElementById("rantText");
+    const targetEl = document.getElementById("targetEmail");
+    const text = textEl.value.trim();
+    const target = targetEl.value.trim();
+    const user = auth.currentUser;
+
+
+    if (!text || !target || !user) return;
+
+
+    db.collection("rants").add({
+      from: user.email,
+      to: target,
+      text,
+      status: "pending",
+      createdAt: new Date()
+    }).then(() => {
+      textEl.value = "";
+      targetEl.value = "";
+      document.querySelector(".composer").classList.add("collapsed");
+
+
+      checkUserExists(target).then(exists => {
+        if (!exists) {
+          openInviteBottomSheet(target);
+        }
+      });
+    });
+  }
+
+
+  function toggleComposer() {
+    document.querySelector(".composer").classList.toggle("collapsed");
+  }
+
+
+  ["targetEmail", "rantText"].forEach(id => {
+    document.getElementById(id).addEventListener("focus", () => {
+      document.querySelector(".composer").classList.remove("collapsed");
+    });
+  });
+
+
+  document.querySelector(".collapsed-row").addEventListener("click", () => {
+    document.querySelector(".composer").classList.remove("collapsed");
+  });
+
+
+  function loadChats(userEmail) {
+    db.collection("chats")
+      .where("users", "array-contains", userEmail)
+      .onSnapshot(snapshot => {
+        const list = document.getElementById("chatList");
+        list.innerHTML = "";
+        activeChats = []; // Reset list for timer loop
+
+
+        if (snapshot.empty) {
+          list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
+          return;
+        }
+       
+        snapshot.forEach(doc => {
+          const chat = doc.data();
+          const peer = chat.users.find(u => u !== userEmail);
          
-         // Remove from tracking to avoid dupes
-         activeRequests = activeRequests.filter(r => r.type !== 'sent');
+          // Push to activeChats for the interval timer to pick up
+          activeChats.push({ id: doc.id, createdAt: chat.createdAt });
 
-         if (snapshot.empty) {
-           // Intentionally left empty - no placeholder text
-           updateHotGossVisibility();
-           return;
-         }
 
-         const docs = snapshot.docs.sort((a, b) => {
-           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
-           return getTime(b) - getTime(a);
-         });
+          list.innerHTML += `
+            <div class="chat-item" onclick="openChat('${doc.id}')">
+              <div class="chat-row">
+                <div class="chat-peer">${peer}</div>
+                <div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div>
+              </div>
+              <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
+            </div>
+          `;
+        });
+      });
+  }
 
-         docs.forEach(doc => {
-           const rant = doc.data();
-           if (rant.status === "accepted") return;
 
-           // Check expiry before rendering
-           const createdAt = rant.createdAt.toDate();
-           if(new Date() - createdAt > REQUEST_TTL_HOURS * 3600000) {
-              deleteRequest(doc.id);
-              return;
-           }
-
-           if (rant.status === "pending" || rant.status === "echoed") {
-             window.__hotSentPending++;
-             // Track for timer
-             activeRequests.push({ id: doc.id, createdAt: createdAt, type: 'sent' });
-           }
-
-           const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
-          
-           let actionBlock = "";
-           if (rant.status === "echoed" && rant.echo) {
-               actionBlock = `
-                 <div class="action">
-                   <button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button>
-                 </div>`;
-           }
-
-           const statusText = rant.status === "pending"
-             ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>"
-             : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
-
-           const inviteContainerId = `invite-ui-${doc.id}`;
-
-           container.innerHTML += `
-             <div class="item">
-               <div class="meta">
-                  <span>OUTGOING · TO ${rant.to}</span>
-                  <span class="req-timer" id="req-timer-${doc.id}">...</span>
-               </div>
-               <div class="text">${rant.text}</div>
-               <div class="status">STATUS: ${statusText}</div>
-               ${echoBlock}
-               ${actionBlock}
-               <div id="${inviteContainerId}" style="display:none; margin-top:12px;">
-                  <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
-                    INVITE THEM TO GOSS
-                  </button>
-               </div>
-             </div>
-           `;
-
-           if (rant.status === "pending") {
-             checkUserExists(rant.to).then(exists => {
-               if (!exists) {
-                 const el = document.getElementById(inviteContainerId);
-                 if (el) el.style.display = "block";
-               }
-             });
-           }
-         });
-         updateHotGossVisibility();
-       });
-   }
-
-   function loadInboxInline(email) {
-     db.collection("rants")
-       .where("to", "==", email)
-       .onSnapshot(snapshot => {
-         window.__hotInboxPending = 0;
-         window.__inboxReady = true;
-         const container = document.getElementById("inboxList");
-         container.innerHTML = "";
-         
-         // Remove old inbox requests from tracking
-         activeRequests = activeRequests.filter(r => r.type !== 'inbox');
-
-         if (snapshot.empty) {
-           // Intentionally left empty
-           updateHotGossVisibility();
-           return;
-         }
-
-         const docs = snapshot.docs.sort((a, b) => {
-           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
-           return getTime(b) - getTime(a);
-         });
-
-         docs.forEach(doc => {
-           const rant = doc.data();
-           if (rant.status === "accepted") return;
-           
-           // Check expiry
-           const createdAt = rant.createdAt.toDate();
-           if(new Date() - createdAt > REQUEST_TTL_HOURS * 3600000) {
-              deleteRequest(doc.id);
-              return;
-           }
-
-           if (rant.status === "pending" || rant.status === "echoed") {
-             window.__hotInboxPending++;
-             // Track for timer
-             activeRequests.push({ id: doc.id, createdAt: createdAt, type: 'inbox' });
-           }
-
-           let block = "";
-           if (rant.status === "pending") {
-             block = `
-               <div class="prompt">ACTION REQUIRED</div>
-               <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
-               <div class="action">
-                 <button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button>
-               </div>
-             `;
-           } else if (rant.status === "echoed") {
-             block = `
-               <div class="reply-box">${rant.echo}</div>
-               <div class="status">WAITING ON SENDER TO UNLOCK</div>
-             `;
-           }
-
-           container.innerHTML += `
-             <div class="item">
-               <div class="meta">
-                 <span>INCOMING · ANONYMOUS</span>
-                 <span class="req-timer" id="req-timer-${doc.id}">...</span>
-               </div>
-               <div class="text">${rant.text}</div>
-               ${block}
-             </div>
-           `;
-         });
-         updateHotGossVisibility();
-       });
-   }
-
-   function submitEcho(rantId) {
-     const input = document.getElementById(`echo-${rantId}`);
-     if (!input) return;
-     const text = input.value.trim();
-     if (!text) return;
-     input.disabled = true;
-    
-     db.collection("rants").doc(rantId).get().then(doc => {
-       if (doc.data().status !== "pending") return;
-       db.collection("rants").doc(rantId).update({
-         echo: text, status: "echoed", updatedAt: new Date()
-       });
-     });
-   }
-
-   function acceptEchoInline(rantId) {
-     const chatRef = db.collection("chats").doc();
-     db.collection("rants").doc(rantId).get().then(doc => {
-       const rant = doc.data();
-       chatRef.set({
-         users: [rant.from, rant.to],
-         createdAt: new Date(),
-         seed: [
-           { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() },
-           { from: rant.to, text: rant.echo, createdAt: new Date() }
-         ]
-       });
-       db.collection("rants").doc(rantId).update({
-         status: "accepted", chatId: chatRef.id, updatedAt: new Date()
-       }).then(() => {
-         window.location.href = `chat.html?chatId=${chatRef.id}`;
-       });
-     });
-   }
-
-   function openInviteBottomSheet(email) {
-     currentInviteTarget = email;
-     document.getElementById('sheetOverlay').classList.add('active');
-     document.getElementById('inviteSheet').classList.add('active');
-   }
-
-   function closeBottomSheet() {
-     document.getElementById('sheetOverlay').classList.remove('active');
-     document.getElementById('inviteSheet').classList.remove('active');
-   }
-
-   function sendInviteEmail() {
-     if (!currentInviteTarget) return;
-
-     const subject = "Someone is talking about you 🤫";
-     const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
-    
-     const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-     window.location.href = mailtoLink;
-     closeBottomSheet();
-   }
-
-   function sendRant() {
-     const textEl = document.getElementById("rantText");
-     const targetEl = document.getElementById("targetEmail");
-     const text = textEl.value.trim();
-     const target = targetEl.value.trim();
-     const user = auth.currentUser;
-
-     if (!text || !target || !user) return;
-
-     db.collection("rants").add({
-       from: user.email,
-       to: target,
-       text,
-       status: "pending",
-       createdAt: new Date()
-     }).then(() => {
-       textEl.value = "";
-       targetEl.value = "";
-       // Auto collapse after send
-       document.querySelector(".composer").classList.add("collapsed");
-       document.getElementById("toggleBtn").innerText = "▲";
-
-       checkUserExists(target).then(exists => {
-         if (!exists) {
-           openInviteBottomSheet(target);
-         }
-       });
-     });
-   }
-
-   // --- COMPOSER UI LOGIC ---
-   function toggleComposer(e) {
-     e.stopPropagation();
-     const composer = document.querySelector(".composer");
-     const btn = document.getElementById("toggleBtn");
-     
-     if (composer.classList.contains("collapsed")) {
-       expandComposer();
-     } else {
-       composer.classList.add("collapsed");
-       btn.innerText = "▲";
-     }
-   }
-
-   function expandComposer() {
-     const composer = document.querySelector(".composer");
-     const btn = document.getElementById("toggleBtn");
-     composer.classList.remove("collapsed");
-     btn.innerText = "▼";
-   }
-
-   function loadChats(userEmail) {
-     db.collection("chats")
-       .where("users", "array-contains", userEmail)
-       .onSnapshot(snapshot => {
-         const list = document.getElementById("chatList");
-         list.innerHTML = "";
-         activeChats = []; 
-
-         if (snapshot.empty) {
-           list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
-           return;
-         }
-         
-         snapshot.forEach(doc => {
-           const chat = doc.data();
-           const peer = chat.users.find(u => u !== userEmail);
-           
-           // Convert timestamp
-           const created = chat.createdAt ? chat.createdAt.toDate() : new Date();
-           activeChats.push({ id: doc.id, createdAt: created });
-
-           list.innerHTML += `
-             <div class="chat-item" onclick="openChat('${doc.id}')">
-               <div class="chat-row">
-                 <div class="chat-peer">${peer}</div>
-                 <div class="countdown-timer" id="timer-${doc.id}">...</div>
-               </div>
-               <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
-             </div>
-           `;
-         });
-       });
-   }
-
-   function openChat(chatId) {
-     window.location.href = `chat.html?chatId=${chatId}`;
-   }
- </script>
+  function openChat(chatId) {
+    window.location.href = `chat.html?chatId=${chatId}`;
+  }
+</script>
 </body>
 </html>
