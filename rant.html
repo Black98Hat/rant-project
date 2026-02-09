@@ -1,701 +1,890 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Goss · Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+ <meta charset="UTF-8" />
+ <title>Goss · Central</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      /* Palette */
-      --bg-color: #FFD600; /* Electric Yellow */
-      --accent: #FF4800;   /* Hot Orange */
-      --ink: #101010;      /* Pure Black */
-      --paper: #FFFFFF;
-      --grey: #F0F0F0;
-    }
+ <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    body {
-      margin: 0;
-      background-color: var(--bg-color);
-      background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
-      color: var(--ink);
-      font-family: "JetBrains Mono", monospace;
-      overflow-x: hidden;
-      min-height: 100vh;
-      padding-bottom: 180px; /* Space for composer */
-    }
+ <style>
+   :root {
+     /* Palette */
+     --bg-color: #FFD600; /* Electric Yellow */
+     --accent: #FF4800;   /* Hot Orange */
+     --ink: #101010;      /* Pure Black */
+     --paper: #FFFFFF;
+     --grey: #F0F0F0;
+   }
 
-    .grain {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-      z-index: 0;
-      mix-blend-mode: multiply;
-    }
 
-    .wrap {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-      position: relative;
-      z-index: 1;
-    }
+   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* --- HEADER --- */
-    .top {
-      margin-bottom: 24px;
-      border-bottom: 4px solid var(--ink);
-      padding-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
 
-    .top-left h1 {
-      font-family: "Archivo", sans-serif;
-      font-size: 42px;
-      font-weight: 900;
-      font-style: italic;
-      letter-spacing: -0.04em;
-      margin: 0;
-      text-transform: uppercase;
-      line-height: 0.9;
-    }
+   body {
+     margin: 0;
+     background-color: var(--bg-color);
+     /* Subtle noise pattern */
+     background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
+     color: var(--ink);
+     font-family: "JetBrains Mono", monospace;
+     overflow-x: hidden;
+     min-height: 100vh;
+     padding-bottom: 140px; /* Space for composer */
+   }
 
-    .org-badge {
-      font-size: 11px;
-      font-weight: 800;
-      background: var(--ink);
-      color: var(--bg-color);
-      padding: 6px 10px;
-      text-transform: uppercase;
-      transform: rotate(-2deg);
-      border: 2px solid var(--paper);
-    }
 
-    /* --- NAVIGATION TABS --- */
-    .nav-tabs {
-      display: flex;
-      gap: 0;
-      border: 3px solid var(--ink);
-      background: var(--paper);
-      margin-bottom: 24px;
-    }
+   .grain {
+     position: fixed;
+     inset: 0;
+     pointer-events: none;
+     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+     z-index: 0;
+     mix-blend-mode: multiply;
+   }
 
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 14px;
-      font-family: "Archivo", sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      text-transform: uppercase;
-      cursor: pointer;
-      border-right: 3px solid var(--ink);
-      background: var(--paper);
-      color: var(--ink);
-      opacity: 0.6;
-    }
-    .tab:last-child { border-right: none; }
-    
-    .tab.active {
-      background: var(--ink);
-      color: var(--bg-color);
-      opacity: 1;
-    }
 
-    /* --- FEED / CARDS --- */
-    .view-section { display: none; }
-    .view-section.active { display: block; }
+   .wrap {
+     max-width: 500px;
+     margin: 0 auto;
+     padding: 20px;
+     position: relative;
+     z-index: 1;
+   }
 
-    .list { display: flex; flex-direction: column; gap: 16px; }
 
-    .item {
-      background: var(--paper);
-      border: 3px solid var(--ink);
-      box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
-      padding: 20px;
-      position: relative;
-    }
+   /* --- HEADER --- */
+   .top {
+     margin-bottom: 32px;
+     border-bottom: 4px solid var(--ink);
+     padding-bottom: 16px;
+   }
 
-    .meta {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid var(--grey);
-      padding-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
 
-    .text {
-      font-size: 15px;
-      line-height: 1.5;
-      font-weight: 600;
-      color: var(--ink);
-      white-space: pre-wrap;
-    }
+   .top h1 {
+     font-family: "Archivo", sans-serif;
+     font-size: 52px;
+     font-weight: 900;
+     font-style: italic;
+     letter-spacing: -0.04em;
+     margin: 0;
+     text-transform: uppercase;
+     line-height: 0.9;
+   }
 
-    /* --- TOWNHALL FEED ACTIONS --- */
-    .feed-actions {
-      margin-top: 16px;
-      display: flex;
-      gap: 12px;
-      border-top: 2px solid var(--grey);
-      padding-top: 12px;
-    }
 
-    .action-btn {
-      background: transparent;
-      border: 2px solid var(--ink);
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.1s;
-    }
-    .action-btn:hover { background: var(--grey); }
-    .action-btn:active { transform: translateY(2px); }
-    
-    .action-btn.liked { background: var(--accent); color: white; border-color: var(--accent); }
+   .top p {
+     margin-top: 8px;
+     font-size: 13px;
+     font-weight: 700;
+     background: var(--ink);
+     color: var(--bg-color);
+     display: inline-block;
+     padding: 4px 8px;
+     transform: rotate(-1deg);
+   }
 
-    /* --- COMMENTS --- */
-    .comments-section {
-      margin-top: 16px;
-      background: var(--grey);
-      padding: 12px;
-      border: 2px solid var(--ink);
-      display: none; /* Hidden by default */
-    }
-    .comments-section.open { display: block; }
 
-    .comment {
-      font-size: 12px;
-      margin-bottom: 8px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
-    .comment:last-child { border-bottom: none; margin-bottom: 0; }
-    .comment-meta { font-size: 10px; opacity: 0.5; margin-bottom: 2px; }
+   /* --- SECTIONS --- */
+   h2 {
+     font-family: "Archivo", sans-serif;
+     font-size: 18px;
+     font-weight: 800;
+     text-transform: uppercase;
+     margin: 32px 0 16px;
+     display: flex;
+     align-items: center;
+     gap: 12px;
+   }
+  
+   h2::before {
+     content: '';
+     display: block;
+     width: 12px;
+     height: 12px;
+     background: var(--ink);
+   }
 
-    .comment-input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .comment-input {
-      flex: 1;
-      padding: 8px;
-      border: 2px solid var(--ink);
-      font-size: 12px;
-      font-family: "JetBrains Mono", monospace;
-    }
-    .comment-submit {
-      background: var(--ink);
-      color: white;
-      border: none;
-      padding: 0 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
 
-    /* --- AUTOCOMPLETE --- */
-    .autocomplete-list {
-      position: absolute;
-      bottom: 100%;
-      left: 0; right: 0;
-      background: var(--paper);
-      border: 2px solid var(--ink);
-      max-height: 150px;
-      overflow-y: auto;
-      z-index: 60;
-      display: none;
-    }
-    .suggestion {
-      padding: 10px;
-      border-bottom: 1px solid var(--grey);
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .suggestion:hover { background: var(--bg-color); }
+   /* --- CARDS (ITEMS) --- */
+   .list { display: flex; flex-direction: column; gap: 16px; }
 
-    /* --- COMPOSER --- */
-    .composer {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      background: var(--ink);
-      border-top: 4px solid var(--accent);
-      padding: 16px 20px;
-      z-index: 50;
-      transition: all 0.3s ease;
-    }
-    
-    .composer.collapsed {
-      padding: 12px 20px;
-      background: var(--paper);
-      border-top: 4px solid var(--ink);
-    }
 
-    .collapse-toggle {
-      font-size: 10px; font-weight: 800;
-      color: var(--paper); text-align: right; cursor: pointer; margin-bottom: 8px;
-    }
-    .composer.collapsed .collapse-toggle { color: var(--ink); }
+   .item {
+     background: var(--paper);
+     border: 3px solid var(--ink);
+     box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+     padding: 20px;
+     position: relative;
+     transition: transform 0.1s;
+   }
+  
+   .item:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.15); }
 
-    .composer-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      position: relative; /* For autocomplete */
-    }
-    .composer.collapsed .composer-grid { grid-template-columns: 1.5fr 3fr; gap: 8px; }
 
-    .composer input, .composer textarea {
-      width: 100%;
-      border: 2px solid var(--bg-color);
-      background: #222;
-      color: var(--bg-color);
-      padding: 12px;
-      font-family: "JetBrains Mono", monospace;
-      outline: none;
-    }
-    .composer textarea { resize: none; height: 80px; }
-    
-    .composer.collapsed input, .composer.collapsed textarea {
-      background: var(--paper); border: 2px solid var(--ink); color: var(--ink); height: 44px;
-    }
+   .meta {
+     font-size: 10px;
+     font-weight: 700;
+     text-transform: uppercase;
+     color: var(--accent);
+     margin-bottom: 12px;
+     letter-spacing: 0.05em;
+     border-bottom: 2px solid var(--grey);
+     padding-bottom: 8px;
+   }
 
-    .composer button {
-      width: 100%;
-      padding: 14px;
-      background: var(--bg-color);
-      color: var(--ink);
-      font-family: "Archivo", sans-serif;
-      font-weight: 900;
-      text-transform: uppercase;
-      border: 2px solid var(--paper);
-      cursor: pointer;
-      box-shadow: 4px 4px 0 var(--paper);
-    }
-    
-    .composer ::placeholder { color: rgba(255,214,0,0.4); text-transform: uppercase; }
-    .composer.collapsed ::placeholder { color: rgba(0,0,0,0.3); }
 
-    /* Helper styles */
-    .empty { padding: 30px; text-align: center; border: 2px dashed var(--ink); opacity: 0.6; font-size: 12px; }
-    .red-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; margin-left: 6px; }
-  </style>
+   .text {
+     font-size: 15px;
+     line-height: 1.5;
+     font-weight: 600;
+     color: var(--ink);
+   }
+
+
+   /* --- STATUS BADGES --- */
+   .status {
+     margin-top: 16px;
+     font-size: 11px;
+     font-weight: 700;
+     display: inline-block;
+     padding: 4px 8px;
+     border: 2px solid var(--ink);
+     background: var(--grey);
+     text-transform: uppercase;
+   }
+
+
+   .prompt {
+     margin-top: 16px;
+     font-size: 12px;
+     font-weight: 800;
+     color: var(--accent);
+     background: rgba(255, 85, 0, 0.1);
+     padding: 4px 8px;
+     display: inline-block;
+   }
+
+
+   .echo {
+     margin-top: 16px;
+     padding: 12px;
+     background: var(--bg-color); /* Yellow highlight */
+     border: 2px solid var(--ink);
+     font-size: 13px;
+     font-style: italic;
+     position: relative;
+   }
+   .echo::before {
+     content: "↳ RE:";
+     font-weight: 800;
+     font-size: 10px;
+     display: block;
+     margin-bottom: 4px;
+   }
+
+
+   /* --- FORMS & INPUTS --- */
+   textarea, input {
+     width: 100%;
+     background: var(--paper);
+     border: 3px solid var(--ink);
+     padding: 14px;
+     color: var(--ink);
+     font-family: "JetBrains Mono", monospace;
+     font-size: 14px;
+     resize: none;
+     outline: none;
+     border-radius: 0;
+     margin-top: 12px;
+   }
+  
+   textarea:focus, input:focus {
+     border-color: var(--accent);
+     background: #FFFDF0;
+   }
+
+
+   /* --- BUTTONS --- */
+   button {
+     width: 100%;
+     padding: 16px;
+     background: var(--ink);
+     border: 3px solid var(--ink);
+     color: var(--bg-color);
+     font-family: "Archivo", sans-serif;
+     font-weight: 800;
+     font-size: 14px;
+     text-transform: uppercase;
+     cursor: pointer;
+     margin-top: 12px;
+     transition: all 0.1s;
+     box-shadow: 4px 4px 0px var(--accent);
+   }
+
+
+   button:hover {
+     transform: translate(-2px, -2px);
+     box-shadow: 6px 6px 0px var(--accent);
+   }
+  
+   button:active {
+     transform: translate(2px, 2px);
+     box-shadow: 0px 0px 0px var(--accent);
+   }
+
+
+   /* Specialized buttons */
+   .invite-btn {
+     background: var(--accent);
+     color: white;
+     border-color: var(--ink);
+     box-shadow: 4px 4px 0 var(--ink);
+   }
+
+
+   /* --- CHAT LIST --- */
+   .chat-item {
+     background: var(--paper);
+     border: 3px solid var(--ink);
+     padding: 16px;
+     margin-bottom: 12px;
+     cursor: pointer;
+     transition: transform 0.1s;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+   }
+   .chat-item:hover { transform: translateX(4px); }
+  
+   .chat-peer {
+     font-weight: 800;
+     font-size: 14px;
+   }
+   .chat-preview {
+     font-size: 11px;
+     opacity: 0.6;
+   }
+
+
+   /* --- COMPOSER (FIXED BOTTOM) --- */
+   .composer {
+     position: fixed;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     background: var(--ink); /* Black bar */
+     border-top: 4px solid var(--accent);
+     padding: 16px 20px;
+     z-index: 50;
+     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+   }
+  
+   .composer.collapsed {
+     padding: 12px 20px;
+     background: var(--paper);
+     border-top: 4px solid var(--ink);
+   }
+
+
+   .collapse-toggle {
+     font-size: 10px;
+     font-weight: 800;
+     color: var(--paper);
+     text-transform: uppercase;
+     text-align: right;
+     cursor: pointer;
+     margin-bottom: 8px;
+   }
+   .composer.collapsed .collapse-toggle { color: var(--ink); }
+
+
+   .context {
+     font-family: "Archivo", sans-serif;
+     font-size: 14px;
+     font-weight: 700;
+     color: var(--bg-color);
+     margin-bottom: 12px;
+     text-transform: uppercase;
+   }
+
+
+   .collapsed-row { display: block; }
+   .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
+  
+   /* Inputs inside composer */
+   .composer textarea, .composer input {
+     border: 2px solid var(--bg-color);
+     background: #222;
+     color: var(--bg-color);
+     margin-top: 8px;
+   }
+   .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
+  
+   .composer.collapsed textarea, .composer.collapsed input {
+     border: 2px solid var(--ink);
+     background: var(--paper);
+     color: var(--ink);
+     margin: 0;
+     height: 44px;
+     padding: 10px;
+   }
+   .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
+
+
+   .composer button {
+     background: var(--bg-color);
+     color: var(--ink);
+     box-shadow: 4px 4px 0 var(--paper);
+     border-color: var(--paper);
+   }
+
+
+   .composer.collapsed .hint,
+   .composer.collapsed .context,
+   .composer.collapsed .action,
+   .composer.collapsed .footer { display: none; }
+  
+   .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
+   .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
+
+
+   /* --- BOTTOM SHEET --- */
+   .overlay {
+     position: fixed;
+     inset: 0;
+     background: rgba(16, 16, 16, 0.85); /* Dark scrim */
+     backdrop-filter: blur(4px);
+     z-index: 99;
+     opacity: 0;
+     pointer-events: none;
+     transition: opacity 0.3s;
+   }
+   .overlay.active { opacity: 1; pointer-events: auto; }
+
+
+   .bottom-sheet {
+     position: fixed;
+     left: 0; right: 0; bottom: -100%;
+     background: var(--bg-color);
+     border-top: 4px solid var(--ink);
+     padding: 32px 24px 48px;
+     z-index: 100;
+     transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+     box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+   }
+   .bottom-sheet.active { bottom: 0; }
+
+
+   .drag-handle {
+     width: 60px; height: 6px;
+     background: var(--ink);
+     margin: 0 auto 24px;
+   }
+
+
+   .bs-title {
+     font-family: "Archivo", sans-serif;
+     font-size: 28px;
+     font-weight: 900;
+     font-style: italic;
+     text-transform: uppercase;
+     margin-bottom: 16px;
+   }
+
+
+   .bs-body {
+     font-size: 14px;
+     margin-bottom: 24px;
+     font-weight: 600;
+     line-height: 1.5;
+   }
+
+
+   .bs-btn {
+     background: var(--ink);
+     color: var(--bg-color);
+     border: none;
+     box-shadow: 6px 6px 0 white;
+   }
+   .bs-btn-secondary {
+     background: transparent;
+     color: var(--ink);
+     border: none;
+     font-size: 12px;
+     margin-top: 16px;
+     text-decoration: underline;
+     box-shadow: none;
+   }
+   .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
+
+
+   /* Helpers */
+   .empty {
+     padding: 24px;
+     text-align: center;
+     border: 2px dashed var(--ink);
+     color: var(--ink);
+     font-size: 12px;
+     opacity: 0.6;
+   }
+  
+   #hotGoss {
+     border: 3px solid var(--accent);
+     background: rgba(255, 255, 255, 0.5);
+     padding: 16px;
+     margin: 20px 0;
+     box-shadow: 8px 8px 0 var(--accent);
+   }
+   #hotGoss h2 { margin-top: 0; color: var(--accent); }
+   #hotGossCount {
+       background: var(--accent);
+       color: white;
+       padding: 2px 8px;
+       border-radius: 4px;
+       font-size: 12px;
+   }
+
+
+ </style>
 </head>
 
+
 <body>
-  <div class="grain"></div>
+ <div class="grain"></div>
 
-  <div class="wrap">
-    <div class="top">
-      <div class="top-left">
-        <h1>Goss</h1>
-        <div id="orgBadge" class="org-badge">DETECTING ORG...</div>
-      </div>
-    </div>
 
-    <div class="nav-tabs">
-      <div class="tab active" onclick="switchTab('townhall')">Townhall</div>
-      <div class="tab" onclick="switchTab('files')">Private Files</div>
-    </div>
+ <div class="wrap">
+   <div class="top">
+     <h1>Goss · Central</h1>
+     <p>UNOFFICIAL TRUTHS ONLY</p>
+   </div>
 
-    <div id="view-townhall" class="view-section active">
-      <div id="feedList" class="list">
-        <div class="empty">TUNING INTO FREQUENCY...</div>
-      </div>
-    </div>
 
-    <div id="view-files" class="view-section">
-      <h2 style="font-family:'Archivo'; font-size:16px; margin-bottom:12px;">DIRECT SIGNALS</h2>
-      <div id="inboxList" class="list"></div>
-      
-      <h2 style="font-family:'Archivo'; font-size:16px; margin:32px 0 12px;">OUTGOING</h2>
-      <div id="sentList" class="list"></div>
+   <div id="hotGoss" style="display:none;">
+     <h2>
+       URGENT FILES
+       <span id="hotGossCount"></span>
+     </h2>
+     <div id="inboxList" class="list"></div>
+     <div id="sentInline" class="list"></div>
+   </div>
 
-      <h2 style="font-family:'Archivo'; font-size:16px; margin:32px 0 12px;">ENCRYPTED CHATS</h2>
-      <div id="chatList" class="list"></div>
-    </div>
-  </div>
 
-  <div class="composer collapsed">
-    <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
-    
-    <div class="composer-grid">
-      <div style="position:relative;">
-        <input id="targetInput" type="text" placeholder="TO: ALL (TOWNHALL)" autocomplete="off">
-        <div id="autocompleteList" class="autocomplete-list"></div>
-      </div>
-      <textarea id="rantText" placeholder="SPILL IT HERE..."></textarea>
-    </div>
+   <h2>
+     Previous Signals
+   </h2>
 
-    <div class="action" style="margin-top:12px;">
-      <button onclick="handleSend()">TRANSMIT</button>
-    </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+   <div class="chat-list" id="chatList"></div>
 
-  <script>
-    // --- STATE ---
-    let currentUser = null;
-    let currentDomain = null;
-    let usersCache = []; // For autocomplete
-    let activeTab = 'townhall';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
-      authDomain: "rant-2me.firebaseapp.com",
-      projectId: "rant-2me"
-    };
+   <div class="composer collapsed">
+     <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
+     <div class="context">Spill the tea.</div>
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    // --- AUTH & SETUP ---
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
-      currentUser = user;
-      
-      // Extract Domain
-      const emailParts = user.email.split('@');
-      currentDomain = emailParts.length > 1 ? emailParts[1] : 'public';
-      
-      // Update Badge
-      document.getElementById('orgBadge').textContent = `@${currentDomain.toUpperCase()} · SECURE`;
+     <div class="collapsed-row">
+       <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
+       <textarea id="rantText" placeholder="WHAT HAPPENED?"></textarea>
+     </div>
 
-      // Sync User
-      db.collection("users").doc(user.email).set({
-        email: user.email,
-        domain: currentDomain,
-        lastSeen: new Date()
-      }, { merge: true });
 
-      // Load Data
-      loadTownhall();
-      loadPrivateFiles();
-      cacheOrgUsers();
-    });
+     <div class="hint">delivery is quiet · no name attached</div>
 
-    // --- TABS ---
-    function switchTab(tabName) {
-      activeTab = tabName;
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-      
-      // Find index for tab class logic (0 or 1)
-      const tabIndex = tabName === 'townhall' ? 0 : 1;
-      document.querySelectorAll('.tab')[tabIndex].classList.add('active');
-      document.getElementById(`view-${tabName}`).classList.add('active');
-    }
 
-    // --- TOWNHALL LOGIC ---
-    function loadTownhall() {
-      db.collection("townhall_posts")
-        .where("domain", "==", currentDomain)
-        .orderBy("createdAt", "desc")
-        .limit(50)
-        .onSnapshot(snapshot => {
-          const feed = document.getElementById("feedList");
-          feed.innerHTML = "";
+     <div class="action">
+       <button onclick="sendRant()">START RUMOR</button>
+     </div>
+
+
+     <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
+   </div>
+ </div>
+
+
+ <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
+ <div class="bottom-sheet" id="inviteSheet">
+   <div class="drag-handle"></div>
+   <div class="bs-title">They aren't here yet</div>
+   <div class="bs-body">
+     This person hasn't signed up for Oh my Goss. Your whisper is pending, but they won't see it until they join.
+   </div>
+   <button class="bs-btn" onclick="sendInviteEmail()">SEND MYSTERIOUS INVITE</button>
+   <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+ </div>
+
+
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+
+ <script>
+   // --- Global State ---
+   window.__hotInboxPending = 0;
+   window.__hotSentPending = 0;
+   window.__inboxReady = false;
+   window.__sentReady = false;
+   let currentInviteTarget = "";
+  
+   const userExistenceCache = {};
+
+
+   function updateHotGossVisibility() {
+     if (!window.__inboxReady || !window.__sentReady) return;
+
+
+     const hot = document.getElementById("hotGoss");
+     const countEl = document.getElementById("hotGossCount");
+     const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
+
+
+     if (total > 0) {
+       hot.style.display = "block";
+       countEl.textContent = total + " PENDING";
+     } else {
+       hot.style.display = "none";
+     }
+   }
+
+
+   const firebaseConfig = {
+     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+     authDomain: "rant-2me.firebaseapp.com",
+     projectId: "rant-2me"
+   };
+
+
+   firebase.initializeApp(firebaseConfig);
+   const auth = firebase.auth();
+   const db = firebase.firestore();
+
+
+   auth.onAuthStateChanged(user => {
+     if (!user) {
+       window.location.href = "index.html";
+       return;
+     }
+
+
+     db.collection("users").doc(user.email).set({
+       email: user.email,
+       lastSeen: new Date()
+     }, { merge: true });
+
+
+     // Dummy listener for general updates if needed
+     db.collection("rants").where("to", "==", user.email).where("status", "!=", "read").onSnapshot(()=>{});
+
+
+     loadInboxInline(user.email);
+     loadSentInline(user.email);
+     loadChats(user.email);
+   });
+
+
+   async function checkUserExists(email) {
+     if (userExistenceCache[email] !== undefined) {
+       return userExistenceCache[email];
+     }
+     try {
+       const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+       const exists = !snap.empty;
+       userExistenceCache[email] = exists;
+       return exists;
+     } catch (e) {
+       return false;
+     }
+   }
+
+
+   function loadSentInline(email) {
+     db.collection("rants")
+       .where("from", "==", email)
+       .onSnapshot(snapshot => {
+         window.__hotSentPending = 0;
+         window.__sentReady = true;
+         let localIndex = 0;
+         const container = document.getElementById("sentInline");
+         container.innerHTML = "";
+
+
+         const docs = snapshot.docs.sort((a, b) => {
+           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
+           return getTime(b) - getTime(a);
+         });
+
+
+         docs.forEach(doc => {
+           const rant = doc.data();
+           if (rant.status === "accepted") return;
+
+
+           if (rant.status === "pending" || rant.status === "echoed") {
+             localIndex++;
+             window.__hotSentPending++;
+           }
+
+
+           const echoBlock = rant.echo ? `<div class="echo">${rant.echo}</div>` : "";
           
-          if (snapshot.empty) {
-            feed.innerHTML = "<div class='empty'>THE PANTRY IS QUIET.<br>START A RUMOR.</div>";
-            return;
-          }
+           let actionBlock = "";
+           if (rant.status === "echoed" && rant.echo) {
+               actionBlock = `
+                 <div class="action">
+                   <button onclick="acceptEchoInline('${doc.id}')">ACCEPT & OPEN CHAT</button>
+                 </div>`;
+           }
 
-          snapshot.forEach(doc => {
-            const post = doc.data();
-            const liked = post.likes && post.likes.includes(currentUser.email);
-            const likeCount = post.likes ? post.likes.length : 0;
-            const commentCount = post.commentCount || 0;
 
-            // Create Card
-            const card = document.createElement("div");
-            card.className = "item";
-            card.innerHTML = `
-              <div class="meta">
-                <span>ANONYMOUS</span>
-                <span>${timeSince(post.createdAt.toDate())}</span>
-              </div>
-              <div class="text">${post.text}</div>
-              
-              <div class="feed-actions">
-                <button class="action-btn ${liked ? 'liked' : ''}" onclick="toggleLike('${doc.id}')">
-                  ♥ ${likeCount}
-                </button>
-                <button class="action-btn" onclick="toggleComments('${doc.id}')">
-                  💬 ${commentCount}
-                </button>
-                <button class="action-btn" onclick="sharePost('${doc.id}', '${escapeQuotes(post.text)}')">
-                  ↗ SHARE
-                </button>
-              </div>
+           const statusText = rant.status === "pending"
+             ? "<span style='color:var(--accent)'>AWAITING ECHO</span>"
+             : rant.status === "echoed" ? "ECHO RECEIVED" : rant.status;
 
-              <div id="comments-${doc.id}" class="comments-section">
-                <div id="comment-list-${doc.id}">Loading...</div>
-                <div class="comment-input-row">
-                  <input type="text" class="comment-input" id="input-${doc.id}" placeholder="Reply...">
-                  <button class="comment-submit" onclick="postComment('${doc.id}')">SEND</button>
-                </div>
-              </div>
-            `;
-            feed.appendChild(card);
-          });
-        });
-    }
 
-    function toggleLike(postId) {
-      const postRef = db.collection("townhall_posts").doc(postId);
-      db.runTransaction(transaction => {
-        return transaction.get(postRef).then(doc => {
-          if (!doc.exists) return;
-          const data = doc.data();
-          let likes = data.likes || [];
-          if (likes.includes(currentUser.email)) {
-            likes = likes.filter(e => e !== currentUser.email);
-          } else {
-            likes.push(currentUser.email);
-          }
-          transaction.update(postRef, { likes: likes });
-        });
-      });
-    }
+           const inviteContainerId = `invite-ui-${doc.id}`;
 
-    function toggleComments(postId) {
-      const section = document.getElementById(`comments-${postId}`);
-      if (section.style.display === "block") {
-        section.style.display = "none";
-      } else {
-        section.style.display = "block";
-        loadComments(postId);
-      }
-    }
 
-    function loadComments(postId) {
-      db.collection("townhall_posts").doc(postId).collection("comments")
-        .orderBy("createdAt", "asc")
-        .onSnapshot(snap => {
-          const list = document.getElementById(`comment-list-${postId}`);
-          list.innerHTML = "";
-          snap.forEach(d => {
-            const c = d.data();
-            list.innerHTML += `
-              <div class="comment">
-                <div class="comment-meta">ANON</div>
-                <div>${c.text}</div>
-              </div>
-            `;
-          });
-          if(snap.empty) list.innerHTML = "<div class='comment-meta'>No replies yet.</div>";
-        });
-    }
+           container.innerHTML += `
+             <div class="item">
+               <div class="meta">OUTGOING · TO ${rant.to}</div>
+               <div class="text">${rant.text}</div>
+               <div class="status">STATUS: ${statusText}</div>
+               ${echoBlock}
+               ${actionBlock}
+               <div id="${inviteContainerId}" style="display:none; margin-top:12px;">
+                  <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
+                    INVITE THEM TO GOSS
+                  </button>
+               </div>
+             </div>
+           `;
 
-    function postComment(postId) {
-      const input = document.getElementById(`input-${postId}`);
-      const text = input.value.trim();
-      if (!text) return;
 
-      const batch = db.batch();
-      const commentRef = db.collection("townhall_posts").doc(postId).collection("comments").doc();
-      const postRef = db.collection("townhall_posts").doc(postId);
+           if (rant.status === "pending") {
+             checkUserExists(rant.to).then(exists => {
+               if (!exists) {
+                 const el = document.getElementById(inviteContainerId);
+                 if (el) el.style.display = "block";
+               }
+             });
+           }
+         });
 
-      batch.set(commentRef, {
-        text: text,
-        author: currentUser.email,
-        createdAt: new Date()
-      });
-      // Increment counter (simple increment, ideally use cloud function for accuracy)
-      batch.update(postRef, { commentCount: firebase.firestore.FieldValue.increment(1) });
 
-      batch.commit().then(() => input.value = "");
-    }
+         if (!container.innerHTML) {
+           container.innerHTML = "<div class='empty'>NO OUTGOING RUMORS</div>";
+         }
+         updateHotGossVisibility();
+       });
+   }
 
-    function sharePost(postId, text) {
-      const subject = "You know what is being circulated today 🤫";
-      const body = `Saw this on the ${currentDomain} townhall:\n\n"${text}"\n\nRead the thread here:\nhttps://oh-my-goss.netlify.app/`;
-      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }
 
-    // --- PRIVATE FILES LOGIC ---
-    function loadPrivateFiles() {
-      // Inbox
-      db.collection("rants").where("to", "==", currentUser.email).where("status", "==", "pending")
-        .onSnapshot(snap => renderPrivateList("inboxList", snap, "INCOMING"));
-      
-      // Outgoing
-      db.collection("rants").where("from", "==", currentUser.email).where("status", "in", ["pending", "echoed"])
-        .onSnapshot(snap => renderPrivateList("sentList", snap, "PENDING"));
+   function loadInboxInline(email) {
+     db.collection("rants")
+       .where("to", "==", email)
+       .onSnapshot(snapshot => {
+         window.__hotInboxPending = 0;
+         window.__inboxReady = true;
+         const container = document.getElementById("inboxList");
+         container.innerHTML = "";
+         let pendingCount = 0;
 
-      // Chats
-      db.collection("chats").where("users", "array-contains", currentUser.email)
-        .onSnapshot(snap => {
-          const list = document.getElementById("chatList");
-          list.innerHTML = "";
-          snap.forEach(doc => {
-            const chat = doc.data();
-            const peer = chat.users.find(u => u !== currentUser.email);
-            list.innerHTML += `
-              <div class="item" style="cursor:pointer; padding:12px;" onclick="window.location.href='chat.html?chatId=${doc.id}'">
-                 <div class="meta">WITH: ${peer}</div>
-                 <div class="text">/// ENCRYPTED THREAD</div>
-              </div>`;
-          });
-        });
-    }
 
-    function renderPrivateList(elId, snap, label) {
-      const el = document.getElementById(elId);
-      el.innerHTML = "";
-      snap.forEach(doc => {
-        const d = doc.data();
-        el.innerHTML += `
-          <div class="item">
-            <div class="meta">${label}</div>
-            <div class="text">${d.text}</div>
-            <div style="margin-top:8px; font-size:10px; color:var(--accent);">STATUS: ${d.status.toUpperCase()}</div>
-          </div>`;
-      });
-      if(snap.empty) el.innerHTML = "<div class='empty'>NO FILES</div>";
-    }
+         if (snapshot.empty) {
+           container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
+           updateHotGossVisibility();
+           return;
+         }
 
-    // --- COMPOSER & AUTOCOMPLETE ---
-    function cacheOrgUsers() {
-      db.collection("users").where("domain", "==", currentDomain).get()
-        .then(snap => {
-           usersCache = [];
-           snap.forEach(doc => {
-             if(doc.id !== currentUser.email) usersCache.push(doc.id);
-           });
-        });
-    }
 
-    const targetInput = document.getElementById("targetInput");
-    const autoList = document.getElementById("autocompleteList");
+         const docs = snapshot.docs.sort((a, b) => {
+           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
+           return getTime(b) - getTime(a);
+         });
 
-    targetInput.addEventListener("input", (e) => {
-      const val = e.target.value.toLowerCase();
-      autoList.innerHTML = "";
-      
-      if (!val) {
-        autoList.style.display = "none";
-        return;
-      }
 
-      const matches = usersCache.filter(u => u.toLowerCase().includes(val));
-      
-      if (matches.length > 0) {
-        autoList.style.display = "block";
-        matches.forEach(email => {
-          const div = document.createElement("div");
-          div.className = "suggestion";
-          div.textContent = email;
-          div.onclick = () => {
-            targetInput.value = email;
-            autoList.style.display = "none";
-          };
-          autoList.appendChild(div);
-        });
-      } else {
-        autoList.style.display = "none";
-      }
-    });
+         docs.forEach(doc => {
+           const rant = doc.data();
+           if (rant.status === "accepted") return;
+           if (rant.status === "pending" || rant.status === "echoed") {
+             pendingCount++;
+             window.__hotInboxPending++;
+           }
 
-    // Close autocomplete on blur delay
-    targetInput.addEventListener("blur", () => setTimeout(() => autoList.style.display = "none", 200));
 
-    function handleSend() {
-      const target = targetInput.value.trim();
-      const text = document.getElementById("rantText").value.trim();
-      
-      if (!text) return;
+           let block = "";
+           if (rant.status === "pending") {
+             block = `
+               <div class="prompt">ACTION REQUIRED</div>
+               <textarea id="echo-${doc.id}" placeholder="Confirm what you heard..."></textarea>
+               <div class="action">
+                 <button onclick="submitEcho('${doc.id}')">ECHO BACK</button>
+               </div>
+             `;
+           } else if (rant.status === "echoed") {
+             block = `
+               <div class="echo">${rant.echo}</div>
+               <div class="status">WAITING ON SENDER</div>
+             `;
+           }
 
-      // MODE 1: TOWNHALL (If target empty or "ALL")
-      if (!target || target.toUpperCase() === "ALL" || target.toUpperCase().includes("TOWNHALL")) {
-        db.collection("townhall_posts").add({
-          text: text,
-          domain: currentDomain,
-          author: currentUser.email,
-          createdAt: new Date(),
-          likes: [],
-          commentCount: 0
-        }).then(() => {
-          resetComposer();
-          switchTab('townhall');
-        });
-      } 
-      // MODE 2: DIRECT FILE (If valid email)
-      else if (target.includes("@")) {
-        db.collection("rants").add({
-          from: currentUser.email,
-          to: target,
-          text: text,
-          status: "pending",
-          createdAt: new Date()
-        }).then(() => {
-          resetComposer();
-          switchTab('files');
-        });
-      }
-    }
 
-    function resetComposer() {
-      document.getElementById("rantText").value = "";
-      document.getElementById("targetInput").value = "";
-      document.querySelector(".composer").classList.add("collapsed");
-    }
+           container.innerHTML += `
+             <div class="item">
+               <div class="meta">INCOMING · ANONYMOUS</div>
+               <div class="text">${rant.text}</div>
+               ${block}
+             </div>
+           `;
+         });
+         updateHotGossVisibility();
+       });
+   }
 
-    function toggleComposer() {
-      document.querySelector(".composer").classList.toggle("collapsed");
-    }
 
-    // Expand composer on focus
-    ["targetInput", "rantText"].forEach(id => {
-      document.getElementById(id).addEventListener("focus", () => {
-        document.querySelector(".composer").classList.remove("collapsed");
-      });
-    });
-
-    // Helper: Time Since
-    function timeSince(date) {
-      const seconds = Math.floor((new Date() - date) / 1000);
-      let interval = seconds / 31536000;
-      if (interval > 1) return Math.floor(interval) + "Y AGO";
-      interval = seconds / 2592000;
-      if (interval > 1) return Math.floor(interval) + "M AGO";
-      interval = seconds / 86400;
-      if (interval > 1) return Math.floor(interval) + "D AGO";
-      interval = seconds / 3600;
-      if (interval > 1) return Math.floor(interval) + "H AGO";
-      interval = seconds / 60;
-      if (interval > 1) return Math.floor(interval) + "m AGO";
-      return "JUST NOW";
-    }
+   function submitEcho(rantId) {
+     const input = document.getElementById(`echo-${rantId}`);
+     if (!input) return;
+     const text = input.value.trim();
+     if (!text) return;
+     input.disabled = true;
     
-    function escapeQuotes(str) {
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
-  </script>
+     db.collection("rants").doc(rantId).get().then(doc => {
+       if (doc.data().status !== "pending") return;
+       db.collection("rants").doc(rantId).update({
+         echo: text, status: "echoed", updatedAt: new Date()
+       });
+     });
+   }
+
+
+   function acceptEchoInline(rantId) {
+     const chatRef = db.collection("chats").doc();
+     db.collection("rants").doc(rantId).get().then(doc => {
+       const rant = doc.data();
+       chatRef.set({
+         users: [rant.from, rant.to],
+         createdAt: new Date(),
+         seed: [
+           { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() },
+           { from: rant.to, text: rant.echo, createdAt: new Date() }
+         ]
+       });
+       db.collection("rants").doc(rantId).update({
+         status: "accepted", chatId: chatRef.id, updatedAt: new Date()
+       }).then(() => {
+         window.location.href = `chat.html?chatId=${chatRef.id}`;
+       });
+     });
+   }
+
+
+   function openInviteBottomSheet(email) {
+     currentInviteTarget = email;
+     document.getElementById('sheetOverlay').classList.add('active');
+     document.getElementById('inviteSheet').classList.add('active');
+   }
+
+
+   function closeBottomSheet() {
+     document.getElementById('sheetOverlay').classList.remove('active');
+     document.getElementById('inviteSheet').classList.remove('active');
+   }
+
+
+   function sendInviteEmail() {
+     if (!currentInviteTarget) return;
+
+
+     const subject = "Someone is talking about you 🤫";
+     const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
+    
+     const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+     window.location.href = mailtoLink;
+     closeBottomSheet();
+   }
+
+
+   function sendRant() {
+     const textEl = document.getElementById("rantText");
+     const targetEl = document.getElementById("targetEmail");
+     const text = textEl.value.trim();
+     const target = targetEl.value.trim();
+     const user = auth.currentUser;
+
+
+     if (!text || !target || !user) return;
+
+
+     db.collection("rants").add({
+       from: user.email,
+       to: target,
+       text,
+       status: "pending",
+       createdAt: new Date()
+     }).then(() => {
+       textEl.value = "";
+       targetEl.value = "";
+       document.querySelector(".composer").classList.add("collapsed");
+
+
+       checkUserExists(target).then(exists => {
+         if (!exists) {
+           openInviteBottomSheet(target);
+         }
+       });
+     });
+   }
+
+
+   function toggleComposer() {
+     document.querySelector(".composer").classList.toggle("collapsed");
+   }
+
+
+   ["targetEmail", "rantText"].forEach(id => {
+     document.getElementById(id).addEventListener("focus", () => {
+       document.querySelector(".composer").classList.remove("collapsed");
+     });
+   });
+
+
+   document.querySelector(".collapsed-row").addEventListener("click", () => {
+     document.querySelector(".composer").classList.remove("collapsed");
+   });
+
+
+   function loadChats(userEmail) {
+     db.collection("chats")
+       .where("users", "array-contains", userEmail)
+       .onSnapshot(snapshot => {
+         const list = document.getElementById("chatList");
+         list.innerHTML = "";
+         if (snapshot.empty) {
+           list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
+           return;
+         }
+         snapshot.forEach(doc => {
+           const chat = doc.data();
+           const peer = chat.users.find(u => u !== userEmail);
+           list.innerHTML += `
+             <div class="chat-item" onclick="openChat('${doc.id}')">
+               <div class="chat-peer">${peer}</div>
+               <div class="chat-preview">/// ENCRYPTED</div>
+             </div>
+           `;
+         });
+       });
+   }
+
+
+   function openChat(chatId) {
+     window.location.href = `chat.html?chatId=${chatId}`;
+   }
+ </script>
 </body>
 </html>
