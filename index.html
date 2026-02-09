@@ -14,7 +14,7 @@
       --accent: #FF3D00;   
       --ink: #1a1a1a;      
       --paper: #FFFFFF;
-      --highlight: #00E676; /* Toxic Green for updates */
+      --highlight: #00E676;
     }
 
     * {
@@ -28,27 +28,27 @@
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       height: 100vh;
-      min-height: 100dvh; /* Mobile vertical center fix */
+      min-height: 100dvh;
       width: 100vw;
       overflow: hidden;
       font-family: "JetBrains Mono", monospace;
       display: flex;
-      align-items: center; /* Vertical Center */
-      justify-content: center; /* Horizontal Center */
+      align-items: center;
+      justify-content: center;
       position: relative;
     }
 
-    /* --- BACKGROUND: THE INFINITE GOSSIP WALL (From Previous) --- */
+    /* --- BACKGROUND: INFINITE WALL --- */
     .wall-wrapper {
       position: absolute;
-      inset: -150px; /* Bleed edges to hide scroll */
+      inset: -150px;
       display: flex;
       justify-content: center;
       gap: 16px;
       z-index: 0;
       transform: rotate(-3deg);
       pointer-events: none;
-      opacity: 0.6; /* Slight fade as requested for readability */
+      opacity: 0.6;
     }
 
     .g-column {
@@ -65,7 +65,6 @@
     .scroll-down { animation: scrollDown 50s linear infinite; }
     .scroll-fast { animation: scrollUp 45s linear infinite; }
 
-    /* The Gossip Cards */
     .g-note {
       background: var(--paper);
       border: 3px solid var(--ink);
@@ -92,7 +91,6 @@
       padding-bottom: 4px;
     }
 
-    /* Timer in Background Cards */
     .timer {
       display: block;
       margin-top: 8px;
@@ -105,18 +103,13 @@
     }
     .timer::before { content: "● "; color: red; animation: blink 1s infinite; }
 
-    /* Card Variants */
+    /* Card Styling */
     .g-note.hot { border-left: 8px solid var(--accent); }
-    .g-note.shout { 
-      background: var(--ink); 
-      color: var(--bg-color); 
-      border-color: var(--bg-color);
-    }
+    .g-note.shout { background: var(--ink); color: var(--bg-color); border-color: var(--bg-color); }
     .g-note.shout b { color: var(--bg-color); border-bottom-color: rgba(255,255,255,0.2); }
     .g-note.shout .timer { color: rgba(255,255,255,0.6); }
     .g-note.whisper { background: #fffde7; font-style: italic; border-style: dashed; }
-
-    /* The "POP" Highlight Effect */
+    
     .g-note.pop {
       transform: scale(1.1) rotate(2deg) !important;
       z-index: 15;
@@ -136,7 +129,7 @@
       transform: rotate(10deg);
     }
 
-    /* --- FOREGROUND: THE CONTAINER (From Latest) --- */
+    /* --- MAIN CONTAINER --- */
     .container {
       position: relative;
       width: 90%;
@@ -147,7 +140,6 @@
       border: 5px solid var(--ink);
       box-shadow: 12px 12px 0px var(--ink);
       text-align: left;
-      /* Animation */
       animation: enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
@@ -198,12 +190,28 @@
       font-weight: 700;
       margin-bottom: 32px;
     }
-    
     .highlight-text {
       background: var(--bg-color);
       padding: 2px 6px;
       box-decoration-break: clone;
       -webkit-box-decoration-break: clone;
+    }
+
+    /* --- THE NEW EMAIL WARNING LABEL --- */
+    .security-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px; /* Tight to button */
+    }
+    .security-label b {
+      background: var(--accent);
+      color: white;
+      padding: 1px 4px;
+      border-radius: 2px;
     }
 
     button {
@@ -256,7 +264,6 @@
       position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: 0.35;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
     }
-    
     .vignette {
       position: fixed; inset: 0; pointer-events: none; z-index: 10;
       background: radial-gradient(circle, transparent 40%, rgba(255, 214, 0, 0.8) 100%);
@@ -285,7 +292,6 @@
       
       .brand { font-size: 48px; }
       .g-note { font-size: 10px; padding: 10px; }
-      .g-note b { font-size: 11px; }
     }
   </style>
 </head>
@@ -293,7 +299,6 @@
 <body>
 
   <div class="wall-wrapper" id="wall"></div>
-
   <div class="vignette"></div>
   <div class="grain"></div>
 
@@ -310,6 +315,10 @@
       Real salaries. The affair on the 3rd floor. The layoff list.
     </div>
 
+    <label class="security-label">
+      ⚠️ Must use <b>Work Email</b> to verify
+    </label>
+
     <button onclick="enter()">Read The Tea</button>
 
     <div class="live-counter">
@@ -325,7 +334,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script>
-    // --- 1. SPICY CONTENT GENERATOR (From Previous) ---
+    // --- 1. SPICY CONTENT GENERATOR ---
     const headers = ["SCANDAL", "LAYOFF ALERT", "GURGAON", "BANGALORE", "HR DRAMA", "WTF", "SALARY", "FOUNDER", "TOXIC", "AFFAIR"];
     const bodies = [
       "Marketing Head caught with the intern at Third Wave. They thought no one saw.",
@@ -351,16 +360,13 @@
     function getRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     function getRandomTime() { return Math.floor(Math.random() * 59) + 1 + "s ago"; }
 
-    // --- 2. BUILD THE WALL ---
     const wall = document.getElementById('wall');
-    const colCount = window.innerWidth < 600 ? 3 : 5; // Adaptive columns
+    const colCount = window.innerWidth < 600 ? 3 : 5;
 
     for (let i = 0; i < colCount; i++) {
       const col = document.createElement('div');
       col.className = `g-column ${['scroll-up', 'scroll-down', 'scroll-fast'][i % 3]}`;
-      // Fill column with random notes
       for(let j=0; j<12; j++) col.appendChild(createCard());
-      // Duplicate for smooth infinite scroll
       for(let j=0; j<12; j++) col.appendChild(createCard());
       wall.appendChild(col);
     }
@@ -376,18 +382,14 @@
       return div;
     }
 
-    // --- 3. CHAOS ENGINE (Simulate Live Activity) ---
-    
-    // Random "Just In" Pop Effect
+    // --- 2. CHAOS ENGINE ---
     setInterval(() => {
       const allNotes = document.querySelectorAll('.g-note');
       const randomNote = allNotes[Math.floor(Math.random() * allNotes.length)];
-      
       randomNote.classList.add('pop');
       setTimeout(() => { randomNote.classList.remove('pop'); }, 1500);
     }, 2000); 
 
-    // Update Timers randomly
     setInterval(() => {
       const timers = document.querySelectorAll('.timer');
       timers.forEach(t => {
@@ -404,13 +406,12 @@
       });
     }, 5000);
 
-    // Update "Readers" Count in container
     setInterval(() => {
       const rc = document.getElementById('reader-count');
       if(rc) rc.innerText = 400 + Math.floor(Math.random() * 150);
     }, 3000);
 
-    // --- 4. FIREBASE LOGIC ---
+    // --- 3. FIREBASE LOGIC ---
     const firebaseConfig = {
       apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
       authDomain: "rant-2me.firebaseapp.com",
