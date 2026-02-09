@@ -27,7 +27,8 @@
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
-      height: 100vh; /* Critical for sticky footer */
+      /* 100dvh handles mobile URL bars and keyboards better than 100vh */
+      height: 100dvh; 
       display: flex;
       flex-direction: column;
       overflow: hidden; 
@@ -70,6 +71,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
     }
     .nuke-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
@@ -128,6 +130,7 @@
       position: relative;
       z-index: 1;
       scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message {
@@ -155,11 +158,13 @@
       background: var(--ink);
       border-top: 4px solid var(--accent);
       padding: 12px 16px;
-      z-index: 20;
+      z-index: 99; /* Ensure it stays on top */
       display: flex;
       gap: 12px;
       align-items: flex-end;
-      padding-bottom: max(12px, env(safe-area-inset-bottom)); /* iOS safe area */
+      /* Handle iPhone Home Indicator area */
+      padding-bottom: max(12px, env(safe-area-inset-bottom)); 
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
     }
 
     .input-area textarea {
@@ -169,10 +174,11 @@
       padding: 12px;
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
+      font-size: 16px; /* 16px prevents iOS zoom on focus */
       resize: none;
       height: 50px;
       outline: none;
+      border-radius: 0;
     }
     .input-area textarea:focus { background: #FFFDF0; border-color: var(--accent); }
 
@@ -187,6 +193,7 @@
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: 4px 4px 0 var(--accent);
+      flex-shrink: 0;
     }
     .send-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
@@ -198,14 +205,14 @@
     /* --- BOTTOM SHEET (NUKE UI) --- */
     .overlay {
       position: fixed; inset: 0; background: rgba(16, 16, 16, 0.9);
-      backdrop-filter: blur(4px); z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+      backdrop-filter: blur(4px); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
     .overlay.active { opacity: 1; pointer-events: auto; }
 
     .bottom-sheet {
       position: fixed; left: 0; right: 0; bottom: -100%;
       background: var(--bg-color); border-top: 4px solid var(--ink);
-      padding: 32px 24px 48px; z-index: 100;
+      padding: 32px 24px 48px; z-index: 101;
       transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1);
       box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
     }
@@ -256,7 +263,7 @@
   <div id="messages" class="log"></div>
 
   <div class="input-area">
-    <textarea id="msg" placeholder="Add to the record..."></textarea>
+    <textarea id="msg" placeholder="Add to the record..." autofocus></textarea>
     <button class="send-btn" onclick="send()">Send</button>
   </div>
 
@@ -284,6 +291,14 @@
     const chatId = params.get("chatId");
     let currentUserEmail = "";
 
+    // Force focus on load to try and open keyboard on mobile
+    window.onload = function() {
+        setTimeout(() => {
+            const input = document.getElementById("msg");
+            if(input) input.focus();
+        }, 300);
+    };
+
     auth.onAuthStateChanged(user => {
       if (!user || !chatId) {
         window.location.href = "index.html";
@@ -294,8 +309,7 @@
       // 1. Listen to the Chat Meta Data (Timer, Nuke Status)
       db.collection("chats").doc(chatId).onSnapshot(doc => {
         if (!doc.exists) {
-          // Document deleted (Nuked or Expired)
-          alert("This channel has been destroyed.");
+          // Document deleted (Nuked or Expired) - SILENT REDIRECT
           window.location.href = "rant.html";
           return;
         }
@@ -326,9 +340,6 @@
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           const container = document.getElementById("messages");
-          
-          // Only clear if we are rebuilding, but Append is better for performance usually. 
-          // For simplicity in this structure, we rebuild on snapshot change.
           container.innerHTML = "";
 
           snapshot.forEach(doc => {
@@ -348,9 +359,6 @@
     // --- LOGIC ---
 
     function hydrateSeed(chat) {
-       // Check if messages exist, if not, add seed.
-       // Note: In production, do this server-side or be careful of race conditions.
-       // This is a simplified client-side check.
        db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
          if(snap.empty && chat.seed) {
            const batch = db.batch();
@@ -358,7 +366,6 @@
              const ref = db.collection("chats").doc(chatId).collection("messages").doc();
              batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt });
            });
-           // Clear seed from doc to prevent re-hydration
            batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
            batch.commit();
          }
@@ -377,7 +384,6 @@
         if (diff <= 0) {
           clearInterval(interval);
           document.getElementById("timer").innerText = "00:00";
-          // Optional: Trigger delete if owner
         } else {
           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
           const secs = Math.floor((diff % (1000 * 60)) / 1000);
@@ -394,6 +400,7 @@
       const overlay = document.getElementById("sheetOverlay");
       
       if (chat.nukeRequest) {
+        // If nuke requested, show the sheet
         overlay.classList.add("active");
         sheet.classList.add("active");
 
@@ -427,7 +434,6 @@
       }
     }
 
-    // 1. Open the UI to ask me if I want to nuke
     function initiateNuke() {
       const sheet = document.getElementById("nukeSheet");
       const overlay = document.getElementById("sheetOverlay");
@@ -450,15 +456,12 @@
       document.getElementById("nukeSheet").classList.remove("active");
     }
 
-    // 2. I clicked "Send Destruct Signal"
     function sendNukeRequest() {
       db.collection("chats").doc(chatId).update({
         nukeRequest: currentUserEmail
       });
-      // The onSnapshot will update the UI to "Waiting" state automatically
     }
 
-    // 3. I clicked "Cancel" (or Reject)
     function cancelNuke() {
       db.collection("chats").doc(chatId).update({
         nukeRequest: firebase.firestore.FieldValue.delete()
@@ -466,7 +469,6 @@
       closeSheet();
     }
 
-    // 4. I clicked "Agree & Destroy"
     function confirmDestruction() {
       // DELETE THE DOC. 
       // The onSnapshot listener at the top handles the redirect for both users.
@@ -486,6 +488,8 @@
         createdAt: new Date()
       });
       input.value = "";
+      // Keep focus after sending
+      input.focus();
     }
 
     document.getElementById("msg").addEventListener("keydown", function(e) {
