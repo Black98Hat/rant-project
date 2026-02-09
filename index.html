@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <title>Oh my Goss</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #000;
-      --fg: #fff;
-      --muted: rgba(255,255,255,0.65);
-      --ghost: rgba(255,255,255,0.35);
-      --line: rgba(255,255,255,0.18);
+      /* Energetic Palette */
+      --bg-color: #FFD600; /* Electric Yellow */
+      --accent: #FF4800;   /* Hot Orange */
+      --ink: #000000;      /* Pure Black */
+      --paper: #FFFFFF;
     }
 
     * {
@@ -24,128 +23,329 @@
     }
 
     body {
-      background: var(--bg);
-      color: var(--fg);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    /* subtle grain */
-    .grain {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    }
-
-    .container {
-      width: 100%;
-      max-width: 420px;
-      padding: 36px 28px;
-      text-align: center;
-      z-index: 1;
-      animation: enter 1.2s ease;
-    }
-
-    .signals {
+      background-color: var(--bg-color);
+      /* Subtle noise pattern in background */
+      background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
+      color: var(--ink);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; /* No scrolling the body */
       font-family: "JetBrains Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 0.22em;
+      
+      /* DEAD CENTER ALIGNMENT */
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    /* --- THE INFINITE GOSSIP WALL --- */
+    .wall-wrapper {
+      position: fixed;
+      inset: -100px; /* Overshoot the screen so rotation doesn't show edges */
+      display: flex;
+      justify-content: center; /* Center the columns */
+      gap: 20px;
+      z-index: 0;
+      
+      /* Slight rotation for chaos */
+      transform: rotate(-3deg);
+      pointer-events: none;
+    }
+
+    .g-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 240px; /* Fixed width for readability */
+      flex-shrink: 0;
+    }
+
+    /* Animations */
+    .scroll-up { animation: scrollUp 40s linear infinite; }
+    .scroll-down { animation: scrollDown 35s linear infinite; }
+    .scroll-fast { animation: scrollUp 28s linear infinite; }
+
+    /* The Gossip Cards - High Contrast */
+    .g-note {
+      background: var(--paper);
+      border: 3px solid var(--ink); /* Thicker border */
+      padding: 16px;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.15); /* Hard shadow */
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--ink);
+      font-weight: 600;
+      opacity: 0.9; /* Slight transparency so they don't fight the center too hard */
+      transition: transform 0.2s;
+    }
+
+    /* Visual variants */
+    .g-note.hot { border-left: 8px solid var(--accent); }
+    .g-note.shout { 
+      background: var(--ink); 
+      color: var(--bg-color); 
+      border-color: var(--bg-color);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
+    }
+    .g-note.whisper { background: #fffde7; font-style: italic; }
+
+    .g-note b {
+      display: block;
+      font-family: "Archivo", sans-serif;
+      font-weight: 900;
       text-transform: uppercase;
-      color: var(--ghost);
-      margin-bottom: 18px;
-      animation: flicker 5s infinite;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    
+    .g-note.shout b { color: var(--bg-color); }
+
+    /* --- CENTER PIECE --- */
+    
+    .container {
+      position: relative;
+      width: 90%;
+      max-width: 420px;
+      padding: 40px;
+      z-index: 20; /* Keep it well above */
+      
+      background: var(--paper);
+      border: 4px solid var(--ink);
+      box-shadow: 16px 16px 0px var(--ink); /* Deep shadow to separate from bg */
+      
+      text-align: left;
+      animation: enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--ink);
+      color: var(--bg-color);
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      transform: rotate(-2deg);
+      border: 2px solid var(--bg-color); /* Cutout effect */
     }
 
     .brand {
       font-family: "Archivo", sans-serif;
-      font-size: 56px;
+      font-size: 68px;
       font-weight: 900;
-      letter-spacing: -0.04em;
-      margin-bottom: 18px;
+      font-style: italic;
+      letter-spacing: -0.06em;
+      line-height: 0.85;
+      margin-bottom: 24px;
+      color: var(--ink);
+      text-transform: uppercase;
+      /* Clean solid text for readability */
+    }
+    
+    .brand span { 
+      color: var(--accent); 
+      text-decoration: underline;
+      text-decoration-thickness: 4px;
+      text-underline-offset: 4px;
     }
 
     .tagline {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
-      line-height: 1.9;
-      color: var(--muted);
-      margin-bottom: 48px;
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 600;
+      margin-bottom: 36px;
+      background: rgba(255, 214, 0, 0.15); /* Highlight box */
+      padding: 12px;
+      border-left: 4px solid var(--accent);
     }
 
     button {
       width: 100%;
-      padding: 18px;
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--fg);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 13px;
-      letter-spacing: 0.25em;
+      padding: 22px;
+      background: var(--bg-color);
+      border: 3px solid var(--ink);
+      color: var(--ink);
+      font-family: "Archivo", sans-serif;
+      font-weight: 900;
+      font-size: 20px;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.25s ease;
+      position: relative;
+      transition: all 0.15s ease;
+      box-shadow: 6px 6px 0px var(--accent);
     }
 
     button:hover {
-      background: var(--fg);
-      color: var(--bg);
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0px var(--ink);
+      background: var(--accent);
+      color: white;
+    }
+
+    button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--ink);
     }
 
     .footnote {
-      margin-top: 28px;
-      font-family: "JetBrains Mono", monospace;
+      margin-top: 24px;
       font-size: 11px;
-      color: var(--ghost);
+      text-align: center;
+      opacity: 0.7;
+      font-weight: 700;
+    }
+
+    /* Grain Overlay */
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 30;
+      opacity: 0.3;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+    
+    /* Vignette: Darken edges only, keep center clear */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      background: radial-gradient(circle, transparent 40%, rgba(255, 214, 0, 0.8) 90%);
+    }
+
+    /* --- KEYFRAMES --- */
+    @keyframes scrollUp {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+    
+    @keyframes scrollDown {
+      0% { transform: translateY(-50%); }
+      100% { transform: translateY(0); }
     }
 
     @keyframes enter {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: scale(0.8) rotate(5deg); }
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
-    @keyframes flicker {
-      0%,100% { opacity: 0.4; }
-      50% { opacity: 0.9; }
-    }
-
-    @media (max-width: 480px) {
-      .brand { font-size: 44px; }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .wall-wrapper { gap: 10px; }
+      .g-column { width: 160px; } /* Smaller columns on mobile to fit more */
+      .g-note { padding: 10px; font-size: 11px; border-width: 2px; box-shadow: 3px 3px 0 rgba(0,0,0,0.15); }
+      .container { border-width: 3px; box-shadow: 10px 10px 0px var(--ink); padding: 30px 24px; }
+      .brand { font-size: 52px; }
     }
   </style>
 </head>
 
 <body>
+
+  <div class="wall-wrapper">
+    
+    <div class="g-column scroll-up">
+       <div class="g-note hot"><b>CONFIRMED</b><br>Layoffs are happening Tuesday. 15% of staff.</div>
+       <div class="g-note"><b>SALARY</b><br>The new grad is making 20k more than me.</div>
+       <div class="g-note whisper"><b>HR</b><br>Don't sign the PIP. Talk to a lawyer first.</div>
+       <div class="g-note"><b>WTF</b><br>Marketing budget was used for his 'business trip' to Tulum.</div>
+       <div class="g-note shout"><b>ALERT</b><br>IT is reading Slack DMs. Be careful.</div>
+       <div class="g-note hot"><b>CONFIRMED</b><br>Layoffs are happening Tuesday. 15% of staff.</div>
+       <div class="g-note"><b>SALARY</b><br>The new grad is making 20k more than me.</div>
+       <div class="g-note whisper"><b>HR</b><br>Don't sign the PIP. Talk to a lawyer first.</div>
+       <div class="g-note"><b>WTF</b><br>Marketing budget was used for his 'business trip' to Tulum.</div>
+       <div class="g-note shout"><b>ALERT</b><br>IT is reading Slack DMs. Be careful.</div>
+    </div>
+
+    <div class="g-column scroll-down">
+       <div class="g-note shout"><b>SCANDAL</b><br>They left in an Uber together. Again.</div>
+       <div class="g-note"><b>OFFICE</b><br>Someone is stealing lunches. I put laxatives in mine.</div>
+       <div class="g-note hot"><b>REVENUE</b><br>Q3 numbers are fake. Look at the raw data.</div>
+       <div class="g-note whisper"><b>LEAVING</b><br>She isn't sick. She's interviewing at Google.</div>
+       <div class="g-note"><b>MGMT</b><br>The "vision" strategy is just ChatGPT output.</div>
+       <div class="g-note shout"><b>SCANDAL</b><br>They left in an Uber together. Again.</div>
+       <div class="g-note"><b>OFFICE</b><br>Someone is stealing lunches. I put laxatives in mine.</div>
+       <div class="g-note hot"><b>REVENUE</b><br>Q3 numbers are fake. Look at the raw data.</div>
+       <div class="g-note whisper"><b>LEAVING</b><br>She isn't sick. She's interviewing at Google.</div>
+       <div class="g-note"><b>MGMT</b><br>The "vision" strategy is just ChatGPT output.</div>
+    </div>
+
+    <div class="g-column scroll-fast">
+       <div class="g-note"><b>NEPOTISM</b><br>He only got the promotion because they are cousins.</div>
+       <div class="g-note hot"><b>SEEN</b><br>Crying in the 3rd floor phone booth.</div>
+       <div class="g-note whisper"><b>ACQUISITION</b><br>The deal fell through. We are out of cash.</div>
+       <div class="g-note"><b>GROSS</b><br>Stop microwaving fish. We know it's you, Greg.</div>
+       <div class="g-note shout"><b>BONUS</b><br>Execs got 100%. We got pizza.</div>
+       <div class="g-note"><b>NEPOTISM</b><br>He only got the promotion because they are cousins.</div>
+       <div class="g-note hot"><b>SEEN</b><br>Crying in the 3rd floor phone booth.</div>
+       <div class="g-note whisper"><b>ACQUISITION</b><br>The deal fell through. We are out of cash.</div>
+       <div class="g-note"><b>GROSS</b><br>Stop microwaving fish. We know it's you, Greg.</div>
+       <div class="g-note shout"><b>BONUS</b><br>Execs got 100%. We got pizza.</div>
+    </div>
+
+    <div class="g-column scroll-down">
+       <div class="g-note whisper"><b>RUMOR</b><br>Office is closing. Full remote or fired.</div>
+       <div class="g-note hot"><b>SHOCK</b><br>Did you see the Reply-All email?</div>
+       <div class="g-note"><b>CLIENTS</b><br>Our biggest client just churned.</div>
+       <div class="g-note"><b>HR</b><br>New dress code policy coming.</div>
+       <div class="g-note shout"><b>SECURITY</b><br>Keycards stopped working for Eng team.</div>
+       <div class="g-note whisper"><b>RUMOR</b><br>Office is closing. Full remote or fired.</div>
+       <div class="g-note hot"><b>SHOCK</b><br>Did you see the Reply-All email?</div>
+       <div class="g-note"><b>CLIENTS</b><br>Our biggest client just churned.</div>
+       <div class="g-note"><b>HR</b><br>New dress code policy coming.</div>
+       <div class="g-note shout"><b>SECURITY</b><br>Keycards stopped working for Eng team.</div>
+    </div>
+    
+     <div class="g-column scroll-up">
+       <div class="g-note hot"><b>CEO</b><br>Selling his stock. All of it.</div>
+       <div class="g-note"><b>DRAMA</b><br>They were screaming in the conference room.</div>
+       <div class="g-note"><b>LUNCH</b><br>Team lunch cancelled due to "budget cuts".</div>
+       <div class="g-note whisper"><b>INSIDER</b><br>Product launch is delayed to 2026.</div>
+       <div class="g-note hot"><b>CEO</b><br>Selling his stock. All of it.</div>
+       <div class="g-note"><b>DRAMA</b><br>They were screaming in the conference room.</div>
+       <div class="g-note"><b>LUNCH</b><br>Team lunch cancelled due to "budget cuts".</div>
+       <div class="g-note whisper"><b>INSIDER</b><br>Product launch is delayed to 2026.</div>
+    </div>
+
+  </div>
+
+  <div class="vignette"></div>
   <div class="grain"></div>
 
   <div class="container">
-    <div class="signals">voices · glances · silence</div>
+    <div class="badge">
+       ● LIVE SIGNALS
+    </div>
 
-    <div class="brand">Oh my Goss</div>
+    <div class="brand">
+      Oh my <br />
+      <span>Goss</span>
+    </div>
 
     <div class="tagline">
-      Share today’s office energy.<br />
-      Unspoken things.<br />
-      Unofficial truths.
+      <b>Share the office energy.</b><br />
+      Unspoken things. Unofficial truths.<br />
       Circulated quietly.
     </div>
 
-    <button onclick="enter()">Enter quietly</button>
+    <button onclick="enter()">Spill It</button>
 
     <div class="footnote">
-      you didn’t hear this here
+      // you didn’t hear this here
     </div>
   </div>
 
-  <!-- ambient -->
   <audio id="ambience" loop>
     <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b9a6a2d5a.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
