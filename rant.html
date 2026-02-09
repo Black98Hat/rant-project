@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Whisper · Send</title>
+  <title>Goss · Now</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
 
     .top h1 {
       font-family: "Archivo", sans-serif;
-      font-size: 32px;
+      font-size: 64px;
       font-weight: 800;
       letter-spacing: -0.03em;
       margin: 0;
@@ -640,7 +640,7 @@
       if (!currentInviteTarget) return;
 
       const subject = "Someone is talking about you 🤫";
-      const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://ohmygoss.app`;
+      const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
       
       const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
