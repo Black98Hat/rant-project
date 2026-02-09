@@ -75,6 +75,19 @@
      padding: 4px 8px;
      transform: rotate(-1deg);
    }
+   
+   .top .warning-ticker {
+     display: block;
+     background: var(--accent);
+     color: white;
+     font-size: 11px;
+     font-weight: 800;
+     padding: 6px;
+     margin-top: 12px;
+     text-transform: uppercase;
+     text-align: center;
+     border: 2px solid var(--ink);
+   }
 
    /* --- TABS --- */
    .tab-nav {
@@ -99,7 +112,7 @@
      position: relative;
      color: var(--ink);
      transition: all 0.2s;
-     box-shadow: none; /* Reset button shadow */
+     box-shadow: none;
      margin: 0;
    }
 
@@ -133,7 +146,6 @@
      font-family: "JetBrains Mono", monospace;
    }
    
-   /* Invert badge border when active to match black bg */
    .tab-btn.active .badge { border-color: var(--bg-color); }
 
    /* --- SECTIONS & CARDS --- */
@@ -216,7 +228,7 @@
      display: inline-block;
    }
 
-   .echo {
+   .reply-box {
      margin-top: 16px;
      padding: 12px;
      background: var(--bg-color);
@@ -225,7 +237,7 @@
      font-style: italic;
      position: relative;
    }
-   .echo::before {
+   .reply-box::before {
      content: "↳ RE:";
      font-weight: 800;
      font-size: 10px;
@@ -285,6 +297,7 @@
      box-shadow: 4px 4px 0 var(--ink);
    }
 
+   /* --- CHAT LIST --- */
    .chat-item {
      background: var(--paper);
      border: 3px solid var(--ink);
@@ -293,15 +306,31 @@
      cursor: pointer;
      transition: transform 0.1s;
      display: flex;
+     flex-direction: column;
+     gap: 8px;
+   }
+   .chat-item:hover { transform: translateX(4px); }
+   
+   .chat-row {
+     display: flex;
      justify-content: space-between;
      align-items: center;
    }
-   .chat-item:hover { transform: translateX(4px); }
   
    .chat-peer {
      font-weight: 800;
      font-size: 14px;
    }
+   
+   .countdown-timer {
+     font-size: 11px;
+     font-weight: 800;
+     color: var(--accent);
+     background: rgba(255, 72, 0, 0.1);
+     padding: 2px 6px;
+     border: 1px solid var(--accent);
+   }
+
    .chat-preview {
      font-size: 11px;
      opacity: 0.6;
@@ -318,13 +347,10 @@
      padding: 16px 20px;
      z-index: 50;
      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-     display: block; /* Default visible */
+     display: block; 
    }
   
-   /* Helper to hide composer on Townhall tab */
-   .composer.hidden {
-     display: none !important;
-   }
+   .composer.hidden { display: none !important; }
 
    .composer.collapsed {
      padding: 12px 20px;
@@ -477,7 +503,6 @@
        font-size: 12px;
    }
    
-   /* Placeholder for townhall */
    .coming-soon-box {
      text-align: center;
      padding: 40px 20px;
@@ -501,6 +526,9 @@
    <div class="top">
      <h1>Goss · Central</h1>
      <p>UNOFFICIAL TRUTHS ONLY</p>
+     <div class="warning-ticker">
+       ⚠️ ALL CHATS SELF-DESTRUCT IN <span id="timeLimitDisplay"></span> MINS
+     </div>
    </div>
 
    <div class="tab-nav">
@@ -537,17 +565,17 @@
 
    <div class="composer collapsed" id="mainComposer">
      <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
-     <div class="context">Spill the tea.</div>
+     <div class="context">Drop an anonymous note</div>
 
      <div class="collapsed-row">
        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
-       <textarea id="rantText" placeholder="WHAT HAPPENED?"></textarea>
+       <textarea id="rantText" placeholder="WHAT'S THE SCOOP?"></textarea>
      </div>
 
      <div class="hint">delivery is quiet · no name attached</div>
 
      <div class="action">
-       <button onclick="sendRant()">START RUMOR</button>
+       <button onclick="sendRant()">DROP ANONYMOUS MSG</button>
      </div>
 
      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
@@ -570,29 +598,59 @@
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
  <script>
+   // --- CONFIGURATION ---
+   const CHAT_TTL_MINUTES = 10; 
+   document.getElementById('timeLimitDisplay').innerText = CHAT_TTL_MINUTES;
+
    // --- Global State ---
    window.__hotInboxPending = 0;
    window.__hotSentPending = 0;
    window.__inboxReady = false;
    window.__sentReady = false;
    let currentInviteTarget = "";
-   let currentTab = "desk"; // Default tab
+   let currentTab = "desk";
+   let activeChats = []; // To track chats for countdown
   
    const userExistenceCache = {};
+
+   // --- TIMER LOGIC (Runs every second) ---
+   setInterval(() => {
+     if(activeChats.length === 0) return;
+
+     activeChats.forEach(chat => {
+       const el = document.getElementById(`timer-${chat.id}`);
+       if (!el) return;
+
+       const createdAt = chat.createdAt.toDate();
+       const expiresAt = new Date(createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
+       const now = new Date();
+       const diff = expiresAt - now;
+
+       if (diff <= 0) {
+         // EXPIRED: Delete chat
+         deleteChat(chat.id);
+       } else {
+         // UPDATE UI
+         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+         const secs = Math.floor((diff % (1000 * 60)) / 1000);
+         el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+       }
+     });
+   }, 1000);
+
+   function deleteChat(chatId) {
+     db.collection("chats").doc(chatId).delete().then(() => {
+       console.log("Chat expired and deleted");
+     }).catch(err => console.error(err));
+   }
 
    // --- TAB LOGIC ---
    function switchTab(tabName) {
      currentTab = tabName;
-     
-     // Toggle Content
      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
      document.getElementById(`view-${tabName}`).classList.add('active');
-
-     // Toggle Buttons
      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
      document.getElementById(`btn-${tabName}`).classList.add('active');
-
-     // Toggle Composer visibility (Hide in Tapri for now)
      const composer = document.getElementById('mainComposer');
      if (tabName === 'tapri') {
        composer.classList.add('hidden');
@@ -601,29 +659,21 @@
      }
    }
 
-   // Modified to also update Tab Badge
    function updateHotGossVisibility() {
      if (!window.__inboxReady || !window.__sentReady) return;
 
      const hot = document.getElementById("hotGoss");
      const countEl = document.getElementById("hotGossCount");
      const badgeEl = document.getElementById("deskBadge");
-     
      const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
 
-     // 1. Update the "Hot Goss" Section (inside Desk tab)
      if (total > 0) {
        hot.style.display = "block";
        countEl.textContent = total + " PENDING";
-     } else {
-       hot.style.display = "none";
-     }
-
-     // 2. Update the Tab Badge (Always visible if count > 0)
-     if (total > 0) {
        badgeEl.style.display = "inline-flex";
        badgeEl.textContent = total;
      } else {
+       hot.style.display = "none";
        badgeEl.style.display = "none";
      }
    }
@@ -648,9 +698,6 @@
        email: user.email,
        lastSeen: new Date()
      }, { merge: true });
-
-     // Dummy listener for general updates if needed
-     db.collection("rants").where("to", "==", user.email).where("status", "!=", "read").onSnapshot(()=>{});
 
      loadInboxInline(user.email);
      loadSentInline(user.email);
@@ -677,7 +724,6 @@
        .onSnapshot(snapshot => {
          window.__hotSentPending = 0;
          window.__sentReady = true;
-         let localIndex = 0;
          const container = document.getElementById("sentInline");
          container.innerHTML = "";
 
@@ -691,23 +737,23 @@
            if (rant.status === "accepted") return;
 
            if (rant.status === "pending" || rant.status === "echoed") {
-             localIndex++;
              window.__hotSentPending++;
            }
 
-           const echoBlock = rant.echo ? `<div class="echo">${rant.echo}</div>` : "";
+           // RENAMED COPY: "Echo" -> "Reply"
+           const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
           
            let actionBlock = "";
            if (rant.status === "echoed" && rant.echo) {
                actionBlock = `
                  <div class="action">
-                   <button onclick="acceptEchoInline('${doc.id}')">ACCEPT & OPEN CHAT</button>
+                   <button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button>
                  </div>`;
            }
 
            const statusText = rant.status === "pending"
-             ? "<span style='color:var(--accent)'>AWAITING ECHO</span>"
-             : rant.status === "echoed" ? "ECHO RECEIVED" : rant.status;
+             ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>"
+             : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
 
            const inviteContainerId = `invite-ui-${doc.id}`;
 
@@ -737,7 +783,7 @@
          });
 
          if (!container.innerHTML) {
-           container.innerHTML = "<div class='empty'>NO OUTGOING RUMORS</div>";
+           container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
          }
          updateHotGossVisibility();
        });
@@ -773,18 +819,19 @@
            }
 
            let block = "";
+           // UPDATED COPY: "Echo" -> "Reply/Unlock"
            if (rant.status === "pending") {
              block = `
                <div class="prompt">ACTION REQUIRED</div>
-               <textarea id="echo-${doc.id}" placeholder="Confirm what you heard..."></textarea>
+               <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
                <div class="action">
-                 <button onclick="submitEcho('${doc.id}')">ECHO BACK</button>
+                 <button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button>
                </div>
              `;
            } else if (rant.status === "echoed") {
              block = `
-               <div class="echo">${rant.echo}</div>
-               <div class="status">WAITING ON SENDER</div>
+               <div class="reply-box">${rant.echo}</div>
+               <div class="status">WAITING ON SENDER TO UNLOCK</div>
              `;
            }
 
@@ -819,6 +866,7 @@
      const chatRef = db.collection("chats").doc();
      db.collection("rants").doc(rantId).get().then(doc => {
        const rant = doc.data();
+       // Create Chat (Timer starts based on createdAt)
        chatRef.set({
          users: [rant.from, rant.to],
          createdAt: new Date(),
@@ -905,17 +953,27 @@
        .onSnapshot(snapshot => {
          const list = document.getElementById("chatList");
          list.innerHTML = "";
+         activeChats = []; // Reset list for timer loop
+
          if (snapshot.empty) {
            list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
            return;
          }
+         
          snapshot.forEach(doc => {
            const chat = doc.data();
            const peer = chat.users.find(u => u !== userEmail);
+           
+           // Push to activeChats for the interval timer to pick up
+           activeChats.push({ id: doc.id, createdAt: chat.createdAt });
+
            list.innerHTML += `
              <div class="chat-item" onclick="openChat('${doc.id}')">
-               <div class="chat-peer">${peer}</div>
-               <div class="chat-preview">/// ENCRYPTED</div>
+               <div class="chat-row">
+                 <div class="chat-peer">${peer}</div>
+                 <div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div>
+               </div>
+               <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
              </div>
            `;
          });
