@@ -16,48 +16,47 @@
       --paper: #FFFFFF;
       --me-bg: #101010;
       --me-text: #FFD600;
+      --danger: #FF0000;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       margin: 0;
       background-color: var(--bg-color);
-      /* Subtle noise pattern */
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden; /* Lock body, scroll chat-log */
+      /* Padding bottom equals input area height + spacing */
+      padding-bottom: 90px; 
     }
 
     .grain {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
+      position: fixed; inset: 0; pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-      z-index: 0;
-      mix-blend-mode: multiply;
+      z-index: 0; mix-blend-mode: multiply;
     }
 
     /* --- HEADER --- */
     .top {
       flex: 0 0 auto;
-      padding: 16px 20px;
+      padding: 12px 16px;
       border-bottom: 4px solid var(--ink);
       background: var(--bg-color);
-      z-index: 10;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
     }
 
     .top-left h1 {
       font-family: "Archivo", sans-serif;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 900;
       font-style: italic;
       text-transform: uppercase;
@@ -65,40 +64,64 @@
       line-height: 1;
     }
 
-    .top-left p {
-      margin: 4px 0 0;
-      font-size: 10px;
-      font-weight: 700;
-      background: var(--ink);
-      color: var(--bg-color);
-      display: inline-block;
-      padding: 2px 6px;
-      text-transform: uppercase;
-    }
-
-    .back-btn {
-      text-decoration: none;
+    .timer-badge {
       font-size: 12px;
       font-weight: 800;
-      color: var(--ink);
-      border: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--bg-color);
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .nuke-btn {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
       padding: 8px 12px;
       text-transform: uppercase;
-      background: var(--paper);
-      box-shadow: 3px 3px 0 var(--ink);
-      transition: all 0.1s;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(255, 72, 0, 0.2);
     }
-    .back-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
+    .nuke-btn:active { transform: translate(1px, 1px); box-shadow: none; }
+    
+    .nuke-btn.pending {
+      background: var(--accent); color: white; border-color: var(--ink);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    /* --- DESTRUCTION BANNER --- */
+    #destructBanner {
+      display: none;
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: 800;
+      font-size: 12px;
+      border-bottom: 3px solid var(--ink);
+      text-transform: uppercase;
+    }
+    #destructBanner button {
+      margin-left: 10px;
+      background: var(--ink);
+      color: white;
+      border: 1px solid white;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-weight: 800;
     }
 
     /* --- CHAT LOG --- */
     .log {
-      flex: 1 1 auto;
+      flex: 1;
       overflow-y: auto;
       padding: 20px;
-      padding-bottom: 40px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -106,7 +129,6 @@
       z-index: 1;
     }
 
-    /* Message Bubbles */
     .message {
       max-width: 85%;
       padding: 14px 18px;
@@ -116,96 +138,51 @@
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .message.them {
-      align-self: flex-start;
-      background: var(--paper);
-      color: var(--ink);
-    }
-    
-    .message.me {
-      align-self: flex-end;
-      background: var(--me-bg);
-      color: var(--me-text);
-      border-color: var(--ink);
-    }
+    .message.them { align-self: flex-start; background: var(--paper); color: var(--ink); }
+    .message.me { align-self: flex-end; background: var(--me-bg); color: var(--me-text); border-color: var(--ink); }
 
-    .from {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      letter-spacing: 0.05em;
-      opacity: 0.7;
-    }
+    .from { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7; }
     .message.me .from { color: var(--accent); opacity: 1; }
+    .text { font-size: 14px; line-height: 1.5; font-weight: 600; white-space: pre-wrap; word-wrap: break-word; }
 
-    .text {
-      font-size: 14px;
-      line-height: 1.5;
-      font-weight: 600;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    /* --- INPUT AREA --- */
+    /* --- STICKY INPUT AREA --- */
     .input-area {
-      flex: 0 0 auto;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
       background: var(--ink);
       border-top: 4px solid var(--accent);
-      padding: 16px;
-      z-index: 20;
+      padding: 12px;
+      z-index: 999;
       display: flex;
-      gap: 12px;
-      align-items: flex-end;
+      gap: 10px;
+      align-items: center;
+      height: 80px; /* Fixed height for padding calculation */
     }
 
     .input-area textarea {
       flex: 1;
       background: var(--paper);
       border: 2px solid var(--ink);
-      padding: 12px;
+      padding: 10px;
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       font-size: 14px;
       resize: none;
-      min-height: 50px;
-      max-height: 120px;
+      height: 50px;
       outline: none;
     }
-    .input-area textarea:focus {
-      background: #FFFDF0;
-      border-color: var(--accent);
-    }
+    .input-area textarea:focus { background: #FFFDF0; border-color: var(--accent); }
 
     .send-btn {
-      width: 70px;
-      height: 50px;
-      background: var(--bg-color);
-      border: 2px solid var(--paper);
-      color: var(--ink);
-      font-family: "Archivo", sans-serif;
-      font-weight: 900;
-      font-size: 14px;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 4px 4px 0 var(--accent);
-      transition: all 0.1s;
+      width: 60px; height: 50px;
+      background: var(--bg-color); border: 2px solid var(--paper);
+      color: var(--ink); font-family: "Archivo", sans-serif;
+      font-weight: 900; font-size: 12px; text-transform: uppercase;
+      cursor: pointer; box-shadow: 4px 4px 0 var(--accent);
     }
-    .send-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--accent);
-    }
+    .send-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--accent); }
 
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
-    /* Scrollbar styling */
-    .log::-webkit-scrollbar { width: 6px; }
-    .log::-webkit-scrollbar-track { background: transparent; }
-    .log::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 3px; }
-
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 
@@ -214,14 +191,18 @@
 
   <div class="top">
     <div class="top-left">
-      <h1>Confidential</h1>
-      <p>Secure Line</p>
+      <h1>Encrypted</h1>
+      <div id="timeLeft" class="timer-badge">--:--</div>
     </div>
-    <a href="rant.html" class="back-btn">Exit</a>
+    <button id="nukeBtn" class="nuke-btn" onclick="initiateNuke()">💣 Nuke Chat</button>
   </div>
 
-  <div id="messages" class="log">
-    </div>
+  <div id="destructBanner">
+    ⚠️ PARTNER WANTS TO DELETE
+    <button onclick="confirmNuke()">CONFIRM</button>
+  </div>
+
+  <div id="messages" class="log"></div>
 
   <div class="input-area">
     <textarea id="msg" placeholder="Add to the record..."></textarea>
@@ -233,19 +214,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
+    // --- CONFIG ---
+    const TTL_MINUTES = 15;
     const firebaseConfig = {
-      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Use your actual API Key
       authDomain: "rant-2me.firebaseapp.com",
       projectId: "rant-2me"
     };
 
     firebase.initializeApp(firebaseConfig);
-
     const auth = firebase.auth();
     const db = firebase.firestore();
-
     const params = new URLSearchParams(window.location.search);
     const chatId = params.get("chatId");
+
+    let chatCreatedAt = null;
 
     auth.onAuthStateChanged(user => {
       if (!user || !chatId) {
@@ -253,91 +236,137 @@
         return;
       }
 
-      db.collection("chats").doc(chatId).get().then(doc => {
-        if (!doc.exists || !doc.data().users.includes(user.email)) {
-          alert("ACCESS DENIED");
-          window.location.href = "rant.html";
+      // 1. Listen to Chat Metadata (Destruction Logic & Timer)
+      db.collection("chats").doc(chatId).onSnapshot(doc => {
+        if (!doc.exists) {
+          // Chat deleted (by timer or mutual nuke)
+          alert("CHAT DESTROYED. RETURNING TO DESK.");
+          window.location.href = "index.html";
           return;
         }
 
-        const chat = doc.data();
-
-        // Hydrate seed logic (Exactly as requested)
-        if (chat.seed && Array.isArray(chat.seed)) {
-          db.collection("chats")
-            .doc(chatId)
-            .collection("messages")
-            .limit(1)
-            .get()
-            .then(snapshot => {
-              if (!snapshot.empty) return;
-
-              const batch = db.batch();
-              chat.seed.forEach(m => {
-                const ref = db.collection("chats")
-                  .doc(chatId)
-                  .collection("messages")
-                  .doc();
-                batch.set(ref, {
-                  from: m.from,
-                  text: m.text,
-                  createdAt: m.createdAt || new Date()
-                });
-              });
-              batch.commit();
-            });
+        const data = doc.data();
+        
+        // Security Check
+        if (!data.users.includes(user.email)) {
+          window.location.href = "index.html";
+          return;
         }
 
-        // Real-time listener
-        db.collection("chats")
-          .doc(chatId)
-          .collection("messages")
-          .orderBy("createdAt")
-          .onSnapshot(snapshot => {
-            const container = document.getElementById("messages");
-            container.innerHTML = "";
+        // Timer Setup
+        if (!chatCreatedAt && data.createdAt) {
+          chatCreatedAt = data.createdAt.toDate();
+          startTimer();
+        }
 
-            snapshot.forEach(doc => {
-              const m = doc.data();
-              // Determine class based on sender
-              const isMe = m.from === user.email;
-              const typeClass = isMe ? "me" : "them";
-              const fromLabel = isMe ? "YOU" : m.from;
+        // Mutual Destruction Logic
+        const banner = document.getElementById('destructBanner');
+        const nukeBtn = document.getElementById('nukeBtn');
 
-              container.innerHTML += `
-                <div class="message ${typeClass}">
-                  <div class="from">${fromLabel}</div>
-                  <div class="text">${m.text}</div>
-                </div>
-              `;
-            });
-            
-            // Auto-scroll to bottom
-            container.scrollTop = container.scrollHeight;
-          });
+        if (data.destroyRequestedBy) {
+           if (data.destroyRequestedBy === user.email) {
+             // I requested it
+             nukeBtn.innerText = "WAITING FOR PARTNER...";
+             nukeBtn.classList.add('pending');
+             nukeBtn.disabled = true;
+           } else {
+             // Partner requested it
+             banner.style.display = 'block';
+             nukeBtn.style.display = 'none'; // Hide my initiate button
+           }
+        }
       });
+
+      // 2. Message Seeding (Run once)
+      db.collection("chats").doc(chatId).get().then(doc => {
+         const chat = doc.data();
+         if (chat.seed && Array.isArray(chat.seed)) {
+            // Check if messages already exist to avoid dups
+            db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
+               if(snap.empty) {
+                  const batch = db.batch();
+                  chat.seed.forEach(m => {
+                    const ref = db.collection("chats").doc(chatId).collection("messages").doc();
+                    batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt || new Date() });
+                  });
+                  batch.commit(); // Writes seed messages
+               }
+            });
+         }
+      });
+
+      // 3. Listen for Messages
+      db.collection("chats").doc(chatId).collection("messages")
+        .orderBy("createdAt")
+        .onSnapshot(snapshot => {
+          const container = document.getElementById("messages");
+          container.innerHTML = ""; // Clear and redraw (inefficient but safe for small chats)
+          
+          snapshot.forEach(doc => {
+            const m = doc.data();
+            const isMe = m.from === user.email;
+            container.innerHTML += `
+              <div class="message ${isMe ? "me" : "them"}">
+                <div class="from">${isMe ? "YOU" : "ANON"}</div>
+                <div class="text">${m.text}</div>
+              </div>
+            `;
+          });
+          // Scroll to bottom
+          window.scrollTo(0, document.body.scrollHeight);
+        });
     });
+
+    // --- ACTIONS ---
 
     function send() {
       const user = auth.currentUser;
       const input = document.getElementById("msg");
       const text = input.value.trim();
-
       if (!text) return;
 
-      db.collection("chats")
-        .doc(chatId)
-        .collection("messages")
-        .add({
-          from: user.email,
-          text,
-          createdAt: new Date()
-        });
-
+      db.collection("chats").doc(chatId).collection("messages").add({
+        from: user.email,
+        text,
+        createdAt: new Date()
+      });
       input.value = "";
     }
-    
-    // Allow Enter key to send
+
+    function initiateNuke() {
+      if(!confirm("Request to destroy this chat immediately? It will ask the other person.")) return;
+      
+      const user = auth.currentUser;
+      db.collection("chats").doc(chatId).update({
+        destroyRequestedBy: user.email
+      });
+    }
+
+    function confirmNuke() {
+      // Delete the document. The onSnapshot listener handles the redirect for both users.
+      db.collection("chats").doc(chatId).delete();
+    }
+
+    function startTimer() {
+      const el = document.getElementById("timeLeft");
+      setInterval(() => {
+        const now = new Date();
+        const expiresAt = new Date(chatCreatedAt.getTime() + TTL_MINUTES * 60000);
+        const diff = expiresAt - now;
+
+        if (diff <= 0) {
+          el.innerText = "00:00";
+          // Optional: Force delete if time is up, though index.html handles cleanup too
+          db.collection("chats").doc(chatId).delete();
+        } else {
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+          el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    // Keyboard handling
     document.getElementById("msg").addEventListener("keydown", function(e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
