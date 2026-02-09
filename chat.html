@@ -399,8 +399,17 @@
     }
 
     function confirmDestruction() {
-      // Deletes doc -> Triggers onSnapshot(!doc.exists) -> Redirects both users
-      db.collection("chats").doc(chatId).delete();
+      console.log("Attempting to delete chat: " + chatId);
+      
+      db.collection("chats").doc(chatId).delete()
+        .then(() => {
+           console.log("Document successfully deleted!");
+           // The onSnapshot listener handles the redirect
+        })
+        .catch((error) => {
+           console.error("Error removing document: ", error);
+           alert("NUKE FAILED: " + error.message); // This will tell us the exact reason
+        });
     }
 
     // --- MESSAGING ---
