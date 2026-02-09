@@ -30,8 +30,6 @@
       width: 100vw;
       overflow: hidden;
       font-family: "JetBrains Mono", monospace;
-      
-      /* DEAD CENTER ALIGNMENT */
       display: grid;
       place-items: center;
       position: relative;
@@ -40,10 +38,10 @@
     /* --- THE INFINITE GOSSIP WALL --- */
     .wall-wrapper {
       position: fixed;
-      inset: -150px; /* Bleed further to handle rotation */
+      inset: -100px;
       display: flex;
       justify-content: center;
-      gap: 16px; 
+      gap: 16px;
       z-index: 0;
       transform: rotate(-3deg);
       pointer-events: none;
@@ -53,35 +51,35 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      width: 220px; /* Slightly tighter cards */
+      width: 220px;
       flex-shrink: 0;
     }
 
     /* Animations */
-    .scroll-up { animation: scrollUp 45s linear infinite; }
-    .scroll-down { animation: scrollDown 40s linear infinite; }
-    .scroll-fast { animation: scrollUp 30s linear infinite; }
+    .scroll-up { animation: scrollUp 40s linear infinite; }
+    .scroll-down { animation: scrollDown 35s linear infinite; }
+    .scroll-fast { animation: scrollUp 28s linear infinite; }
 
     /* The Gossip Cards */
     .g-note {
       background: var(--paper);
-      border: 2px solid var(--ink);
+      border: 3px solid var(--ink);
       padding: 14px;
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.15);
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
       color: var(--ink);
       font-weight: 600;
-      opacity: 0.95; 
+      opacity: 0.95;
       transition: transform 0.2s;
     }
 
-    .g-note.hot { border-left: 6px solid var(--accent); }
+    .g-note.hot { border-left: 8px solid var(--accent); }
     .g-note.shout { 
       background: var(--ink); 
       color: var(--bg-color); 
       border-color: var(--bg-color);
-      box-shadow: 5px 5px 0 rgba(0,0,0,0.3);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
     }
     .g-note.whisper { background: #fffde7; font-style: italic; }
 
@@ -90,28 +88,23 @@
       font-family: "Archivo", sans-serif;
       font-weight: 900;
       text-transform: uppercase;
-      font-size: 10px;
+      font-size: 11px;
       margin-bottom: 4px;
       color: var(--accent);
       letter-spacing: 0.05em;
     }
-    
     .g-note.shout b { color: var(--bg-color); }
 
-    /* --- CENTER PIECE (SMALLER NOW) --- */
-    
+    /* --- CENTER PIECE --- */
     .container {
       position: relative;
       width: 90%;
-      /* REDUCED SIZE */
-      max-width: 340px; 
-      padding: 30px 24px;
+      max-width: 420px;
+      padding: 40px;
       z-index: 20;
-      
       background: var(--paper);
       border: 4px solid var(--ink);
-      box-shadow: 12px 12px 0px var(--ink);
-      
+      box-shadow: 16px 16px 0px var(--ink);
       text-align: left;
       animation: enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -120,65 +113,64 @@
       display: inline-block;
       background: var(--ink);
       color: var(--bg-color);
-      padding: 4px 8px;
-      font-size: 11px;
+      padding: 6px 10px;
+      font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
       transform: rotate(-2deg);
-      border: 1px solid var(--bg-color);
+      border: 2px solid var(--bg-color);
     }
 
     .brand {
       font-family: "Archivo", sans-serif;
-      font-size: 56px; /* Slightly smaller */
+      font-size: 68px;
       font-weight: 900;
       font-style: italic;
       letter-spacing: -0.06em;
       line-height: 0.85;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
       color: var(--ink);
       text-transform: uppercase;
     }
-    
     .brand span { 
       color: var(--accent); 
       text-decoration: underline;
-      text-decoration-thickness: 3px;
-      text-underline-offset: 3px;
+      text-decoration-thickness: 4px;
+      text-underline-offset: 4px;
     }
 
     .tagline {
-      font-size: 13px; /* Slightly smaller */
-      line-height: 1.5;
+      font-size: 15px;
+      line-height: 1.6;
       font-weight: 600;
-      margin-bottom: 28px;
+      margin-bottom: 36px;
       background: rgba(255, 214, 0, 0.15);
-      padding: 10px;
-      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-left: 4px solid var(--accent);
     }
 
     button {
       width: 100%;
-      padding: 18px;
+      padding: 22px;
       background: var(--bg-color);
       border: 3px solid var(--ink);
       color: var(--ink);
       font-family: "Archivo", sans-serif;
       font-weight: 900;
-      font-size: 18px;
+      font-size: 20px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       cursor: pointer;
       position: relative;
       transition: all 0.15s ease;
-      box-shadow: 5px 5px 0px var(--accent);
+      box-shadow: 6px 6px 0px var(--accent);
     }
 
     button:hover {
       transform: translate(-2px, -2px);
-      box-shadow: 7px 7px 0px var(--ink);
+      box-shadow: 8px 8px 0px var(--ink);
       background: var(--accent);
       color: white;
     }
@@ -189,8 +181,8 @@
     }
 
     .footnote {
-      margin-top: 18px;
-      font-size: 10px;
+      margin-top: 24px;
+      font-size: 11px;
       text-align: center;
       opacity: 0.7;
       font-weight: 700;
@@ -211,29 +203,40 @@
       inset: 0;
       pointer-events: none;
       z-index: 10;
-      background: radial-gradient(circle, transparent 30%, rgba(255, 214, 0, 0.9) 90%);
+      background: radial-gradient(circle, transparent 30%, rgba(255, 214, 0, 0.9) 85%);
     }
 
     @keyframes scrollUp {
       0% { transform: translateY(0); }
       100% { transform: translateY(-50%); }
     }
-    
     @keyframes scrollDown {
       0% { transform: translateY(-50%); }
       100% { transform: translateY(0); }
     }
-
     @keyframes enter {
       from { opacity: 0; transform: scale(0.8) rotate(5deg); }
       to { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
+    /* --- MOBILE OPTIMIZATION --- */
     @media (max-width: 600px) {
-      /* Show fewer columns on mobile to avoid lag/clutter */
-      .g-column:first-child, .g-column:last-child { display: none; }
-      .container { border-width: 3px; box-shadow: 8px 8px 0px var(--ink); padding: 24px 20px; }
-      .brand { font-size: 46px; }
+      /* Shrink container to let gossip bleed through edges */
+      .container { 
+        width: 78%; /* Much narrower */
+        max-width: 320px; 
+        padding: 24px 20px; 
+        box-shadow: 8px 8px 0px var(--ink);
+      }
+      
+      .brand { font-size: 48px; }
+      .tagline { font-size: 13px; margin-bottom: 24px; }
+      button { padding: 16px; font-size: 16px; }
+      
+      /* Make sure columns are narrow enough to fit 3 on screen */
+      .wall-wrapper { gap: 8px; }
+      .g-column { width: 140px; }
+      .g-note { font-size: 10px; padding: 10px; }
     }
   </style>
 </head>
@@ -243,66 +246,55 @@
   <div class="wall-wrapper">
     
     <div class="g-column scroll-up">
-       <div class="g-note hot"><b>ONSITE</b><br>The US trip is cancelled. They are just stalling you.</div>
-       <div class="g-note"><b>CTC</b><br>30% hike on paper, but in hand is less than before?</div>
-       <div class="g-note whisper"><b>APPRAISAL</b><br>Bell curve is rigged. Manager already picked favorites.</div>
-       <div class="g-note"><b>OFFER</b><br>He's offer shopping. Has 3 offers, asking for 40LPA.</div>
-       <div class="g-note shout"><b>SCAM</b><br>Variable pay is never coming. Forget it.</div>
-       <div class="g-note hot"><b>ONSITE</b><br>The US trip is cancelled. They are just stalling you.</div>
-       <div class="g-note"><b>CTC</b><br>30% hike on paper, but in hand is less than before?</div>
-       <div class="g-note whisper"><b>APPRAISAL</b><br>Bell curve is rigged. Manager already picked favorites.</div>
-       <div class="g-note"><b>OFFER</b><br>He's offer shopping. Has 3 offers, asking for 40LPA.</div>
-       <div class="g-note shout"><b>SCAM</b><br>Variable pay is never coming. Forget it.</div>
+       <div class="g-note hot"><b>APPRAISAL</b><br>3% hike. Manager said "market is bad" while driving his new BMW.</div>
+       <div class="g-note"><b>GURGAON</b><br>He forces the team to drink on Fridays. If you leave, you're "not a culture fit."</div>
+       <div class="g-note whisper"><b>LAYOFF</b><br>Marketing team is gone next week. Silent firing started.</div>
+       <div class="g-note"><b>CTC</b><br>The new fresher from IIT is earning more than the Tech Lead.</div>
+       <div class="g-note shout"><b>HR</b><br>Biometric scan mandatory. 1 minute late = half day.</div>
+       <div class="g-note hot"><b>APPRAISAL</b><br>3% hike. Manager said "market is bad" while driving his new BMW.</div>
+       <div class="g-note"><b>GURGAON</b><br>He forces the team to drink on Fridays. If you leave, you're "not a culture fit."</div>
+       <div class="g-note whisper"><b>LAYOFF</b><br>Marketing team is gone next week. Silent firing started.</div>
+       <div class="g-note"><b>CTC</b><br>The new fresher from IIT is earning more than the Tech Lead.</div>
+       <div class="g-note shout"><b>HR</b><br>Biometric scan mandatory. 1 minute late = half day.</div>
     </div>
 
     <div class="g-column scroll-down">
-       <div class="g-note shout"><b>WEEKEND</b><br>"We are like a family" means working Sunday.</div>
-       <div class="g-note"><b>MANAGER</b><br>Called me at 10:30 PM. "Just a small change bro".</div>
-       <div class="g-note hot"><b>RANGOLI</b><br>HR is planning Rangoli contest while we drown in JIRA.</div>
-       <div class="g-note whisper"><b>NOTICE PERIOD</b><br>90 days is a jail sentence. I'm absconding.</div>
-       <div class="g-note"><b>EXIT</b><br>They withheld his experience letter. It's blackmail.</div>
-       <div class="g-note shout"><b>WEEKEND</b><br>"We are like a family" means working Sunday.</div>
-       <div class="g-note"><b>MANAGER</b><br>Called me at 10:30 PM. "Just a small change bro".</div>
-       <div class="g-note hot"><b>RANGOLI</b><br>HR is planning Rangoli contest while we drown in JIRA.</div>
-       <div class="g-note whisper"><b>NOTICE PERIOD</b><br>90 days is a jail sentence. I'm absconding.</div>
-       <div class="g-note"><b>EXIT</b><br>They withheld his experience letter. It's blackmail.</div>
+       <div class="g-note shout"><b>SCAM</b><br>The "funding round" is fake. We have 2 months runway left.</div>
+       <div class="g-note"><b>NOTICE PERIOD</b><br>90 days is a trap. They blocked my relieving letter.</div>
+       <div class="g-note hot"><b>AFFAIR</b><br>Sales Head and the Intern. 3rd floor fire exit. Every day.</div>
+       <div class="g-note whisper"><b>PIP</b><br>They put him on PIP because he refused to work weekends.</div>
+       <div class="g-note"><b>RANGOLI</b><br>We asked for a Diwali bonus. They gave us a Rangoli competition.</div>
+       <div class="g-note shout"><b>SCAM</b><br>The "funding round" is fake. We have 2 months runway left.</div>
+       <div class="g-note"><b>NOTICE PERIOD</b><br>90 days is a trap. They blocked my relieving letter.</div>
+       <div class="g-note hot"><b>AFFAIR</b><br>Sales Head and the Intern. 3rd floor fire exit. Every day.</div>
+       <div class="g-note whisper"><b>PIP</b><br>They put him on PIP because he refused to work weekends.</div>
+       <div class="g-note"><b>RANGOLI</b><br>We asked for a Diwali bonus. They gave us a Rangoli competition.</div>
     </div>
 
     <div class="g-column scroll-fast">
-       <div class="g-note"><b>NEPOTISM</b><br>VP's nephew just joined as "Lead". He knows nothing.</div>
-       <div class="g-note hot"><b>PINK SLIP</b><br>Entire Noida team got fired on Zoom. Muted calls.</div>
-       <div class="g-note whisper"><b>FUNDING</b><br>Runway is 2 months. Founder is buying a new car though.</div>
-       <div class="g-note"><b>GROSS</b><br>Stop reheating fish in the pantry. Seriously.</div>
-       <div class="g-note shout"><b>PIP</b><br>Performance Improvement Plan = You are fired in 30 days.</div>
-       <div class="g-note"><b>NEPOTISM</b><br>VP's nephew just joined as "Lead". He knows nothing.</div>
-       <div class="g-note hot"><b>PINK SLIP</b><br>Entire Noida team got fired on Zoom. Muted calls.</div>
-       <div class="g-note whisper"><b>FUNDING</b><br>Runway is 2 months. Founder is buying a new car though.</div>
-       <div class="g-note"><b>GROSS</b><br>Stop reheating fish in the pantry. Seriously.</div>
-       <div class="g-note shout"><b>PIP</b><br>Performance Improvement Plan = You are fired in 30 days.</div>
+       <div class="g-note"><b>ONSITE</b><br>Only the VP's favorites get to go to the US. It's rigged.</div>
+       <div class="g-note hot"><b>TOXIC</b><br>He screams "We are a family" then fires people on Zoom.</div>
+       <div class="g-note whisper"><b>MOONLIGHTING</b><br>Half the dev team is working for a US client on the side.</div>
+       <div class="g-note"><b>RENT</b><br>My HRA doesn't even cover half my rent in Indiranagar.</div>
+       <div class="g-note shout"><b>WTF</b><br>Variable pay is 0% this year. "Company performance" apparently.</div>
+       <div class="g-note"><b>ONSITE</b><br>Only the VP's favorites get to go to the US. It's rigged.</div>
+       <div class="g-note hot"><b>TOXIC</b><br>He screams "We are a family" then fires people on Zoom.</div>
+       <div class="g-note whisper"><b>MOONLIGHTING</b><br>Half the dev team is working for a US client on the side.</div>
+       <div class="g-note"><b>RENT</b><br>My HRA doesn't even cover half my rent in Indiranagar.</div>
+       <div class="g-note shout"><b>WTF</b><br>Variable pay is 0% this year. "Company performance" apparently.</div>
     </div>
 
     <div class="g-column scroll-down">
-       <div class="g-note whisper"><b>BANGALORE</b><br>He blamed "Silk Board traffic" but was interviewing.</div>
-       <div class="g-note hot"><b>ESOPS</b><br>Paper money. The startup valuation is slashed by 50%.</div>
-       <div class="g-note"><b>CLIENT</b><br>US Client is screaming. Project is Red. Manager is on leave.</div>
-       <div class="g-note"><b>HR</b><br>"Kindly revert" on my resignation email? Are you serious?</div>
-       <div class="g-note shout"><b>OFFSITES</b><br>Goa trip cancelled. We got Domino's coupons instead.</div>
-       <div class="g-note whisper"><b>BANGALORE</b><br>He blamed "Silk Board traffic" but was interviewing.</div>
-       <div class="g-note hot"><b>ESOPS</b><br>Paper money. The startup valuation is slashed by 50%.</div>
-       <div class="g-note"><b>CLIENT</b><br>US Client is screaming. Project is Red. Manager is on leave.</div>
-       <div class="g-note"><b>HR</b><br>"Kindly revert" on my resignation email? Are you serious?</div>
-       <div class="g-note shout"><b>OFFSITES</b><br>Goa trip cancelled. We got Domino's coupons instead.</div>
-    </div>
-    
-     <div class="g-column scroll-up">
-       <div class="g-note hot"><b>MOONLIGHT</b><br>She has two laptops open. Working for competitor.</div>
-       <div class="g-note"><b>DRAMA</b><br>Crying in the washroom. 4th floor.</div>
-       <div class="g-note"><b>CHAI</b><br>Sutta break is now 45 minutes?</div>
-       <div class="g-note whisper"><b>REFERRAL</b><br>They aren't paying the bonus. Don't refer anyone.</div>
-       <div class="g-note hot"><b>MOONLIGHT</b><br>She has two laptops open. Working for competitor.</div>
-       <div class="g-note"><b>DRAMA</b><br>Crying in the washroom. 4th floor.</div>
-       <div class="g-note"><b>CHAI</b><br>Sutta break is now 45 minutes?</div>
-       <div class="g-note whisper"><b>REFERRAL</b><br>They aren't paying the bonus. Don't refer anyone.</div>
+       <div class="g-note whisper"><b>REFERRAL</b><br>Stop referring friends. The hiring freeze is permanent.</div>
+       <div class="g-note hot"><b>SHOCK</b><br>Founder sold his shares secretly. He is exiting.</div>
+       <div class="g-note"><b>CLIENTS</b><br>We lost the biggest US account. Layoffs incoming.</div>
+       <div class="g-note"><b>DRESS CODE</b><br>HR sent an email about "proper footwear." Are we in school?</div>
+       <div class="g-note shout"><b>SECURITY</b><br>IT installed trackers on everyone's laptops. Move to Signal.</div>
+       <div class="g-note whisper"><b>REFERRAL</b><br>Stop referring friends. The hiring freeze is permanent.</div>
+       <div class="g-note hot"><b>SHOCK</b><br>Founder sold his shares secretly. He is exiting.</div>
+       <div class="g-note"><b>CLIENTS</b><br>We lost the biggest US account. Layoffs incoming.</div>
+       <div class="g-note"><b>DRESS CODE</b><br>HR sent an email about "proper footwear." Are we in school?</div>
+       <div class="g-note shout"><b>SECURITY</b><br>IT installed trackers on everyone's laptops. Move to Signal.</div>
     </div>
 
   </div>
@@ -322,9 +314,8 @@
 
     <div class="tagline">
       <b>Share the office energy.</b><br />
-      Unspoken things.<br />
-      Unofficial truths.<br />
-      Circulated quietly.
+      Appraisals. 90-day notices.<br />
+      Unofficial truths.
     </div>
 
     <button onclick="enter()">Secretly enter</button>
