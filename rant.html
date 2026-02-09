@@ -2,31 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Goss · Now</title>
+  <title>Goss · Central</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #000;
-      --fg: #fff;
-      --muted: rgba(255,255,255,0.65);
-      --ghost: rgba(255,255,255,0.45);
-      --line: rgba(255,255,255,0.22);
-      --softbg: rgba(255,255,255,0.04);
-      --danger: #d40000;
-      --accent: #fff;
+      /* Palette */
+      --bg-color: #FFD600; /* Electric Yellow */
+      --accent: #FF4800;   /* Hot Orange */
+      --ink: #101010;      /* Pure Black */
+      --paper: #FFFFFF;
+      --grey: #F0F0F0;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--fg);
+      background-color: var(--bg-color);
+      /* Subtle noise pattern */
+      background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
+      color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       overflow-x: hidden;
+      min-height: 100vh;
+      padding-bottom: 140px; /* Space for composer */
     }
 
     .grain {
@@ -35,287 +37,379 @@
       pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
       z-index: 0;
+      mix-blend-mode: multiply;
     }
 
     .wrap {
-      max-width: 560px;
+      max-width: 500px;
       margin: 0 auto;
-      padding: 24px 18px 120px;
+      padding: 20px;
       position: relative;
       z-index: 1;
     }
 
+    /* --- HEADER --- */
+    .top {
+      margin-bottom: 32px;
+      border-bottom: 4px solid var(--ink);
+      padding-bottom: 16px;
+    }
+
     .top h1 {
       font-family: "Archivo", sans-serif;
-      font-size: 64px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+      font-size: 52px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: -0.04em;
       margin: 0;
+      text-transform: uppercase;
+      line-height: 0.9;
     }
 
     .top p {
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--ghost);
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--ink);
+      color: var(--bg-color);
+      display: inline-block;
+      padding: 4px 8px;
+      transform: rotate(-1deg);
     }
 
-    .count {
-      background: var(--danger);
-      color: #fff;
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      display: none;
+    /* --- SECTIONS --- */
+    h2 {
+      font-family: "Archivo", sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    h2::before {
+      content: '';
+      display: block;
+      width: 12px;
+      height: 12px;
+      background: var(--ink);
     }
 
-    .list { margin-top: 16px; }
+    /* --- CARDS (ITEMS) --- */
+    .list { display: flex; flex-direction: column; gap: 16px; }
 
     .item {
-      border-top: 1px solid var(--line);
-      padding: 22px 0;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+      padding: 20px;
+      position: relative;
+      transition: transform 0.1s;
     }
-
-    .item:first-child { border-top: none; }
+    
+    .item:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.15); }
 
     .meta {
-      font-size: 11px;
-      color: var(--ghost);
-      margin-bottom: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--grey);
+      padding-bottom: 8px;
     }
 
     .text {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* --- STATUS BADGES --- */
+    .status {
+      margin-top: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-block;
+      padding: 4px 8px;
+      border: 2px solid var(--ink);
+      background: var(--grey);
+      text-transform: uppercase;
     }
 
     .prompt {
-      margin-top: 14px;
-      font-size: 11px;
-      color: var(--danger);
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--ghost);
+      margin-top: 16px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      background: rgba(255, 85, 0, 0.1);
+      padding: 4px 8px;
+      display: inline-block;
     }
 
     .echo {
-      margin-top: 14px;
-      padding: 14px;
-      background: var(--softbg);
-      border: 1px solid var(--line);
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--bg-color); /* Yellow highlight */
+      border: 2px solid var(--ink);
       font-size: 13px;
-      line-height: 1.7;
+      font-style: italic;
+      position: relative;
+    }
+    .echo::before {
+      content: "↳ RE:";
+      font-weight: 800;
+      font-size: 10px;
+      display: block;
+      margin-bottom: 4px;
     }
 
-    /* === INPUTS & BUTTONS === */
-    textarea {
+    /* --- FORMS & INPUTS --- */
+    textarea, input {
       width: 100%;
-      background: var(--softbg);
-      border: 1px solid var(--line);
-      padding: 18px 16px;
-      color: var(--fg);
-      font-size: 15px;
-      font-family: "JetBrains Mono", monospace;
-      resize: none;
-      min-height: 96px;
-      max-height: 140px;
-      line-height: 1.8;
-    }
-    textarea::placeholder { color: var(--ghost); }
-
-    input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--line);
-      padding: 12px 4px;
-      color: var(--fg);
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      padding: 14px;
+      color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       font-size: 14px;
-      margin-top: 26px;
+      resize: none;
+      outline: none;
+      border-radius: 0;
+      margin-top: 12px;
     }
-    input::placeholder { color: var(--ghost); }
+    
+    textarea:focus, input:focus {
+      border-color: var(--accent);
+      background: #FFFDF0;
+    }
 
-    .action { margin-top: 24px; }
-
+    /* --- BUTTONS --- */
     button {
       width: 100%;
-      padding: 18px;
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--fg);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 13px;
-      letter-spacing: 0.15em;
+      padding: 16px;
+      background: var(--ink);
+      border: 3px solid var(--ink);
+      color: var(--bg-color);
+      font-family: "Archivo", sans-serif;
+      font-weight: 800;
+      font-size: 14px;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s;
+      margin-top: 12px;
+      transition: all 0.1s;
+      box-shadow: 4px 4px 0px var(--accent);
     }
 
     button:hover {
-      background: var(--fg);
-      color: var(--bg);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--accent);
+    }
+    
+    button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--accent);
     }
 
-    /* === SPECIAL PROMINENT INVITE BUTTON === */
-    .invite-btn-container {
-      margin-top: 16px;
-    }
+    /* Specialized buttons */
     .invite-btn {
-      border: 1px solid var(--danger);
-      color: var(--danger);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-    .invite-btn:hover {
-      background: var(--danger);
+      background: var(--accent);
       color: white;
+      border-color: var(--ink);
+      box-shadow: 4px 4px 0 var(--ink);
     }
 
-    /* === CHATS === */
-    .chat-list {
-      margin-top: 28px;
-      padding-bottom: 360px;
-    }
+    /* --- CHAT LIST --- */
     .chat-item {
-      border-top: 1px solid var(--line);
-      padding: 18px 0;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      padding: 16px;
+      margin-bottom: 12px;
       cursor: pointer;
+      transition: transform 0.1s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .chat-item:first-child { border-top: none; }
+    .chat-item:hover { transform: translateX(4px); }
+    
     .chat-peer {
-      font-size: 13px;
-      color: var(--fg);
-      margin-bottom: 6px;
+      font-weight: 800;
+      font-size: 14px;
     }
     .chat-preview {
-      font-size: 12px;
-      color: var(--ghost);
-      line-height: 1.6;
+      font-size: 11px;
+      opacity: 0.6;
     }
 
-    /* === COMPOSER === */
+    /* --- COMPOSER (FIXED BOTTOM) --- */
     .composer {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
-      background: var(--bg);
-      padding: 12px;
-      border-top: 1px solid var(--line);
-      padding-bottom: 8px;
-      z-index: 10;
+      background: var(--ink); /* Black bar */
+      border-top: 4px solid var(--accent);
+      padding: 16px 20px;
+      z-index: 50;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    
     .composer.collapsed {
-      padding-top: 8px;
-      padding-bottom: 8px;
+      padding: 12px 20px;
+      background: var(--paper);
+      border-top: 4px solid var(--ink);
     }
+
     .collapse-toggle {
-      font-size: 11px;
-      color: var(--ghost);
-      cursor: pointer;
-      text-align: right;
-      margin-bottom: 6px;
-    }
-    .hint {
       font-size: 10px;
-      color: var(--ghost);
-      margin-top: 6px;
+      font-weight: 800;
+      color: var(--paper);
+      text-transform: uppercase;
+      text-align: right;
+      cursor: pointer;
+      margin-bottom: 8px;
     }
+    .composer.collapsed .collapse-toggle { color: var(--ink); }
+
     .context {
-      margin: 26px 0 10px;
-      font-size: 13px;
-      color: var(--muted);
+      font-family: "Archivo", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bg-color);
+      margin-bottom: 12px;
+      text-transform: uppercase;
     }
+
     .collapsed-row { display: block; }
-    .composer.collapsed .collapsed-row { display: flex; gap: 10px; }
-    .composer.collapsed .collapsed-row input,
-    .composer.collapsed .collapsed-row textarea {
-      flex: 1;
-      min-height: 42px;
-      max-height: 42px;
-      padding: 10px 12px;
-      font-size: 13px;
-      margin: 0;
+    .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
+    
+    /* Inputs inside composer */
+    .composer textarea, .composer input {
+      border: 2px solid var(--bg-color);
+      background: #222;
+      color: var(--bg-color);
+      margin-top: 8px;
     }
-    .composer.collapsed .collapsed-row textarea { resize: none; }
+    .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
+    
+    .composer.collapsed textarea, .composer.collapsed input {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      color: var(--ink);
+      margin: 0;
+      height: 44px;
+      padding: 10px;
+    }
+    .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
+
+    .composer button {
+      background: var(--bg-color);
+      color: var(--ink);
+      box-shadow: 4px 4px 0 var(--paper);
+      border-color: var(--paper);
+    }
+
     .composer.collapsed .hint,
     .composer.collapsed .context,
     .composer.collapsed .action,
     .composer.collapsed .footer { display: none; }
     
-    .footer {
-      margin-top: 28px;
-      font-size: 11px;
-      color: var(--ghost);
-      text-align: center;
-    }
+    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
+    .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
-    /* === BOTTOM SHEET (Native Feel) === */
+    /* --- BOTTOM SHEET --- */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(16, 16, 16, 0.85); /* Dark scrim */
       backdrop-filter: blur(4px);
       z-index: 99;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s;
     }
-    .overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+
     .bottom-sheet {
       position: fixed;
-      left: 0;
-      right: 0;
-      bottom: -100%;
-      background: #111;
-      border-top: 1px solid var(--line);
-      border-radius: 24px 24px 0 0;
+      left: 0; right: 0; bottom: -100%;
+      background: var(--bg-color);
+      border-top: 4px solid var(--ink);
       padding: 32px 24px 48px;
       z-index: 100;
       transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
     }
-    .bottom-sheet.active {
-      bottom: 0;
-    }
+    .bottom-sheet.active { bottom: 0; }
+
     .drag-handle {
-      width: 40px;
-      height: 4px;
-      background: var(--line);
-      border-radius: 2px;
+      width: 60px; height: 6px;
+      background: var(--ink);
       margin: 0 auto 24px;
     }
+
     .bs-title {
       font-family: "Archivo", sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 12px;
+      font-size: 28px;
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      margin-bottom: 16px;
     }
+
     .bs-body {
       font-size: 14px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
+      font-weight: 600;
+      line-height: 1.5;
     }
+
     .bs-btn {
-      background: var(--fg);
-      color: var(--bg);
+      background: var(--ink);
+      color: var(--bg-color);
       border: none;
-      font-weight: 800;
+      box-shadow: 6px 6px 0 white;
     }
     .bs-btn-secondary {
-      margin-top: 12px;
-      border: none;
       background: transparent;
-      color: var(--ghost);
+      color: var(--ink);
+      border: none;
       font-size: 12px;
+      margin-top: 16px;
+      text-decoration: underline;
+      box-shadow: none;
+    }
+    .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
+
+    /* Helpers */
+    .empty {
+      padding: 24px;
+      text-align: center;
+      border: 2px dashed var(--ink);
+      color: var(--ink);
+      font-size: 12px;
+      opacity: 0.6;
+    }
+    
+    #hotGoss {
+      border: 3px solid var(--accent);
+      background: rgba(255, 255, 255, 0.5);
+      padding: 16px;
+      margin: 20px 0;
+      box-shadow: 8px 8px 0 var(--accent);
+    }
+    #hotGoss h2 { margin-top: 0; color: var(--accent); }
+    #hotGossCount {
+        background: var(--accent);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
     }
 
   </style>
@@ -326,42 +420,41 @@
 
   <div class="wrap">
     <div class="top">
-      <h1>Today's Goss</h1>
-      <p>things not written down but mostly true</p>
+      <h1>Goss · Central</h1>
+      <p>UNOFFICIAL TRUTHS ONLY</p>
     </div>
 
     <div id="hotGoss" style="display:none;">
-      <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 28px 0 8px;">
-        Hot new Goss
-        <span id="hotGossCount" style="font-size:13px; color: var(--danger); margin-left:8px; font-weight:600;"></span>
+      <h2>
+        URGENT FILES
+        <span id="hotGossCount"></span>
       </h2>
       <div id="inboxList" class="list"></div>
       <div id="sentInline" class="list"></div>
     </div>
 
-    <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 32px 0 8px;">
-      Continue the energy
+    <h2>
+      Previous Signals
     </h2>
 
     <div class="chat-list" id="chatList"></div>
 
     <div class="composer collapsed">
-      <div class="collapse-toggle" onclick="toggleComposer()">collapse</div>
-      <div class="context">Write it how it happened.</div>
+      <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
+      <div class="context">Spill the tea.</div>
 
       <div class="collapsed-row">
-        <input id="targetEmail" type="email" placeholder="who should hear this">
-        <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
+        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
+        <textarea id="rantText" placeholder="WHAT HAPPENED?"></textarea>
       </div>
 
-      <div class="hint">delivery is quiet</div>
-      <div class="hint">no name attached</div>
+      <div class="hint">delivery is quiet · no name attached</div>
 
       <div class="action">
-        <button onclick="sendRant()">Send quietly</button>
+        <button onclick="sendRant()">START RUMOR</button>
       </div>
 
-      <div class="footer">once it’s out, it stays out</div>
+      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
     </div>
   </div>
 
@@ -386,9 +479,8 @@
     window.__hotSentPending = 0;
     window.__inboxReady = false;
     window.__sentReady = false;
-    let currentInviteTarget = ""; // Store email for the bottom sheet
+    let currentInviteTarget = ""; 
     
-    // Cache for user existence to prevent spamming DB calls
     const userExistenceCache = {}; 
 
     function updateHotGossVisibility() {
@@ -400,7 +492,7 @@
 
       if (total > 0) {
         hot.style.display = "block";
-        countEl.textContent = total;
+        countEl.textContent = total + " PENDING";
       } else {
         hot.style.display = "none";
       }
@@ -422,26 +514,19 @@
         return;
       }
 
-      // Sync User existence (Crucial for the "check if user exists" feature)
       db.collection("users").doc(user.email).set({
         email: user.email,
         lastSeen: new Date()
       }, { merge: true });
 
-      // Inbox Listener
-      db.collection("rants")
-        .where("to", "==", user.email)
-        .where("status", "!=", "read")
-        .onSnapshot(snap => {
-           // Standard inbox logic handled inside loadInboxInline via its own listener
-        });
+      // Dummy listener for general updates if needed
+      db.collection("rants").where("to", "==", user.email).where("status", "!=", "read").onSnapshot(()=>{});
 
       loadInboxInline(user.email);
       loadSentInline(user.email);
       loadChats(user.email);
     });
 
-    // --- Helper to check if a user exists ---
     async function checkUserExists(email) {
       if (userExistenceCache[email] !== undefined) {
         return userExistenceCache[email];
@@ -452,8 +537,7 @@
         userExistenceCache[email] = exists;
         return exists;
       } catch (e) {
-        console.error("Error checking user", e);
-        return false; // Default to false if error, to prompt invite
+        return false; 
       }
     }
 
@@ -487,33 +571,31 @@
             if (rant.status === "echoed" && rant.echo) {
                 actionBlock = `
                   <div class="action">
-                    <button onclick="acceptEchoInline('${doc.id}')">Accept & continue</button>
+                    <button onclick="acceptEchoInline('${doc.id}')">ACCEPT & OPEN CHAT</button>
                   </div>`;
             }
 
             const statusText = rant.status === "pending" 
-              ? "<span class='pending'>awaiting echo</span>" 
-              : rant.status === "echoed" ? "echo received" : rant.status;
+              ? "<span style='color:var(--accent)'>AWAITING ECHO</span>" 
+              : rant.status === "echoed" ? "ECHO RECEIVED" : rant.status;
 
-            // Unique ID for the invite container for this specific rant
             const inviteContainerId = `invite-ui-${doc.id}`;
 
             container.innerHTML += `
               <div class="item">
-                <div class="meta">#${localIndex} · to ${rant.to}</div>
+                <div class="meta">OUTGOING · TO ${rant.to}</div>
                 <div class="text">${rant.text}</div>
-                <div class="status">status · ${statusText}</div>
+                <div class="status">STATUS: ${statusText}</div>
                 ${echoBlock}
                 ${actionBlock}
-                <div id="${inviteContainerId}" class="invite-btn-container" style="display:none;">
+                <div id="${inviteContainerId}" style="display:none; margin-top:12px;">
                    <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
-                     INVITE FOR A HOT GOSS
+                     INVITE THEM TO GOSS
                    </button>
                 </div>
               </div>
             `;
 
-            // ASYNC CHECK: If pending, check if user exists. If not, show Invite button.
             if (rant.status === "pending") {
               checkUserExists(rant.to).then(exists => {
                 if (!exists) {
@@ -525,7 +607,7 @@
           });
 
           if (!container.innerHTML) {
-            container.innerHTML = "<div class='empty'>nothing sent yet</div>";
+            container.innerHTML = "<div class='empty'>NO OUTGOING RUMORS</div>";
           }
           updateHotGossVisibility();
         });
@@ -542,7 +624,7 @@
           let pendingCount = 0;
 
           if (snapshot.empty) {
-            container.innerHTML = "<div class='empty'>nothing hot yet</div>";
+            container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
             updateHotGossVisibility();
             return;
           }
@@ -563,22 +645,22 @@
             let block = "";
             if (rant.status === "pending") {
               block = `
-                <div class="prompt">needs a response</div>
-                <textarea id="echo-${doc.id}" placeholder="Echo what you understood"></textarea>
+                <div class="prompt">ACTION REQUIRED</div>
+                <textarea id="echo-${doc.id}" placeholder="Confirm what you heard..."></textarea>
                 <div class="action">
-                  <button onclick="submitEcho('${doc.id}')">Echo back</button>
+                  <button onclick="submitEcho('${doc.id}')">ECHO BACK</button>
                 </div>
               `;
             } else if (rant.status === "echoed") {
               block = `
                 <div class="echo">${rant.echo}</div>
-                <div class="status">waiting on the other side</div>
+                <div class="status">WAITING ON SENDER</div>
               `;
             }
 
             container.innerHTML += `
               <div class="item">
-                <div class="meta">#${pendingCount} · anonymous</div>
+                <div class="meta">INCOMING · ANONYMOUS</div>
                 <div class="text">${rant.text}</div>
                 ${block}
               </div>
@@ -623,8 +705,6 @@
       });
     }
 
-    // --- Bottom Sheet & Invite Logic ---
-
     function openInviteBottomSheet(email) {
       currentInviteTarget = email;
       document.getElementById('sheetOverlay').classList.add('active');
@@ -643,12 +723,9 @@
       const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
       
       const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      
       window.location.href = mailtoLink;
       closeBottomSheet();
     }
-
-    // --- Sending Logic ---
 
     function sendRant() {
       const textEl = document.getElementById("rantText");
@@ -670,7 +747,6 @@
         targetEl.value = "";
         document.querySelector(".composer").classList.add("collapsed");
 
-        // Check if receiver exists; if not, trigger sheet
         checkUserExists(target).then(exists => {
           if (!exists) {
             openInviteBottomSheet(target);
@@ -678,8 +754,6 @@
         });
       });
     }
-
-    // --- UI Interactions ---
 
     function toggleComposer() {
       document.querySelector(".composer").classList.toggle("collapsed");
@@ -702,7 +776,7 @@
           const list = document.getElementById("chatList");
           list.innerHTML = "";
           if (snapshot.empty) {
-            list.innerHTML = "<div class='empty'>no conversations yet</div>";
+            list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
             return;
           }
           snapshot.forEach(doc => {
@@ -711,7 +785,7 @@
             list.innerHTML += `
               <div class="chat-item" onclick="openChat('${doc.id}')">
                 <div class="chat-peer">${peer}</div>
-                <div class="chat-preview">a quiet thread</div>
+                <div class="chat-preview">/// ENCRYPTED</div>
               </div>
             `;
           });
