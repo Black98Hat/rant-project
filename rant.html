@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Whisper · Send</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
@@ -17,6 +16,7 @@
       --line: rgba(255,255,255,0.22);
       --softbg: rgba(255,255,255,0.04);
       --danger: #d40000;
+      --accent: #fff;
     }
 
     * { box-sizing: border-box; }
@@ -26,6 +26,7 @@
       background: var(--bg);
       color: var(--fg);
       font-family: "JetBrains Mono", monospace;
+      overflow-x: hidden;
     }
 
     .grain {
@@ -33,12 +34,15 @@
       inset: 0;
       pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      z-index: 0;
     }
 
     .wrap {
       max-width: 560px;
       margin: 0 auto;
       padding: 24px 18px 120px;
+      position: relative;
+      z-index: 1;
     }
 
     .top h1 {
@@ -55,28 +59,6 @@
       color: var(--ghost);
     }
 
-    /* === SUPER PROMINENT TABS === */
-    .tabs {
-      display: flex;
-      gap: 12px;
-      margin-top: 22px;
-    }
-
-    .tab {
-      flex: 1;
-      background: #fff;
-      color: #000;
-      text-decoration: none;
-      padding: 14px 16px;
-      font-family: "Archivo", sans-serif;
-      font-weight: 800;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-radius: 6px;
-    }
-
     .count {
       background: var(--danger);
       color: #fff;
@@ -86,125 +68,14 @@
       display: none;
     }
 
-    .count.show {
-      display: inline-block;
-    }
-
-    .context {
-      margin: 26px 0 10px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    textarea {
-      width: 100%;
-      background: var(--softbg);
-      border: 1px solid var(--line);
-      padding: 18px 16px;
-      color: var(--fg);
-      font-size: 15px;
-      font-family: "JetBrains Mono", monospace;
-      resize: none;
-      min-height: 96px;
-      max-height: 140px;
-      line-height: 1.8;
-    }
-
-    textarea::placeholder { color: var(--ghost); }
-
-    input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--line);
-      padding: 12px 4px;
-      color: var(--fg);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
-      margin-top: 26px;
-    }
-
-    input::placeholder { color: var(--ghost); }
-
-    .action {
-      margin-top: 48px;
-    }
-
-    .action button {
-      width: 100%;
-      padding: 18px;
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--fg);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 13px;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-
-    .action button:hover {
-      background: var(--fg);
-      color: var(--bg);
-    }
-
-    .footer {
-      margin-top: 28px;
-      font-size: 11px;
-      color: var(--ghost);
-      text-align: center;
-    }
-
-    .chat-list {
-      margin-top: 28px;
-      padding-bottom: 360px;
-    }
-
-    .chat-item {
-      border-top: 1px solid var(--line);
-      padding: 18px 0;
-      cursor: pointer;
-    }
-
-    .chat-item:first-child {
-      border-top: none;
-    }
-
-    .chat-peer {
-      font-size: 13px;
-      color: var(--fg);
-      margin-bottom: 6px;
-    }
-
-    .chat-preview {
-      font-size: 12px;
-      color: var(--ghost);
-      line-height: 1.6;
-    }
-
-    .composer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--bg);
-      padding: 12px;
-      border-top: 1px solid var(--line);
-      padding-bottom: 8px;
-    }
-
-    .list {
-      margin-top: 16px;
-    }
+    .list { margin-top: 16px; }
 
     .item {
       border-top: 1px solid var(--line);
       padding: 22px 0;
     }
 
-    .item:first-child {
-      border-top: none;
-    }
+    .item:first-child { border-top: none; }
 
     .meta {
       font-size: 11px;
@@ -239,16 +110,109 @@
       line-height: 1.7;
     }
 
+    /* === INPUTS & BUTTONS === */
+    textarea {
+      width: 100%;
+      background: var(--softbg);
+      border: 1px solid var(--line);
+      padding: 18px 16px;
+      color: var(--fg);
+      font-size: 15px;
+      font-family: "JetBrains Mono", monospace;
+      resize: none;
+      min-height: 96px;
+      max-height: 140px;
+      line-height: 1.8;
+    }
+    textarea::placeholder { color: var(--ghost); }
+
+    input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 4px;
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 14px;
+      margin-top: 26px;
+    }
+    input::placeholder { color: var(--ghost); }
+
+    .action { margin-top: 24px; }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--fg);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    /* === SPECIAL PROMINENT INVITE BUTTON === */
+    .invite-btn-container {
+      margin-top: 16px;
+    }
+    .invite-btn {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .invite-btn:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* === CHATS === */
+    .chat-list {
+      margin-top: 28px;
+      padding-bottom: 360px;
+    }
+    .chat-item {
+      border-top: 1px solid var(--line);
+      padding: 18px 0;
+      cursor: pointer;
+    }
+    .chat-item:first-child { border-top: none; }
+    .chat-peer {
+      font-size: 13px;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+    .chat-preview {
+      font-size: 12px;
+      color: var(--ghost);
+      line-height: 1.6;
+    }
+
+    /* === COMPOSER === */
+    .composer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg);
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      padding-bottom: 8px;
+      z-index: 10;
+    }
     .composer.collapsed {
       padding-top: 8px;
       padding-bottom: 8px;
     }
-
-    .composer.collapsed textarea {
-      min-height: 48px;
-      max-height: 72px;
-    }
-
     .collapse-toggle {
       font-size: 11px;
       color: var(--ghost);
@@ -256,41 +220,104 @@
       text-align: right;
       margin-bottom: 6px;
     }
-  .hint {
-    font-size: 10px;
-    color: var(--ghost);
-    margin-top: 6px;
-  }
+    .hint {
+      font-size: 10px;
+      color: var(--ghost);
+      margin-top: 6px;
+    }
+    .context {
+      margin: 26px 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .collapsed-row { display: block; }
+    .composer.collapsed .collapsed-row { display: flex; gap: 10px; }
+    .composer.collapsed .collapsed-row input,
+    .composer.collapsed .collapsed-row textarea {
+      flex: 1;
+      min-height: 42px;
+      max-height: 42px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin: 0;
+    }
+    .composer.collapsed .collapsed-row textarea { resize: none; }
+    .composer.collapsed .hint,
+    .composer.collapsed .context,
+    .composer.collapsed .action,
+    .composer.collapsed .footer { display: none; }
+    
+    .footer {
+      margin-top: 28px;
+      font-size: 11px;
+      color: var(--ghost);
+      text-align: center;
+    }
 
-  /* Collapsed row styles for new composer */
-  .collapsed-row {
-    display: block;
-  }
+    /* === BOTTOM SHEET (Native Feel) === */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .bottom-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: -100%;
+      background: #111;
+      border-top: 1px solid var(--line);
+      border-radius: 24px 24px 0 0;
+      padding: 32px 24px 48px;
+      z-index: 100;
+      transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+    }
+    .bottom-sheet.active {
+      bottom: 0;
+    }
+    .drag-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 2px;
+      margin: 0 auto 24px;
+    }
+    .bs-title {
+      font-family: "Archivo", sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .bs-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .bs-btn {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      font-weight: 800;
+    }
+    .bs-btn-secondary {
+      margin-top: 12px;
+      border: none;
+      background: transparent;
+      color: var(--ghost);
+      font-size: 12px;
+    }
 
-  .composer.collapsed .collapsed-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .composer.collapsed .collapsed-row input,
-  .composer.collapsed .collapsed-row textarea {
-    flex: 1;
-    min-height: 42px;
-    max-height: 42px;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .composer.collapsed .collapsed-row textarea {
-    resize: none;
-  }
-
-  .composer.collapsed .hint,
-  .composer.collapsed .context,
-  .composer.collapsed .action,
-  .composer.collapsed .footer {
-    display: none;
-  }
   </style>
 </head>
 
@@ -301,22 +328,12 @@
     <div class="top">
       <h1>Today's Goss</h1>
       <p>things not written down but mostly true</p>
-
-      <!-- Removed tabs for sent.html -->
     </div>
 
     <div id="hotGoss" style="display:none;">
       <h2 style="font-family: Archivo, sans-serif; font-size: 18px; margin: 28px 0 8px;">
         Hot new Goss
-        <span
-          id="hotGossCount"
-          style="
-            font-size:13px;
-            color: var(--danger);
-            margin-left:8px;
-            font-weight:600;
-          "
-        ></span>
+        <span id="hotGossCount" style="font-size:13px; color: var(--danger); margin-left:8px; font-weight:600;"></span>
       </h2>
       <div id="inboxList" class="list"></div>
       <div id="sentInline" class="list"></div>
@@ -333,7 +350,7 @@
       <div class="context">Write it how it happened.</div>
 
       <div class="collapsed-row">
-        <input id="targetEmail" placeholder="who should hear this">
+        <input id="targetEmail" type="email" placeholder="who should hear this">
         <textarea id="rantText" placeholder="Say it the way you remember it."></textarea>
       </div>
 
@@ -348,29 +365,38 @@
     </div>
   </div>
 
-  <!-- Firebase -->
+  <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
+  <div class="bottom-sheet" id="inviteSheet">
+    <div class="drag-handle"></div>
+    <div class="bs-title">They aren't here yet</div>
+    <div class="bs-body">
+      This person hasn't signed up for Oh my Goss. Your whisper is pending, but they won't see it until they join.
+    </div>
+    <button class="bs-btn" onclick="sendInviteEmail()">SEND MYSTERIOUS INVITE</button>
+    <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // --- Hot new Goss global counters and readiness flags ---
+    // --- Global State ---
     window.__hotInboxPending = 0;
     window.__hotSentPending = 0;
     window.__inboxReady = false;
     window.__sentReady = false;
+    let currentInviteTarget = ""; // Store email for the bottom sheet
+    
+    // Cache for user existence to prevent spamming DB calls
+    const userExistenceCache = {}; 
 
-    // --- Hot new Goss counter/visibility helper ---
     function updateHotGossVisibility() {
-      // Do nothing until both listeners have reported at least once
       if (!window.__inboxReady || !window.__sentReady) return;
 
       const hot = document.getElementById("hotGoss");
       const countEl = document.getElementById("hotGossCount");
-
-      const inbox = window.__hotInboxPending || 0;
-      const sent = window.__hotSentPending || 0;
-      const total = inbox + sent;
+      const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
 
       if (total > 0) {
         hot.style.display = "block";
@@ -379,6 +405,7 @@
         hot.style.display = "none";
       }
     }
+
     const firebaseConfig = {
       apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
       authDomain: "rant-2me.firebaseapp.com",
@@ -386,7 +413,6 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-
     const auth = firebase.auth();
     const db = firebase.firestore();
 
@@ -396,87 +422,81 @@
         return;
       }
 
-      // Inbox: unread messages sent to me
+      // Sync User existence (Crucial for the "check if user exists" feature)
+      db.collection("users").doc(user.email).set({
+        email: user.email,
+        lastSeen: new Date()
+      }, { merge: true });
+
+      // Inbox Listener
       db.collection("rants")
         .where("to", "==", user.email)
         .where("status", "!=", "read")
         .onSnapshot(snap => {
-          const count = snap.size;
-          const el = document.getElementById("inboxCount");
-          el.textContent = count;
-          el.classList.toggle("show", count > 0);
-        });
-
-      // Sent: pending messages sent by me
-      // (removed sent count listener for pending, since sentInline will show all except accepted)
-      db.collection("rants")
-        .where("from", "==", user.email)
-        .where("status", "==", "pending")
-        .onSnapshot(snap => {
-          const count = snap.size;
-          const el = document.getElementById("sentCount");
-          el.textContent = count;
-          el.classList.toggle("show", count > 0);
+           // Standard inbox logic handled inside loadInboxInline via its own listener
         });
 
       loadInboxInline(user.email);
       loadSentInline(user.email);
-
       loadChats(user.email);
     });
+
+    // --- Helper to check if a user exists ---
+    async function checkUserExists(email) {
+      if (userExistenceCache[email] !== undefined) {
+        return userExistenceCache[email];
+      }
+      try {
+        const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+        const exists = !snap.empty;
+        userExistenceCache[email] = exists;
+        return exists;
+      } catch (e) {
+        console.error("Error checking user", e);
+        return false; // Default to false if error, to prompt invite
+      }
+    }
+
     function loadSentInline(email) {
       db.collection("rants")
         .where("from", "==", email)
         .onSnapshot(snapshot => {
-          // --- Mark sent listener as ready and clear global pending count ---
           window.__hotSentPending = 0;
           window.__sentReady = true;
           let localIndex = 0;
           const container = document.getElementById("sentInline");
           container.innerHTML = "";
 
-          // Sort by latest activity (updatedAt or createdAt)
           const docs = snapshot.docs.sort((a, b) => {
-            const getTime = d =>
-              d.data().updatedAt?.toMillis?.() ||
-              d.data().createdAt?.toMillis?.() ||
-              0;
+            const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
             return getTime(b) - getTime(a);
           });
 
           docs.forEach(doc => {
             const rant = doc.data();
-
-            // once accepted, it becomes a chat — do not show here
             if (rant.status === "accepted") return;
 
-            // Count sender-side pending/echoed for Hot new Goss
             if (rant.status === "pending" || rant.status === "echoed") {
               localIndex++;
               window.__hotSentPending++;
             }
 
-            const echoBlock = rant.echo
-              ? `<div class="echo">${rant.echo}</div>`
-              : "";
-
-            const actionBlock =
-              rant.status === "echoed" && rant.echo
-                ? `
+            const echoBlock = rant.echo ? `<div class="echo">${rant.echo}</div>` : "";
+            
+            let actionBlock = "";
+            if (rant.status === "echoed" && rant.echo) {
+                actionBlock = `
                   <div class="action">
-                    <button onclick="acceptEchoInline('${doc.id}')">
-                      Accept & continue
-                    </button>
-                  </div>
-                `
-                : "";
+                    <button onclick="acceptEchoInline('${doc.id}')">Accept & continue</button>
+                  </div>`;
+            }
 
-            const statusText =
-              rant.status === "pending"
-                ? "<span class='pending'>awaiting echo</span>"
-                : rant.status === "echoed"
-                ? "echo received"
-                : rant.status;
+            const statusText = rant.status === "pending" 
+              ? "<span class='pending'>awaiting echo</span>" 
+              : rant.status === "echoed" ? "echo received" : rant.status;
+
+            // Unique ID for the invite container for this specific rant
+            const inviteContainerId = `invite-ui-${doc.id}`;
 
             container.innerHTML += `
               <div class="item">
@@ -485,14 +505,28 @@
                 <div class="status">status · ${statusText}</div>
                 ${echoBlock}
                 ${actionBlock}
+                <div id="${inviteContainerId}" class="invite-btn-container" style="display:none;">
+                   <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
+                     INVITE FOR A HOT GOSS
+                   </button>
+                </div>
               </div>
             `;
+
+            // ASYNC CHECK: If pending, check if user exists. If not, show Invite button.
+            if (rant.status === "pending") {
+              checkUserExists(rant.to).then(exists => {
+                if (!exists) {
+                  const el = document.getElementById(inviteContainerId);
+                  if (el) el.style.display = "block";
+                }
+              });
+            }
           });
 
           if (!container.innerHTML) {
             container.innerHTML = "<div class='empty'>nothing sent yet</div>";
           }
-          // Call Hot new Goss counter/visibility updater
           updateHotGossVisibility();
         });
     }
@@ -501,12 +535,11 @@
       db.collection("rants")
         .where("to", "==", email)
         .onSnapshot(snapshot => {
-          // --- Mark inbox listener as ready and clear global pending count ---
           window.__hotInboxPending = 0;
           window.__inboxReady = true;
           const container = document.getElementById("inboxList");
           container.innerHTML = "";
-          let pendingCount = 0; // inbox-side pending
+          let pendingCount = 0;
 
           if (snapshot.empty) {
             container.innerHTML = "<div class='empty'>nothing hot yet</div>";
@@ -514,25 +547,20 @@
             return;
           }
 
-          // Sort by latest activity (updatedAt or createdAt)
           const docs = snapshot.docs.sort((a, b) => {
-            const getTime = d =>
-              d.data().updatedAt?.toMillis?.() ||
-              d.data().createdAt?.toMillis?.() ||
-              0;
+            const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
             return getTime(b) - getTime(a);
           });
 
           docs.forEach(doc => {
             const rant = doc.data();
-            // once accepted, it becomes a chat — do not show in Hot new Goss
             if (rant.status === "accepted") return;
             if (rant.status === "pending" || rant.status === "echoed") {
               pendingCount++;
               window.__hotInboxPending++;
             }
-            let block = "";
 
+            let block = "";
             if (rant.status === "pending") {
               block = `
                 <div class="prompt">needs a response</div>
@@ -541,16 +569,12 @@
                   <button onclick="submitEcho('${doc.id}')">Echo back</button>
                 </div>
               `;
-            }
-
-            if (rant.status === "echoed") {
+            } else if (rant.status === "echoed") {
               block = `
                 <div class="echo">${rant.echo}</div>
                 <div class="status">waiting on the other side</div>
               `;
             }
-
-            // removed accepted block for Hot new Goss
 
             container.innerHTML += `
               <div class="item">
@@ -560,8 +584,6 @@
               </div>
             `;
           });
-
-          // Call Hot new Goss counter/visibility updater
           updateHotGossVisibility();
         });
     }
@@ -569,30 +591,22 @@
     function submitEcho(rantId) {
       const input = document.getElementById(`echo-${rantId}`);
       if (!input) return;
-
       const text = input.value.trim();
       if (!text) return;
-
       input.disabled = true;
-
+      
       db.collection("rants").doc(rantId).get().then(doc => {
-        const rant = doc.data();
-        if (rant.status !== "pending") return;
-
+        if (doc.data().status !== "pending") return;
         db.collection("rants").doc(rantId).update({
-          echo: text,
-          status: "echoed",
-          updatedAt: new Date()
+          echo: text, status: "echoed", updatedAt: new Date()
         });
       });
     }
 
     function acceptEchoInline(rantId) {
       const chatRef = db.collection("chats").doc();
-
       db.collection("rants").doc(rantId).get().then(doc => {
         const rant = doc.data();
-
         chatRef.set({
           users: [rant.from, rant.to],
           createdAt: new Date(),
@@ -601,37 +615,46 @@
             { from: rant.to, text: rant.echo, createdAt: new Date() }
           ]
         });
-
         db.collection("rants").doc(rantId).update({
-          status: "accepted",
-          chatId: chatRef.id,
-          updatedAt: new Date()
+          status: "accepted", chatId: chatRef.id, updatedAt: new Date()
         }).then(() => {
           window.location.href = `chat.html?chatId=${chatRef.id}`;
         });
       });
     }
 
-    function toggleComposer() {
-      const composer = document.querySelector(".composer");
-      composer.classList.toggle("collapsed");
+    // --- Bottom Sheet & Invite Logic ---
+
+    function openInviteBottomSheet(email) {
+      currentInviteTarget = email;
+      document.getElementById('sheetOverlay').classList.add('active');
+      document.getElementById('inviteSheet').classList.add('active');
     }
 
-    // Magical expansion on interaction
-    ["targetEmail", "rantText"].forEach(id => {
-      const el = document.getElementById(id);
-      el.addEventListener("focus", () => {
-        document.querySelector(".composer").classList.remove("collapsed");
-      });
-    });
+    function closeBottomSheet() {
+      document.getElementById('sheetOverlay').classList.remove('active');
+      document.getElementById('inviteSheet').classList.remove('active');
+    }
 
-    document.querySelector(".collapsed-row").addEventListener("click", () => {
-      document.querySelector(".composer").classList.remove("collapsed");
-    });
+    function sendInviteEmail() {
+      if (!currentInviteTarget) return;
+
+      const subject = "Someone is talking about you 🤫";
+      const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://ohmygoss.app`;
+      
+      const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      window.location.href = mailtoLink;
+      closeBottomSheet();
+    }
+
+    // --- Sending Logic ---
 
     function sendRant() {
-      const text = document.getElementById("rantText").value;
-      const target = document.getElementById("targetEmail").value;
+      const textEl = document.getElementById("rantText");
+      const targetEl = document.getElementById("targetEmail");
+      const text = textEl.value.trim();
+      const target = targetEl.value.trim();
       const user = auth.currentUser;
 
       if (!text || !target || !user) return;
@@ -643,28 +666,48 @@
         status: "pending",
         createdAt: new Date()
       }).then(() => {
-        document.getElementById("rantText").value = "";
-        document.getElementById("targetEmail").value = "";
+        textEl.value = "";
+        targetEl.value = "";
+        document.querySelector(".composer").classList.add("collapsed");
+
+        // Check if receiver exists; if not, trigger sheet
+        checkUserExists(target).then(exists => {
+          if (!exists) {
+            openInviteBottomSheet(target);
+          }
+        });
       });
     }
+
+    // --- UI Interactions ---
+
+    function toggleComposer() {
+      document.querySelector(".composer").classList.toggle("collapsed");
+    }
+
+    ["targetEmail", "rantText"].forEach(id => {
+      document.getElementById(id).addEventListener("focus", () => {
+        document.querySelector(".composer").classList.remove("collapsed");
+      });
+    });
+
+    document.querySelector(".collapsed-row").addEventListener("click", () => {
+      document.querySelector(".composer").classList.remove("collapsed");
+    });
 
     function loadChats(userEmail) {
       db.collection("chats")
         .where("users", "array-contains", userEmail)
         .onSnapshot(snapshot => {
-          console.log("Chats snapshot size:", snapshot.size);
           const list = document.getElementById("chatList");
           list.innerHTML = "";
-
           if (snapshot.empty) {
             list.innerHTML = "<div class='empty'>no conversations yet</div>";
             return;
           }
-
           snapshot.forEach(doc => {
             const chat = doc.data();
             const peer = chat.users.find(u => u !== userEmail);
-
             list.innerHTML += `
               <div class="chat-item" onclick="openChat('${doc.id}')">
                 <div class="chat-peer">${peer}</div>
