@@ -27,7 +27,6 @@
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
-      /* 100dvh is critical for mobile browsers with dynamic URL bars */
       height: 100dvh; 
       display: flex;
       flex-direction: column;
@@ -35,175 +34,89 @@
     }
 
     .grain {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
+      position: fixed; inset: 0; pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-      z-index: 0;
-      mix-blend-mode: multiply;
+      z-index: 0; mix-blend-mode: multiply;
     }
 
     /* --- HEADER --- */
     .top {
-      flex: 0 0 auto;
-      background: var(--bg-color);
-      border-bottom: 4px solid var(--ink);
-      padding: 12px 16px;
-      z-index: 10;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      flex: 0 0 auto; background: var(--bg-color); border-bottom: 4px solid var(--ink);
+      padding: 12px 16px; z-index: 10; display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .nuke-btn {
-      background: var(--danger);
-      color: white;
-      border: 2px solid var(--ink);
-      font-family: "Archivo", sans-serif;
-      font-weight: 900;
-      font-size: 12px;
-      padding: 8px 12px;
-      text-transform: uppercase;
-      box-shadow: 3px 3px 0 var(--ink);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
+      background: var(--danger); color: white; border: 2px solid var(--ink);
+      font-family: "Archivo", sans-serif; font-weight: 900; font-size: 12px;
+      padding: 8px 12px; text-transform: uppercase; box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;
     }
     .nuke-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
     .timer-display {
-      text-align: center;
-      font-family: "Archivo", sans-serif;
-      font-weight: 900;
-      font-size: 20px;
-      font-style: italic;
-      color: var(--ink);
-      border: 2px solid var(--ink);
-      background: var(--paper);
-      padding: 4px 12px;
-      min-width: 80px;
+      text-align: center; font-family: "Archivo", sans-serif; font-weight: 900;
+      font-size: 20px; font-style: italic; color: var(--ink); border: 2px solid var(--ink);
+      background: var(--paper); padding: 4px 12px; min-width: 80px;
     }
 
     .back-btn {
-      justify-self: end;
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--ink);
-      text-transform: uppercase;
-      border-bottom: 2px solid var(--ink);
+      justify-self: end; text-decoration: none; font-size: 11px; font-weight: 800;
+      color: var(--ink); text-transform: uppercase; border-bottom: 2px solid var(--ink);
     }
 
+    /* --- MARQUEE --- */
     .participants-marquee {
-      background: var(--ink);
-      color: var(--bg-color);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-transform: uppercase;
-      flex: 0 0 auto;
+      background: var(--ink); color: var(--bg-color); font-size: 10px; font-weight: 700;
+      padding: 4px 0; white-space: nowrap; overflow: hidden; text-transform: uppercase; flex: 0 0 auto;
     }
     .marquee-content {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 15s linear infinite;
+      display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;
     }
-    @keyframes scroll-left {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
+    @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
     /* --- CHAT LOG --- */
     .log {
-      flex: 1; 
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-      z-index: 1;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch; /* Momentum scroll */
-      padding-bottom: 20px; /* Space above input */
+      flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column;
+      gap: 16px; position: relative; z-index: 1; scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch; padding-bottom: 20px;
     }
 
     .message {
-      max-width: 85%;
-      padding: 12px 16px;
-      position: relative;
-      border: 3px solid var(--ink);
-      box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+      max-width: 85%; padding: 12px 16px; position: relative;
+      border: 3px solid var(--ink); box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
     .message.them { align-self: flex-start; background: var(--paper); color: var(--ink); }
     .message.me { align-self: flex-end; background: var(--me-bg); color: var(--me-text); border-color: var(--ink); }
-
-    .from {
-      font-size: 9px; font-weight: 800; text-transform: uppercase;
-      margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7;
-    }
+    
+    .from { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7; }
     .message.me .from { color: var(--accent); opacity: 1; }
     .text { font-size: 14px; line-height: 1.4; font-weight: 600; white-space: pre-wrap; word-wrap: break-word; }
 
     /* --- INPUT AREA --- */
     .input-area {
-      flex: 0 0 auto;
-      background: var(--ink);
-      border-top: 4px solid var(--accent);
-      padding: 12px 16px;
-      z-index: 999; /* High Z-index ensures it stays on top */
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-      /* iOS Home Indicator Safe Area */
-      padding-bottom: max(12px, env(safe-area-inset-bottom)); 
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+      flex: 0 0 auto; background: var(--ink); border-top: 4px solid var(--accent);
+      padding: 12px 16px; z-index: 999; display: flex; gap: 12px; align-items: flex-end;
+      padding-bottom: max(12px, env(safe-area-inset-bottom)); box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
     }
-
     .input-area textarea {
-      flex: 1;
-      background: var(--paper);
-      border: 2px solid var(--ink);
-      padding: 12px;
-      color: var(--ink);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 16px; /* Prevents zoom on iOS */
-      resize: none;
-      height: 50px;
-      outline: none;
-      border-radius: 0;
+      flex: 1; background: var(--paper); border: 2px solid var(--ink); padding: 12px;
+      color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: 16px;
+      resize: none; height: 50px; outline: none; border-radius: 0;
     }
     .input-area textarea:focus { background: #FFFDF0; border-color: var(--accent); }
 
     .send-btn {
-      width: 60px; height: 50px;
-      background: var(--bg-color);
-      border: 2px solid var(--paper);
-      color: var(--ink);
-      font-family: "Archivo", sans-serif;
-      font-weight: 900;
-      font-size: 12px;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 4px 4px 0 var(--accent);
-      flex-shrink: 0;
+      width: 60px; height: 50px; background: var(--bg-color); border: 2px solid var(--paper);
+      color: var(--ink); font-family: "Archivo", sans-serif; font-weight: 900; font-size: 12px;
+      text-transform: uppercase; cursor: pointer; box-shadow: 4px 4px 0 var(--accent); flex-shrink: 0;
     }
     .send-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-    /* --- BOTTOM SHEET (NUKE UI) --- */
+    /* --- NUKE UI --- */
     .overlay {
       position: fixed; inset: 0; background: rgba(16, 16, 16, 0.9);
       backdrop-filter: blur(4px); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -211,24 +124,19 @@
     .overlay.active { opacity: 1; pointer-events: auto; }
 
     .bottom-sheet {
-      position: fixed; left: 0; right: 0; bottom: -100%;
-      background: var(--bg-color); border-top: 4px solid var(--ink);
-      padding: 32px 24px 48px; z-index: 2001;
-      transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-      box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+      position: fixed; left: 0; right: 0; bottom: -100%; background: var(--bg-color);
+      border-top: 4px solid var(--ink); padding: 32px 24px 48px; z-index: 2001;
+      transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1); box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
     }
     .bottom-sheet.active { bottom: 0; }
 
-    .bs-title {
-      font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900;
-      font-style: italic; text-transform: uppercase; margin-bottom: 12px; color: var(--danger);
-    }
+    .bs-title { font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; margin-bottom: 12px; color: var(--danger); }
     .bs-text { font-size: 14px; font-weight: 600; margin-bottom: 24px; line-height: 1.5; }
 
     .bs-btn-danger {
-      width: 100%; padding: 16px; background: var(--danger); color: white;
-      border: 3px solid var(--ink); font-weight: 800; font-family: "Archivo", sans-serif;
-      text-transform: uppercase; box-shadow: 4px 4px 0 var(--ink); cursor: pointer;
+      width: 100%; padding: 16px; background: var(--danger); color: white; border: 3px solid var(--ink);
+      font-weight: 800; font-family: "Archivo", sans-serif; text-transform: uppercase;
+      box-shadow: 4px 4px 0 var(--ink); cursor: pointer;
     }
     .bs-btn-danger:active { transform: translate(2px, 2px); box-shadow: none; }
 
@@ -236,13 +144,10 @@
       width: 100%; background: transparent; border: none; padding: 12px;
       text-decoration: underline; font-weight: 700; cursor: pointer; margin-top: 8px;
     }
-
-    /* Wait State */
     .waiting-box {
       border: 2px dashed var(--ink); padding: 16px; text-align: center;
       background: rgba(255,255,255,0.5); font-weight: 700; font-size: 12px;
     }
-
   </style>
 </head>
 
@@ -256,9 +161,7 @@
   </div>
 
   <div class="participants-marquee">
-    <div class="marquee-content" id="participantsText">
-      LOADING SECURE CONNECTION...
-    </div>
+    <div class="marquee-content" id="participantsText">LOADING SECURE CONNECTION...</div>
   </div>
 
   <div id="messages" class="log"></div>
@@ -269,8 +172,7 @@
   </div>
 
   <div class="overlay" id="sheetOverlay"></div>
-  <div class="bottom-sheet" id="nukeSheet">
-    </div>
+  <div class="bottom-sheet" id="nukeSheet"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -279,7 +181,7 @@
   <script>
     const CHAT_TTL_MINUTES = 15;
     const firebaseConfig = {
-      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Replace with your actual key
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", 
       authDomain: "rant-2me.firebaseapp.com",
       projectId: "rant-2me"
     };
@@ -290,9 +192,12 @@
 
     const params = new URLSearchParams(window.location.search);
     const chatId = params.get("chatId");
-    let currentUserEmail = "";
+    
+    // Global State for efficiency
+    let currentChatData = null; 
+    let timerInterval = null;
 
-    // Force focus on load for mobile keyboards
+    // Force focus logic
     window.onload = function() {
         setTimeout(() => {
             const input = document.getElementById("msg");
@@ -305,34 +210,32 @@
         window.location.href = "index.html";
         return;
       }
-      currentUserEmail = user.email;
 
-      // 1. Listen to the Chat Meta Data (Timer, Nuke Status)
+      // 1. Listen to Chat Metadata
       db.collection("chats").doc(chatId).onSnapshot(doc => {
+        // --- KEY DESTRUCTION CHECK ---
         if (!doc.exists) {
-          // SILENT REDIRECT: Chat has been destroyed
+          // Chat deleted by nuke confirmation. Redirect immediately.
           window.location.href = "rant.html";
           return;
         }
 
         const chat = doc.data();
+        currentChatData = chat; // Update global state
 
         // Security Check
         if (!chat.users.includes(user.email)) {
           window.location.href = "rant.html"; return;
         }
 
-        // Update Marquee
+        // UI Updates
         document.getElementById("participantsText").innerText = 
           `SECURE CONNECTION: ${chat.users.join('  <->  ')}   ///   ENCRYPTED`;
 
-        // Update Timer
         startTimer(chat.createdAt);
+        handleNukeState(chat, user.email);
 
-        // Check Nuke Status
-        handleNukeState(chat);
-
-        // Seed Hydration (Run once)
+        // One-time Seed
         if (chat.seed) hydrateSeed(chat);
       });
 
@@ -341,6 +244,8 @@
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           const container = document.getElementById("messages");
+          // Efficient DOM update: clear and rebuild is fine for small chats, 
+          // allows exact sync with DB state
           container.innerHTML = "";
           
           snapshot.forEach(doc => {
@@ -353,7 +258,6 @@
               </div>
             `;
           });
-          // Scroll to bottom
           container.scrollTop = container.scrollHeight;
         });
     });
@@ -361,6 +265,7 @@
     // --- LOGIC ---
 
     function hydrateSeed(chat) {
+       // Only run if empty to avoid infinite writes if seed fails to delete
        db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
          if(snap.empty && chat.seed) {
            const batch = db.batch();
@@ -376,14 +281,16 @@
 
     function startTimer(timestamp) {
       if(!timestamp) return;
-      const interval = setInterval(() => {
+      if(timerInterval) clearInterval(timerInterval); // Prevent memory leaks
+
+      const update = () => {
         const now = new Date();
         const created = timestamp.toDate();
         const expires = new Date(created.getTime() + CHAT_TTL_MINUTES * 60000);
         const diff = expires - now;
 
         if (diff <= 0) {
-          clearInterval(interval);
+          clearInterval(timerInterval);
           document.getElementById("timer").innerText = "00:00";
         } else {
           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -391,35 +298,35 @@
           document.getElementById("timer").innerText = 
             `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
-      }, 1000);
+      };
+      
+      update(); // Run immediately
+      timerInterval = setInterval(update, 1000);
     }
 
-    // --- NUKE LOGIC (CORRECTED) ---
+    // --- NUKE LOGIC (OPTIMIZED) ---
 
-    function handleNukeState(chat) {
+    function handleNukeState(chat, myEmail) {
       const sheet = document.getElementById("nukeSheet");
       const overlay = document.getElementById("sheetOverlay");
-      const myEmail = auth.currentUser ? auth.currentUser.email : "";
       
       if (chat.nukeRequest) {
-        // There is an active nuke request in the DB
+        // Active Nuke Request found in DB
         overlay.classList.add("active");
         sheet.classList.add("active");
 
         if (chat.nukeRequest === myEmail) {
-          // I AM THE SENDER. I WAIT.
+          // I AM THE SENDER
           sheet.innerHTML = `
             <div class="bs-title">AWAITING CONFIRMATION</div>
             <div class="bs-text">
               You have armed the destruction sequence. Waiting for the other person to turn their key.
             </div>
-            <div class="waiting-box">
-              WAITING FOR PARTNER...
-            </div>
+            <div class="waiting-box">WAITING FOR PARTNER...</div>
             <button class="bs-btn-cancel" onclick="cancelNuke()">CANCEL REQUEST</button>
           `;
         } else {
-          // I AM THE RECEIVER. I ACT.
+          // I AM THE RECEIVER -> ACTION REQUIRED
           sheet.innerHTML = `
             <div class="bs-title">⚠️ DESTRUCTION REQUEST</div>
             <div class="bs-text">
@@ -430,41 +337,45 @@
           `;
         }
       } else {
-        // No active nuke request (or it was cancelled)
-        overlay.classList.remove("active");
-        sheet.classList.remove("active");
+        // If we are locally showing the "Initiate?" prompt, don't close it. 
+        // Only close if we are not in the "initiating" phase locally.
+        // We detect this by checking if the sheet has specific DB-related content classes.
+        // But simpler: If the sheet was showing a DB state (Waiting/Request), close it.
+        const content = sheet.innerHTML;
+        if (content.includes("AWAITING") || content.includes("DESTRUCTION REQUEST")) {
+            overlay.classList.remove("active");
+            sheet.classList.remove("active");
+        }
       }
     }
 
     function initiateNuke() {
-      // Local check: Are we talking to ourselves? (Testing environment)
-      // If users array has same email twice, or length 1, instant nuke.
-      db.collection("chats").doc(chatId).get().then(doc => {
-          const u = doc.data().users;
-          const myEmail = auth.currentUser.email;
-          const distinctUsers = [...new Set(u)];
+      // Use cached data to avoid network latency
+      if(!currentChatData) return;
 
-          if(distinctUsers.length === 1 && distinctUsers[0] === myEmail) {
-              // Self Chat - Instant Kill
-              confirmDestruction();
-          } else {
-              // Real Chat - Show Prompt
-              const sheet = document.getElementById("nukeSheet");
-              const overlay = document.getElementById("sheetOverlay");
-              
-              sheet.innerHTML = `
-                <div class="bs-title">INITIATE DESTRUCTION?</div>
-                <div class="bs-text">
-                  This sends a request to your partner. If they agree, this chat vanishes for both of you instantly.
-                </div>
-                <button class="bs-btn-danger" onclick="sendNukeRequest()">SEND DESTRUCT SIGNAL</button>
-                <button class="bs-btn-cancel" onclick="closeSheet()">NEVER MIND</button>
-              `;
-              
-              overlay.classList.add("active");
-              sheet.classList.add("active");
-          }
-      });
+      const myEmail = auth.currentUser.email;
+      const distinctUsers = [...new Set(currentChatData.users)];
+
+      if(distinctUsers.length === 1 && distinctUsers[0] === myEmail) {
+          // Self Chat: Instant Kill
+          confirmDestruction();
+      } else {
+          // Real Chat: Show Local Prompt
+          const sheet = document.getElementById("nukeSheet");
+          const overlay = document.getElementById("sheetOverlay");
+          
+          sheet.innerHTML = `
+            <div class="bs-title">INITIATE DESTRUCTION?</div>
+            <div class="bs-text">
+              This sends a request to your partner. If they agree, this chat vanishes for both of you instantly.
+            </div>
+            <button class="bs-btn-danger" onclick="sendNukeRequest()">SEND DESTRUCT SIGNAL</button>
+            <button class="bs-btn-cancel" onclick="closeSheet()">NEVER MIND</button>
+          `;
+          
+          overlay.classList.add("active");
+          sheet.classList.add("active");
+      }
     }
 
     function closeSheet() {
@@ -473,15 +384,14 @@
     }
 
     function sendNukeRequest() {
-      // Set the nukeRequest field to MY email
+      // Updates DB -> Triggers onSnapshot -> Updates UI to "Waiting"
       db.collection("chats").doc(chatId).update({
         nukeRequest: auth.currentUser.email
       });
-      // The Snapshot listener will then update the UI to "Waiting"
     }
 
     function cancelNuke() {
-      // Clears the request for BOTH parties
+      // Handles both "Cancel" (Sender) and "Reject" (Receiver)
       db.collection("chats").doc(chatId).update({
         nukeRequest: firebase.firestore.FieldValue.delete()
       });
@@ -489,8 +399,7 @@
     }
 
     function confirmDestruction() {
-      // DELETE THE DOC. 
-      // The onSnapshot listener at the top handles the redirect for both users.
+      // Deletes doc -> Triggers onSnapshot(!doc.exists) -> Redirects both users
       db.collection("chats").doc(chatId).delete();
     }
 
