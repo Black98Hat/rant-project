@@ -16,7 +16,7 @@
       --paper: #FFFFFF;
       --me-bg: #101010;
       --me-text: #FFD600;
-      --danger: #FF0000;
+      --danger: #FF003C;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -27,99 +27,99 @@
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
-      height: 100vh;
+      height: 100vh; /* Critical for sticky footer */
       display: flex;
       flex-direction: column;
-      /* Padding bottom equals input area height + spacing */
-      padding-bottom: 90px; 
+      overflow: hidden; 
     }
 
     .grain {
-      position: fixed; inset: 0; pointer-events: none;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-      z-index: 0; mix-blend-mode: multiply;
+      z-index: 0;
+      mix-blend-mode: multiply;
     }
 
     /* --- HEADER --- */
     .top {
       flex: 0 0 auto;
-      padding: 12px 16px;
-      border-bottom: 4px solid var(--ink);
       background: var(--bg-color);
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
+      border-bottom: 4px solid var(--ink);
+      padding: 12px 16px;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      position: sticky;
-      top: 0;
-    }
-
-    .top-left h1 {
-      font-family: "Archivo", sans-serif;
-      font-size: 16px;
-      font-weight: 900;
-      font-style: italic;
-      text-transform: uppercase;
-      margin: 0;
-      line-height: 1;
-    }
-
-    .timer-badge {
-      font-size: 12px;
-      font-weight: 800;
-      background: var(--ink);
-      color: var(--bg-color);
-      padding: 4px 8px;
-      border-radius: 4px;
-      margin-top: 4px;
-      display: inline-block;
+      gap: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .nuke-btn {
-      background: transparent;
-      border: 2px solid var(--accent);
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 800;
+      background: var(--danger);
+      color: white;
+      border: 2px solid var(--ink);
+      font-family: "Archivo", sans-serif;
+      font-weight: 900;
+      font-size: 12px;
       padding: 8px 12px;
       text-transform: uppercase;
+      box-shadow: 3px 3px 0 var(--ink);
       cursor: pointer;
-      box-shadow: 3px 3px 0 rgba(255, 72, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-    .nuke-btn:active { transform: translate(1px, 1px); box-shadow: none; }
-    
-    .nuke-btn.pending {
-      background: var(--accent); color: white; border-color: var(--ink);
-      animation: pulse 1s infinite;
-    }
+    .nuke-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-
-    /* --- DESTRUCTION BANNER --- */
-    #destructBanner {
-      display: none;
-      background: var(--accent);
-      color: white;
+    .timer-display {
       text-align: center;
-      padding: 10px;
-      font-weight: 800;
-      font-size: 12px;
-      border-bottom: 3px solid var(--ink);
-      text-transform: uppercase;
+      font-family: "Archivo", sans-serif;
+      font-weight: 900;
+      font-size: 20px;
+      font-style: italic;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      padding: 4px 12px;
+      min-width: 80px;
     }
-    #destructBanner button {
-      margin-left: 10px;
-      background: var(--ink);
-      color: white;
-      border: 1px solid white;
-      padding: 4px 8px;
-      cursor: pointer;
+
+    .back-btn {
+      justify-self: end;
+      text-decoration: none;
+      font-size: 11px;
       font-weight: 800;
+      color: var(--ink);
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .participants-marquee {
+      background: var(--ink);
+      color: var(--bg-color);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-transform: uppercase;
+      flex: 0 0 auto;
+    }
+    .marquee-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 15s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
 
     /* --- CHAT LOG --- */
     .log {
-      flex: 1;
+      flex: 1; /* Takes up remaining space */
       overflow-y: auto;
       padding: 20px;
       display: flex;
@@ -127,11 +127,12 @@
       gap: 16px;
       position: relative;
       z-index: 1;
+      scroll-behavior: smooth;
     }
 
     .message {
       max-width: 85%;
-      padding: 14px 18px;
+      padding: 12px 16px;
       position: relative;
       border: 3px solid var(--ink);
       box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
@@ -141,29 +142,31 @@
     .message.them { align-self: flex-start; background: var(--paper); color: var(--ink); }
     .message.me { align-self: flex-end; background: var(--me-bg); color: var(--me-text); border-color: var(--ink); }
 
-    .from { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7; }
+    .from {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7;
+    }
     .message.me .from { color: var(--accent); opacity: 1; }
-    .text { font-size: 14px; line-height: 1.5; font-weight: 600; white-space: pre-wrap; word-wrap: break-word; }
+    .text { font-size: 14px; line-height: 1.4; font-weight: 600; white-space: pre-wrap; word-wrap: break-word; }
 
-    /* --- STICKY INPUT AREA --- */
+    /* --- INPUT AREA --- */
     .input-area {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
+      flex: 0 0 auto; /* Don't shrink */
       background: var(--ink);
       border-top: 4px solid var(--accent);
-      padding: 12px;
-      z-index: 999;
+      padding: 12px 16px;
+      z-index: 20;
       display: flex;
-      gap: 10px;
-      align-items: center;
-      height: 80px; /* Fixed height for padding calculation */
+      gap: 12px;
+      align-items: flex-end;
+      padding-bottom: max(12px, env(safe-area-inset-bottom)); /* iOS safe area */
     }
 
     .input-area textarea {
       flex: 1;
       background: var(--paper);
       border: 2px solid var(--ink);
-      padding: 10px;
+      padding: 12px;
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       font-size: 14px;
@@ -175,14 +178,63 @@
 
     .send-btn {
       width: 60px; height: 50px;
-      background: var(--bg-color); border: 2px solid var(--paper);
-      color: var(--ink); font-family: "Archivo", sans-serif;
-      font-weight: 900; font-size: 12px; text-transform: uppercase;
-      cursor: pointer; box-shadow: 4px 4px 0 var(--accent);
+      background: var(--bg-color);
+      border: 2px solid var(--paper);
+      color: var(--ink);
+      font-family: "Archivo", sans-serif;
+      font-weight: 900;
+      font-size: 12px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--accent);
     }
-    .send-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--accent); }
+    .send-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* --- BOTTOM SHEET (NUKE UI) --- */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(16, 16, 16, 0.9);
+      backdrop-filter: blur(4px); z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+
+    .bottom-sheet {
+      position: fixed; left: 0; right: 0; bottom: -100%;
+      background: var(--bg-color); border-top: 4px solid var(--ink);
+      padding: 32px 24px 48px; z-index: 100;
+      transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+    }
+    .bottom-sheet.active { bottom: 0; }
+
+    .bs-title {
+      font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900;
+      font-style: italic; text-transform: uppercase; margin-bottom: 12px; color: var(--danger);
+    }
+    .bs-text { font-size: 14px; font-weight: 600; margin-bottom: 24px; line-height: 1.5; }
+
+    .bs-btn-danger {
+      width: 100%; padding: 16px; background: var(--danger); color: white;
+      border: 3px solid var(--ink); font-weight: 800; font-family: "Archivo", sans-serif;
+      text-transform: uppercase; box-shadow: 4px 4px 0 var(--ink); cursor: pointer;
+    }
+    .bs-btn-danger:active { transform: translate(2px, 2px); box-shadow: none; }
+
+    .bs-btn-cancel {
+      width: 100%; background: transparent; border: none; padding: 12px;
+      text-decoration: underline; font-weight: 700; cursor: pointer; margin-top: 8px;
+    }
+
+    /* Wait State */
+    .waiting-box {
+      border: 2px dashed var(--ink); padding: 16px; text-align: center;
+      background: rgba(255,255,255,0.5); font-weight: 700; font-size: 12px;
+    }
+
   </style>
 </head>
 
@@ -190,16 +242,15 @@
   <div class="grain"></div>
 
   <div class="top">
-    <div class="top-left">
-      <h1>Encrypted</h1>
-      <div id="timeLeft" class="timer-badge">--:--</div>
-    </div>
-    <button id="nukeBtn" class="nuke-btn" onclick="initiateNuke()">💣 Nuke Chat</button>
+    <button class="nuke-btn" onclick="initiateNuke()">☢️ NUKE</button>
+    <div class="timer-display" id="timer">--:--</div>
+    <a href="rant.html" class="back-btn">Exit</a>
   </div>
 
-  <div id="destructBanner">
-    ⚠️ PARTNER WANTS TO DELETE
-    <button onclick="confirmNuke()">CONFIRM</button>
+  <div class="participants-marquee">
+    <div class="marquee-content" id="participantsText">
+      LOADING SECURE CONNECTION...
+    </div>
   </div>
 
   <div id="messages" class="log"></div>
@@ -209,15 +260,18 @@
     <button class="send-btn" onclick="send()">Send</button>
   </div>
 
+  <div class="overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="nukeSheet">
+    </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // --- CONFIG ---
-    const TTL_MINUTES = 15;
+    const CHAT_TTL_MINUTES = 15;
     const firebaseConfig = {
-      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Use your actual API Key
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Replace with your actual key
       authDomain: "rant-2me.firebaseapp.com",
       projectId: "rant-2me"
     };
@@ -225,154 +279,222 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+
     const params = new URLSearchParams(window.location.search);
     const chatId = params.get("chatId");
-
-    let chatCreatedAt = null;
+    let currentUserEmail = "";
 
     auth.onAuthStateChanged(user => {
       if (!user || !chatId) {
         window.location.href = "index.html";
         return;
       }
+      currentUserEmail = user.email;
 
-      // 1. Listen to Chat Metadata (Destruction Logic & Timer)
+      // 1. Listen to the Chat Meta Data (Timer, Nuke Status)
       db.collection("chats").doc(chatId).onSnapshot(doc => {
         if (!doc.exists) {
-          // Chat deleted (by timer or mutual nuke)
-          alert("CHAT DESTROYED. RETURNING TO DESK.");
-          window.location.href = "index.html";
+          // Document deleted (Nuked or Expired)
+          alert("This channel has been destroyed.");
+          window.location.href = "rant.html";
           return;
         }
 
-        const data = doc.data();
-        
+        const chat = doc.data();
+
         // Security Check
-        if (!data.users.includes(user.email)) {
-          window.location.href = "index.html";
-          return;
+        if (!chat.users.includes(user.email)) {
+          window.location.href = "rant.html"; return;
         }
 
-        // Timer Setup
-        if (!chatCreatedAt && data.createdAt) {
-          chatCreatedAt = data.createdAt.toDate();
-          startTimer();
-        }
+        // Update Marquee
+        document.getElementById("participantsText").innerText = 
+          `SECURE CONNECTION: ${chat.users.join('  <->  ')}   ///   ENCRYPTED`;
 
-        // Mutual Destruction Logic
-        const banner = document.getElementById('destructBanner');
-        const nukeBtn = document.getElementById('nukeBtn');
+        // Update Timer
+        startTimer(chat.createdAt);
 
-        if (data.destroyRequestedBy) {
-           if (data.destroyRequestedBy === user.email) {
-             // I requested it
-             nukeBtn.innerText = "WAITING FOR PARTNER...";
-             nukeBtn.classList.add('pending');
-             nukeBtn.disabled = true;
-           } else {
-             // Partner requested it
-             banner.style.display = 'block';
-             nukeBtn.style.display = 'none'; // Hide my initiate button
-           }
-        }
+        // Check Nuke Status
+        handleNukeState(chat);
+
+        // Seed Hydration (Run once)
+        if (chat.seed) hydrateSeed(chat);
       });
 
-      // 2. Message Seeding (Run once)
-      db.collection("chats").doc(chatId).get().then(doc => {
-         const chat = doc.data();
-         if (chat.seed && Array.isArray(chat.seed)) {
-            // Check if messages already exist to avoid dups
-            db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
-               if(snap.empty) {
-                  const batch = db.batch();
-                  chat.seed.forEach(m => {
-                    const ref = db.collection("chats").doc(chatId).collection("messages").doc();
-                    batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt || new Date() });
-                  });
-                  batch.commit(); // Writes seed messages
-               }
-            });
-         }
-      });
-
-      // 3. Listen for Messages
+      // 2. Listen to Messages
       db.collection("chats").doc(chatId).collection("messages")
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           const container = document.getElementById("messages");
-          container.innerHTML = ""; // Clear and redraw (inefficient but safe for small chats)
           
+          // Only clear if we are rebuilding, but Append is better for performance usually. 
+          // For simplicity in this structure, we rebuild on snapshot change.
+          container.innerHTML = "";
+
           snapshot.forEach(doc => {
             const m = doc.data();
             const isMe = m.from === user.email;
             container.innerHTML += `
               <div class="message ${isMe ? "me" : "them"}">
-                <div class="from">${isMe ? "YOU" : "ANON"}</div>
+                <div class="from">${isMe ? "YOU" : "THEY"}</div>
                 <div class="text">${m.text}</div>
               </div>
             `;
           });
-          // Scroll to bottom
-          window.scrollTo(0, document.body.scrollHeight);
+          container.scrollTop = container.scrollHeight;
         });
     });
 
-    // --- ACTIONS ---
+    // --- LOGIC ---
+
+    function hydrateSeed(chat) {
+       // Check if messages exist, if not, add seed.
+       // Note: In production, do this server-side or be careful of race conditions.
+       // This is a simplified client-side check.
+       db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
+         if(snap.empty && chat.seed) {
+           const batch = db.batch();
+           chat.seed.forEach(m => {
+             const ref = db.collection("chats").doc(chatId).collection("messages").doc();
+             batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt });
+           });
+           // Clear seed from doc to prevent re-hydration
+           batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
+           batch.commit();
+         }
+       });
+    }
+
+    function startTimer(timestamp) {
+      if(!timestamp) return;
+      
+      const interval = setInterval(() => {
+        const now = new Date();
+        const created = timestamp.toDate();
+        const expires = new Date(created.getTime() + CHAT_TTL_MINUTES * 60000);
+        const diff = expires - now;
+
+        if (diff <= 0) {
+          clearInterval(interval);
+          document.getElementById("timer").innerText = "00:00";
+          // Optional: Trigger delete if owner
+        } else {
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+          document.getElementById("timer").innerText = 
+            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    // --- NUKE LOGIC ---
+
+    function handleNukeState(chat) {
+      const sheet = document.getElementById("nukeSheet");
+      const overlay = document.getElementById("sheetOverlay");
+      
+      if (chat.nukeRequest) {
+        overlay.classList.add("active");
+        sheet.classList.add("active");
+
+        if (chat.nukeRequest === currentUserEmail) {
+          // I initiated it
+          sheet.innerHTML = `
+            <div class="bs-title">AWAITING CONFIRMATION</div>
+            <div class="bs-text">
+              You have armed the destruction sequence. Waiting for the other person to turn their key.
+            </div>
+            <div class="waiting-box">
+              WAITING FOR PARTNER...
+            </div>
+            <button class="bs-btn-cancel" onclick="cancelNuke()">CANCEL REQUEST</button>
+          `;
+        } else {
+          // They initiated it
+          sheet.innerHTML = `
+            <div class="bs-title">⚠️ DESTRUCTION REQUEST</div>
+            <div class="bs-text">
+              Your partner wants to nuke this chat. If you agree, all records will be permanently erased immediately.
+            </div>
+            <button class="bs-btn-danger" onclick="confirmDestruction()">AGREE & DESTROY</button>
+            <button class="bs-btn-cancel" onclick="cancelNuke()">REJECT</button>
+          `;
+        }
+      } else {
+        // No active nuke request
+        overlay.classList.remove("active");
+        sheet.classList.remove("active");
+      }
+    }
+
+    // 1. Open the UI to ask me if I want to nuke
+    function initiateNuke() {
+      const sheet = document.getElementById("nukeSheet");
+      const overlay = document.getElementById("sheetOverlay");
+      
+      sheet.innerHTML = `
+        <div class="bs-title">INITIATE DESTRUCTION?</div>
+        <div class="bs-text">
+          This sends a request to your partner. If they agree, this chat vanishes for both of you instantly.
+        </div>
+        <button class="bs-btn-danger" onclick="sendNukeRequest()">SEND DESTRUCT SIGNAL</button>
+        <button class="bs-btn-cancel" onclick="closeSheet()">NEVER MIND</button>
+      `;
+      
+      overlay.classList.add("active");
+      sheet.classList.add("active");
+    }
+
+    function closeSheet() {
+      document.getElementById("sheetOverlay").classList.remove("active");
+      document.getElementById("nukeSheet").classList.remove("active");
+    }
+
+    // 2. I clicked "Send Destruct Signal"
+    function sendNukeRequest() {
+      db.collection("chats").doc(chatId).update({
+        nukeRequest: currentUserEmail
+      });
+      // The onSnapshot will update the UI to "Waiting" state automatically
+    }
+
+    // 3. I clicked "Cancel" (or Reject)
+    function cancelNuke() {
+      db.collection("chats").doc(chatId).update({
+        nukeRequest: firebase.firestore.FieldValue.delete()
+      });
+      closeSheet();
+    }
+
+    // 4. I clicked "Agree & Destroy"
+    function confirmDestruction() {
+      // DELETE THE DOC. 
+      // The onSnapshot listener at the top handles the redirect for both users.
+      db.collection("chats").doc(chatId).delete();
+    }
+
+    // --- MESSAGING ---
 
     function send() {
-      const user = auth.currentUser;
       const input = document.getElementById("msg");
       const text = input.value.trim();
       if (!text) return;
 
       db.collection("chats").doc(chatId).collection("messages").add({
-        from: user.email,
+        from: currentUserEmail,
         text,
         createdAt: new Date()
       });
       input.value = "";
     }
 
-    function initiateNuke() {
-      if(!confirm("Request to destroy this chat immediately? It will ask the other person.")) return;
-      
-      const user = auth.currentUser;
-      db.collection("chats").doc(chatId).update({
-        destroyRequestedBy: user.email
-      });
-    }
-
-    function confirmNuke() {
-      // Delete the document. The onSnapshot listener handles the redirect for both users.
-      db.collection("chats").doc(chatId).delete();
-    }
-
-    function startTimer() {
-      const el = document.getElementById("timeLeft");
-      setInterval(() => {
-        const now = new Date();
-        const expiresAt = new Date(chatCreatedAt.getTime() + TTL_MINUTES * 60000);
-        const diff = expiresAt - now;
-
-        if (diff <= 0) {
-          el.innerText = "00:00";
-          // Optional: Force delete if time is up, though index.html handles cleanup too
-          db.collection("chats").doc(chatId).delete();
-        } else {
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const secs = Math.floor((diff % (1000 * 60)) / 1000);
-          el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-      }, 1000);
-    }
-
-    // Keyboard handling
     document.getElementById("msg").addEventListener("keydown", function(e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         send();
       }
     });
+
   </script>
 </body>
 </html>
