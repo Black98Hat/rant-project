@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Oh my Goss</title>
+  <title>Oh my Goss - Internal Leak</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
@@ -10,10 +10,11 @@
   <style>
     :root {
       /* Energetic Palette */
-      --bg-color: #FFD600; /* Electric Yellow */
-      --accent: #FF4800;   /* Hot Orange */
-      --ink: #000000;      /* Pure Black */
+      --bg-color: #FFD600; 
+      --accent: #FF3D00;   
+      --ink: #1a1a1a;      
       --paper: #FFFFFF;
+      --highlight: #00E676; /* Toxic Green for updates */
     }
 
     * {
@@ -27,24 +28,27 @@
       background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
       color: var(--ink);
       height: 100vh;
+      min-height: 100dvh; /* Mobile vertical center fix */
       width: 100vw;
       overflow: hidden;
       font-family: "JetBrains Mono", monospace;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center; /* Vertical Center */
+      justify-content: center; /* Horizontal Center */
       position: relative;
     }
 
-    /* --- THE INFINITE GOSSIP WALL --- */
+    /* --- BACKGROUND: THE INFINITE GOSSIP WALL (From Previous) --- */
     .wall-wrapper {
-      position: fixed;
-      inset: -100px;
+      position: absolute;
+      inset: -150px; /* Bleed edges to hide scroll */
       display: flex;
       justify-content: center;
       gap: 16px;
       z-index: 0;
       transform: rotate(-3deg);
       pointer-events: none;
+      opacity: 0.6; /* Slight fade as requested for readability */
     }
 
     .g-column {
@@ -53,259 +57,248 @@
       gap: 16px;
       width: 220px;
       flex-shrink: 0;
+      will-change: transform;
     }
 
     /* Animations */
-    .scroll-up { animation: scrollUp 40s linear infinite; }
-    .scroll-down { animation: scrollDown 35s linear infinite; }
-    .scroll-fast { animation: scrollUp 28s linear infinite; }
+    .scroll-up { animation: scrollUp 60s linear infinite; }
+    .scroll-down { animation: scrollDown 50s linear infinite; }
+    .scroll-fast { animation: scrollUp 45s linear infinite; }
 
     /* The Gossip Cards */
     .g-note {
       background: var(--paper);
       border: 3px solid var(--ink);
       padding: 14px;
-      box-shadow: 5px 5px 0 rgba(0,0,0,0.15);
-      font-size: 12px;
-      line-height: 1.4;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+      font-size: 11px;
+      line-height: 1.45;
       color: var(--ink);
       font-weight: 600;
-      opacity: 0.95;
-      transition: transform 0.2s;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
-    .g-note.hot { border-left: 8px solid var(--accent); }
-    .g-note.shout { 
-      background: var(--ink); 
-      color: var(--bg-color); 
-      border-color: var(--bg-color);
-      box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
-    }
-    .g-note.whisper { background: #fffde7; font-style: italic; }
 
     .g-note b {
       display: block;
       font-family: "Archivo", sans-serif;
       font-weight: 900;
       text-transform: uppercase;
-      font-size: 11px;
-      margin-bottom: 4px;
+      font-size: 12px;
+      margin-bottom: 6px;
       color: var(--accent);
       letter-spacing: 0.05em;
+      border-bottom: 2px solid rgba(0,0,0,0.05);
+      padding-bottom: 4px;
     }
-    .g-note.shout b { color: var(--bg-color); }
 
-    /* --- CENTER PIECE --- */
+    /* Timer in Background Cards */
+    .timer {
+      display: block;
+      margin-top: 8px;
+      font-size: 9px;
+      text-align: right;
+      color: #666;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .timer::before { content: "● "; color: red; animation: blink 1s infinite; }
+
+    /* Card Variants */
+    .g-note.hot { border-left: 8px solid var(--accent); }
+    .g-note.shout { 
+      background: var(--ink); 
+      color: var(--bg-color); 
+      border-color: var(--bg-color);
+    }
+    .g-note.shout b { color: var(--bg-color); border-bottom-color: rgba(255,255,255,0.2); }
+    .g-note.shout .timer { color: rgba(255,255,255,0.6); }
+    .g-note.whisper { background: #fffde7; font-style: italic; border-style: dashed; }
+
+    /* The "POP" Highlight Effect */
+    .g-note.pop {
+      transform: scale(1.1) rotate(2deg) !important;
+      z-index: 15;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--bg-color), 0 0 20px var(--accent);
+      background: #FFF;
+    }
+    .g-note.pop::after {
+      content: "JUST IN";
+      position: absolute;
+      top: -10px; right: -10px;
+      background: var(--accent);
+      color: white;
+      font-size: 9px;
+      padding: 4px 6px;
+      font-weight: 900;
+      transform: rotate(10deg);
+    }
+
+    /* --- FOREGROUND: THE CONTAINER (From Latest) --- */
     .container {
       position: relative;
       width: 90%;
-      max-width: 420px;
+      max-width: 400px;
       padding: 40px;
       z-index: 20;
       background: var(--paper);
-      border: 4px solid var(--ink);
-      box-shadow: 16px 16px 0px var(--ink);
+      border: 5px solid var(--ink);
+      box-shadow: 12px 12px 0px var(--ink);
       text-align: left;
-      animation: enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      /* Animation */
+      animation: enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     .badge {
       display: inline-block;
-      background: var(--ink);
-      color: var(--bg-color);
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 800;
+      background: var(--accent);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 900;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 24px;
-      transform: rotate(-2deg);
-      border: 2px solid var(--bg-color);
+      margin-bottom: 20px;
+      border: 2px solid var(--ink);
+      animation: wobble 4s infinite;
     }
 
     .brand {
       font-family: "Archivo", sans-serif;
-      font-size: 68px;
+      font-size: 64px;
       font-weight: 900;
       font-style: italic;
-      letter-spacing: -0.06em;
+      letter-spacing: -0.04em;
       line-height: 0.85;
       margin-bottom: 24px;
       color: var(--ink);
       text-transform: uppercase;
     }
     .brand span { 
-      color: var(--accent); 
+      color: transparent;
       text-decoration: underline;
-      text-decoration-thickness: 4px;
+      -webkit-text-stroke: 0.5px var(--ink);
       text-underline-offset: 4px;
+      position: relative;
+    }
+    .brand span::after {
+      content: "GOSS";
+      position: absolute;
+      left: 4px; top: 4px;
+      color: var(--accent);
+      -webkit-text-stroke: 0;
+      z-index: -1;
     }
 
     .tagline {
-      font-size: 15px;
-      line-height: 1.6;
-      font-weight: 600;
-      margin-bottom: 36px;
-      background: rgba(255, 214, 0, 0.15);
-      padding: 12px;
-      border-left: 4px solid var(--accent);
+      font-size: 16px;
+      line-height: 1.5;
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+    
+    .highlight-text {
+      background: var(--bg-color);
+      padding: 2px 6px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
 
     button {
       width: 100%;
-      padding: 22px;
-      background: var(--bg-color);
+      padding: 20px;
+      background: var(--ink);
       border: 3px solid var(--ink);
-      color: var(--ink);
+      color: var(--bg-color);
       font-family: "Archivo", sans-serif;
       font-weight: 900;
-      font-size: 20px;
+      font-size: 18px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       cursor: pointer;
       position: relative;
-      transition: all 0.15s ease;
+      transition: all 0.1s ease;
       box-shadow: 6px 6px 0px var(--accent);
+      margin-bottom: 16px;
     }
 
     button:hover {
       transform: translate(-2px, -2px);
-      box-shadow: 8px 8px 0px var(--ink);
-      background: var(--accent);
-      color: white;
+      box-shadow: 8px 8px 0px var(--bg-color);
     }
-
     button:active {
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0px var(--ink);
     }
 
-    .footnote {
-      margin-top: 24px;
+    .live-counter {
       font-size: 11px;
       text-align: center;
-      opacity: 0.7;
       font-weight: 700;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .dot {
+      width: 8px; height: 8px;
+      background: red;
+      border-radius: 50%;
+      animation: blink 1s infinite;
     }
 
+    /* Effects */
     .grain {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 30;
-      opacity: 0.3;
+      position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: 0.35;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
-      mix-blend-mode: multiply;
     }
     
     .vignette {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-      background: radial-gradient(circle, transparent 30%, rgba(255, 214, 0, 0.9) 85%);
+      position: fixed; inset: 0; pointer-events: none; z-index: 10;
+      background: radial-gradient(circle, transparent 40%, rgba(255, 214, 0, 0.8) 100%);
     }
 
-    @keyframes scrollUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
-    }
-    @keyframes scrollDown {
-      0% { transform: translateY(-50%); }
-      100% { transform: translateY(0); }
-    }
+    @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+    @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes wobble { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
     @keyframes enter {
-      from { opacity: 0; transform: scale(0.8) rotate(5deg); }
+      from { opacity: 0; transform: scale(0.9) rotate(2deg); }
       to { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
     /* --- MOBILE OPTIMIZATION --- */
     @media (max-width: 600px) {
-      /* Shrink container to let gossip bleed through edges */
+      .wall-wrapper { gap: 10px; }
+      .g-column { width: 145px; }
+      
       .container { 
-        width: 78%; /* Much narrower */
-        max-width: 320px; 
-        padding: 24px 20px; 
+        width: 85%;
+        max-width: 340px; 
+        padding: 30px 24px; 
         box-shadow: 8px 8px 0px var(--ink);
       }
       
       .brand { font-size: 48px; }
-      .tagline { font-size: 13px; margin-bottom: 24px; }
-      button { padding: 16px; font-size: 16px; }
-      
-      /* Make sure columns are narrow enough to fit 3 on screen */
-      .wall-wrapper { gap: 8px; }
-      .g-column { width: 140px; }
       .g-note { font-size: 10px; padding: 10px; }
+      .g-note b { font-size: 11px; }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="wall-wrapper">
-    
-    <div class="g-column scroll-up">
-       <div class="g-note hot"><b>APPRAISAL</b><br>3% hike. Manager said "market is bad" while driving his new BMW.</div>
-       <div class="g-note"><b>GURGAON</b><br>He forces the team to drink on Fridays. If you leave, you're "not a culture fit."</div>
-       <div class="g-note whisper"><b>LAYOFF</b><br>Marketing team is gone next week. Silent firing started.</div>
-       <div class="g-note"><b>CTC</b><br>The new fresher from IIT is earning more than the Tech Lead.</div>
-       <div class="g-note shout"><b>HR</b><br>Biometric scan mandatory. 1 minute late = half day.</div>
-       <div class="g-note hot"><b>APPRAISAL</b><br>3% hike. Manager said "market is bad" while driving his new BMW.</div>
-       <div class="g-note"><b>GURGAON</b><br>He forces the team to drink on Fridays. If you leave, you're "not a culture fit."</div>
-       <div class="g-note whisper"><b>LAYOFF</b><br>Marketing team is gone next week. Silent firing started.</div>
-       <div class="g-note"><b>CTC</b><br>The new fresher from IIT is earning more than the Tech Lead.</div>
-       <div class="g-note shout"><b>HR</b><br>Biometric scan mandatory. 1 minute late = half day.</div>
-    </div>
-
-    <div class="g-column scroll-down">
-       <div class="g-note shout"><b>SCAM</b><br>The "funding round" is fake. We have 2 months runway left.</div>
-       <div class="g-note"><b>NOTICE PERIOD</b><br>90 days is a trap. They blocked my relieving letter.</div>
-       <div class="g-note hot"><b>AFFAIR</b><br>Sales Head and the Intern. 3rd floor fire exit. Every day.</div>
-       <div class="g-note whisper"><b>PIP</b><br>They put him on PIP because he refused to work weekends.</div>
-       <div class="g-note"><b>RANGOLI</b><br>We asked for a Diwali bonus. They gave us a Rangoli competition.</div>
-       <div class="g-note shout"><b>SCAM</b><br>The "funding round" is fake. We have 2 months runway left.</div>
-       <div class="g-note"><b>NOTICE PERIOD</b><br>90 days is a trap. They blocked my relieving letter.</div>
-       <div class="g-note hot"><b>AFFAIR</b><br>Sales Head and the Intern. 3rd floor fire exit. Every day.</div>
-       <div class="g-note whisper"><b>PIP</b><br>They put him on PIP because he refused to work weekends.</div>
-       <div class="g-note"><b>RANGOLI</b><br>We asked for a Diwali bonus. They gave us a Rangoli competition.</div>
-    </div>
-
-    <div class="g-column scroll-fast">
-       <div class="g-note"><b>ONSITE</b><br>Only the VP's favorites get to go to the US. It's rigged.</div>
-       <div class="g-note hot"><b>TOXIC</b><br>He screams "We are a family" then fires people on Zoom.</div>
-       <div class="g-note whisper"><b>MOONLIGHTING</b><br>Half the dev team is working for a US client on the side.</div>
-       <div class="g-note"><b>RENT</b><br>My HRA doesn't even cover half my rent in Indiranagar.</div>
-       <div class="g-note shout"><b>WTF</b><br>Variable pay is 0% this year. "Company performance" apparently.</div>
-       <div class="g-note"><b>ONSITE</b><br>Only the VP's favorites get to go to the US. It's rigged.</div>
-       <div class="g-note hot"><b>TOXIC</b><br>He screams "We are a family" then fires people on Zoom.</div>
-       <div class="g-note whisper"><b>MOONLIGHTING</b><br>Half the dev team is working for a US client on the side.</div>
-       <div class="g-note"><b>RENT</b><br>My HRA doesn't even cover half my rent in Indiranagar.</div>
-       <div class="g-note shout"><b>WTF</b><br>Variable pay is 0% this year. "Company performance" apparently.</div>
-    </div>
-
-    <div class="g-column scroll-down">
-       <div class="g-note whisper"><b>REFERRAL</b><br>Stop referring friends. The hiring freeze is permanent.</div>
-       <div class="g-note hot"><b>SHOCK</b><br>Founder sold his shares secretly. He is exiting.</div>
-       <div class="g-note"><b>CLIENTS</b><br>We lost the biggest US account. Layoffs incoming.</div>
-       <div class="g-note"><b>DRESS CODE</b><br>HR sent an email about "proper footwear." Are we in school?</div>
-       <div class="g-note shout"><b>SECURITY</b><br>IT installed trackers on everyone's laptops. Move to Signal.</div>
-       <div class="g-note whisper"><b>REFERRAL</b><br>Stop referring friends. The hiring freeze is permanent.</div>
-       <div class="g-note hot"><b>SHOCK</b><br>Founder sold his shares secretly. He is exiting.</div>
-       <div class="g-note"><b>CLIENTS</b><br>We lost the biggest US account. Layoffs incoming.</div>
-       <div class="g-note"><b>DRESS CODE</b><br>HR sent an email about "proper footwear." Are we in school?</div>
-       <div class="g-note shout"><b>SECURITY</b><br>IT installed trackers on everyone's laptops. Move to Signal.</div>
-    </div>
-
-  </div>
+  <div class="wall-wrapper" id="wall"></div>
 
   <div class="vignette"></div>
   <div class="grain"></div>
 
   <div class="container">
-    <div class="badge">
-       ● LIVE SIGNALS
-    </div>
+    <div class="badge">● LIVE LEAKS</div>
 
     <div class="brand">
       Oh my <br />
@@ -313,15 +306,14 @@
     </div>
 
     <div class="tagline">
-      <b>Share the office energy.</b><br />
-      Appraisals. 90-day notices.<br />
-      Unofficial truths.
+      <span class="highlight-text">Your office is lying to you.</span><br><br>
+      Real salaries. The affair on the 3rd floor. The layoff list.
     </div>
 
-    <button onclick="enter()">Secretly enter</button>
+    <button onclick="enter()">Read The Tea</button>
 
-    <div class="footnote">
-      // you didn’t hear this here
+    <div class="live-counter">
+      <div class="dot"></div> <span id="reader-count">428</span> people reading right now
     </div>
   </div>
 
@@ -333,6 +325,92 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script>
+    // --- 1. SPICY CONTENT GENERATOR (From Previous) ---
+    const headers = ["SCANDAL", "LAYOFF ALERT", "GURGAON", "BANGALORE", "HR DRAMA", "WTF", "SALARY", "FOUNDER", "TOXIC", "AFFAIR"];
+    const bodies = [
+      "Marketing Head caught with the intern at Third Wave. They thought no one saw.",
+      "Emergency 'All Hands' at 4PM. Zoom chat disabled. It's happening.",
+      "Manager rejected my leave for my own wedding. Said 'Team comes first'.",
+      "The 'Unlimited PTO' is a trap. Take more than 5 days and you're on PIP.",
+      "Saw the Founder crying in the stairwell. Runway is definitely < 1 month.",
+      "Senior dev earns 40LPA but asks me how to center a div.",
+      "HR is tracking badge swipes. < 9 hours = loss of pay. Run.",
+      "They replaced the Diwali bonus with a box of expired dry fruits.",
+      "Sales team is cooking the books. Those Q3 numbers are fake.",
+      "My offer letter was revoked 2 days before joining. No explanation.",
+      "He drives a Porsche but denied us a 5% hike because of 'market conditions'.",
+      "90 Day Notice Period is slavery. They threatened to blacklist me.",
+      "The new 'Culture fit' interview is just checking if you drink alcohol.",
+      "Entire design team quit. They are using Canva templates now.",
+      "Client is suing us. The codebase is spaghetti.",
+      "Tech Lead is mining crypto on the AWS servers.",
+      "Only the VP's favourites get the H-1B sponsorship."
+    ];
+    const styles = ["hot", "shout", "whisper", ""];
+
+    function getRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomTime() { return Math.floor(Math.random() * 59) + 1 + "s ago"; }
+
+    // --- 2. BUILD THE WALL ---
+    const wall = document.getElementById('wall');
+    const colCount = window.innerWidth < 600 ? 3 : 5; // Adaptive columns
+
+    for (let i = 0; i < colCount; i++) {
+      const col = document.createElement('div');
+      col.className = `g-column ${['scroll-up', 'scroll-down', 'scroll-fast'][i % 3]}`;
+      // Fill column with random notes
+      for(let j=0; j<12; j++) col.appendChild(createCard());
+      // Duplicate for smooth infinite scroll
+      for(let j=0; j<12; j++) col.appendChild(createCard());
+      wall.appendChild(col);
+    }
+
+    function createCard() {
+      const div = document.createElement('div');
+      div.className = `g-note ${getRandomItem(styles)}`;
+      div.innerHTML = `
+        <b>${getRandomItem(headers)}</b>
+        ${getRandomItem(bodies)}
+        <span class="timer">${getRandomTime()}</span>
+      `;
+      return div;
+    }
+
+    // --- 3. CHAOS ENGINE (Simulate Live Activity) ---
+    
+    // Random "Just In" Pop Effect
+    setInterval(() => {
+      const allNotes = document.querySelectorAll('.g-note');
+      const randomNote = allNotes[Math.floor(Math.random() * allNotes.length)];
+      
+      randomNote.classList.add('pop');
+      setTimeout(() => { randomNote.classList.remove('pop'); }, 1500);
+    }, 2000); 
+
+    // Update Timers randomly
+    setInterval(() => {
+      const timers = document.querySelectorAll('.timer');
+      timers.forEach(t => {
+        if(Math.random() > 0.7) { 
+          let current = parseInt(t.innerText);
+          if (isNaN(current)) current = 1;
+          if (t.innerText.includes('s')) {
+            if (current > 50) t.innerText = "1m ago";
+            else t.innerText = (current + 5) + "s ago";
+          } else {
+             t.innerText = (parseInt(t.innerText) + 1) + "m ago";
+          }
+        }
+      });
+    }, 5000);
+
+    // Update "Readers" Count in container
+    setInterval(() => {
+      const rc = document.getElementById('reader-count');
+      if(rc) rc.innerText = 400 + Math.floor(Math.random() * 150);
+    }, 3000);
+
+    // --- 4. FIREBASE LOGIC ---
     const firebaseConfig = {
       apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
       authDomain: "rant-2me.firebaseapp.com",
@@ -344,11 +422,19 @@
     const provider = new firebase.auth.GoogleAuthProvider();
 
     function enter() {
+      const btn = document.querySelector('button');
+      btn.innerHTML = "Authenticating...";
+      
       const a = document.getElementById("ambience");
       a.volume = 0.15;
       a.play().catch(()=>{});
+      
       auth.signInWithPopup(provider)
-        .then(() => window.location.href = "rant.html");
+        .then(() => window.location.href = "rant.html")
+        .catch((e) => {
+           btn.innerHTML = "Access Denied";
+           console.error(e);
+        });
     }
   </script>
 </body>
