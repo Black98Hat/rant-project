@@ -27,7 +27,7 @@
      font-family: "JetBrains Mono", monospace;
      overflow-x: hidden;
      min-height: 100vh;
-     padding-bottom: 140px; 
+     padding-bottom: 160px; /* More padding for composer */
    }
 
    .grain {
@@ -117,34 +117,18 @@
    }
 
    .tab-btn:last-child { border-right: none; }
+   .tab-btn.active { background: var(--ink); color: var(--bg-color); }
 
-   .tab-btn.active {
-     background: var(--ink);
-     color: var(--bg-color);
-   }
-
-   /* Notification Counter */
    .badge {
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     background: var(--accent);
-     color: white;
-     font-size: 10px;
-     height: 18px;
-     min-width: 18px;
-     padding: 0 5px;
-     border-radius: 99px;
-     position: absolute;
-     top: 10px;
-     right: 10px;
-     border: 2px solid var(--ink);
+     display: inline-flex; align-items: center; justify-content: center;
+     background: var(--accent); color: white; font-size: 10px;
+     height: 18px; min-width: 18px; padding: 0 5px; border-radius: 99px;
+     position: absolute; top: 10px; right: 10px; border: 2px solid var(--ink);
      font-family: "JetBrains Mono", monospace;
    }
-   
    .tab-btn.active .badge { border-color: var(--bg-color); }
 
-   /* --- SECTIONS & CARDS --- */
+   /* --- SECTIONS --- */
    .tab-content { display: none; }
    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 
@@ -154,201 +138,123 @@
    }
 
    h2 {
-     font-family: "Archivo", sans-serif;
-     font-size: 18px;
-     font-weight: 800;
-     text-transform: uppercase;
-     margin: 32px 0 16px;
-     display: flex;
-     align-items: center;
-     gap: 12px;
+     font-family: "Archivo", sans-serif; font-size: 18px; font-weight: 800;
+     text-transform: uppercase; margin: 32px 0 16px; display: flex; align-items: center; gap: 12px;
    }
-  
-   h2::before {
-     content: '';
-     display: block;
-     width: 12px;
-     height: 12px;
-     background: var(--ink);
-   }
+   h2::before { content: ''; display: block; width: 12px; height: 12px; background: var(--ink); }
 
    .list { display: flex; flex-direction: column; gap: 16px; }
 
    .item {
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
-     padding: 20px;
-     position: relative;
-     transition: transform 0.1s;
+     background: var(--paper); border: 3px solid var(--ink);
+     box-shadow: 6px 6px 0px rgba(0,0,0,0.15); padding: 20px;
+     position: relative; transition: transform 0.1s;
    }
   
-   .item:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.15); }
-
    .meta {
-     font-size: 10px;
-     font-weight: 700;
-     text-transform: uppercase;
-     color: var(--accent);
-     margin-bottom: 12px;
-     letter-spacing: 0.05em;
-     border-bottom: 2px solid var(--grey);
-     padding-bottom: 8px;
-     display: flex;
-     justify-content: space-between;
+     font-size: 10px; font-weight: 700; text-transform: uppercase;
+     color: var(--accent); margin-bottom: 12px; letter-spacing: 0.05em;
+     border-bottom: 2px solid var(--grey); padding-bottom: 8px;
+     display: flex; justify-content: space-between;
    }
 
-   .text {
-     font-size: 15px;
-     line-height: 1.5;
-     font-weight: 600;
-     color: var(--ink);
-   }
+   .text { font-size: 15px; line-height: 1.5; font-weight: 600; color: var(--ink); }
 
-   /* --- TOWNHALL SPECIFIC --- */
+   /* --- TOWNHALL --- */
    .townhall-actions {
-     display: flex;
-     gap: 8px;
-     margin-top: 16px;
-     padding-top: 12px;
+     display: flex; gap: 8px; margin-top: 16px; padding-top: 12px;
      border-top: 2px dashed var(--grey);
    }
 
    .action-pill {
-     flex: 1;
-     background: var(--bg-color);
-     border: 2px solid var(--ink);
-     padding: 8px;
-     font-size: 12px;
-     font-weight: 800;
-     text-align: center;
-     cursor: pointer;
-     transition: 0.1s;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     gap: 6px;
+     flex: 1; background: var(--bg-color); border: 2px solid var(--ink);
+     padding: 8px; font-size: 12px; font-weight: 800; text-align: center;
+     cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center; gap: 6px;
    }
-
    .action-pill:hover { background: white; }
    .action-pill:active { transform: scale(0.98); }
-   .action-pill.liked { background: var(--accent); color: white; border-color: var(--ink); }
-
-   .th-timer {
-     background: var(--ink);
-     color: var(--bg-color);
-     padding: 2px 6px;
-     font-size: 10px;
+   
+   /* Active Like State */
+   .action-pill.liked {
+     background: var(--accent); color: white; border-color: var(--ink);
    }
+
+   .th-timer { background: var(--ink); color: var(--bg-color); padding: 2px 6px; font-size: 10px; }
 
    /* --- FORMS --- */
    .status, .prompt {
-     margin-top: 16px;
-     font-size: 11px;
-     font-weight: 700;
-     display: inline-block;
-     padding: 4px 8px;
-     border: 2px solid var(--ink);
+     margin-top: 16px; font-size: 11px; font-weight: 700;
+     display: inline-block; padding: 4px 8px; border: 2px solid var(--ink);
    }
    .status { background: var(--grey); }
    .prompt { color: var(--accent); background: rgba(255, 85, 0, 0.1); }
 
    .reply-box {
-     margin-top: 16px;
-     padding: 12px;
-     background: var(--bg-color);
-     border: 2px solid var(--ink);
-     font-size: 13px;
-     font-style: italic;
-     position: relative;
+     margin-top: 16px; padding: 12px; background: var(--bg-color);
+     border: 2px solid var(--ink); font-size: 13px; font-style: italic; position: relative;
    }
 
    textarea, input {
-     width: 100%;
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     padding: 14px;
-     color: var(--ink);
-     font-family: "JetBrains Mono", monospace;
-     font-size: 14px;
-     resize: none;
-     outline: none;
-     border-radius: 0;
-     margin-top: 12px;
+     width: 100%; background: var(--paper); border: 3px solid var(--ink);
+     padding: 14px; color: var(--ink); font-family: "JetBrains Mono", monospace;
+     font-size: 14px; resize: none; outline: none; border-radius: 0; margin-top: 12px;
    }
-  
    button {
-     width: 100%;
-     padding: 16px;
-     background: var(--ink);
-     border: 3px solid var(--ink);
-     color: var(--bg-color);
-     font-family: "Archivo", sans-serif;
-     font-weight: 800;
-     font-size: 14px;
-     text-transform: uppercase;
-     cursor: pointer;
-     margin-top: 12px;
+     width: 100%; padding: 16px; background: var(--ink); border: 3px solid var(--ink);
+     color: var(--bg-color); font-family: "Archivo", sans-serif; font-weight: 800;
+     font-size: 14px; text-transform: uppercase; cursor: pointer; margin-top: 12px;
      box-shadow: 4px 4px 0px var(--accent);
-   }
-   button:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--accent); }
-
-   .invite-btn {
-     background: var(--accent);
-     color: white;
-     border-color: var(--ink);
-     box-shadow: 4px 4px 0 var(--ink);
    }
 
    /* --- CHAT LIST --- */
    .chat-item {
-     background: var(--paper);
-     border: 3px solid var(--ink);
-     padding: 16px;
-     margin-bottom: 12px;
-     cursor: pointer;
-     transition: transform 0.1s;
-     display: flex;
-     flex-direction: column;
-     gap: 8px;
+     background: var(--paper); border: 3px solid var(--ink); padding: 16px;
+     margin-bottom: 12px; cursor: pointer; transition: transform 0.1s;
+     display: flex; flex-direction: column; gap: 8px;
    }
-   
    .chat-row { display: flex; justify-content: space-between; align-items: center; }
    .chat-peer { font-weight: 800; font-size: 14px; }
    .countdown-timer {
-     font-size: 11px;
-     font-weight: 800;
-     color: var(--accent);
-     background: rgba(255, 72, 0, 0.1);
-     padding: 2px 6px;
-     border: 1px solid var(--accent);
+     font-size: 11px; font-weight: 800; color: var(--accent);
+     background: rgba(255, 72, 0, 0.1); padding: 2px 6px; border: 1px solid var(--accent);
    }
    .chat-preview { font-size: 11px; opacity: 0.6; }
 
-   /* --- COMPOSER --- */
+   /* --- COMPOSER (UPDATED) --- */
    .composer {
      position: fixed; left: 0; right: 0; bottom: 0;
-     background: var(--ink);
-     border-top: 4px solid var(--accent);
-     padding: 16px 20px;
-     z-index: 50;
+     background: var(--ink); border-top: 4px solid var(--accent);
+     padding: 16px 20px; z-index: 50;
      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
    }
 
-   .composer.collapsed { padding: 12px 20px; background: var(--paper); border-top: 4px solid var(--ink); }
-
-   .collapse-toggle {
-     font-size: 10px; font-weight: 800; color: var(--paper);
-     text-transform: uppercase; text-align: right; cursor: pointer; margin-bottom: 8px;
+   .composer.collapsed {
+     padding: 10px 20px; background: var(--paper); border-top: 4px solid var(--ink);
    }
-   .composer.collapsed .collapse-toggle { color: var(--ink); }
+
+   .composer-header-row {
+     display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+   }
 
    .context {
-     font-family: "Archivo", sans-serif; font-size: 14px; font-weight: 700;
-     color: var(--bg-color); margin-bottom: 12px; text-transform: uppercase;
+     font-family: "Archivo", sans-serif; font-size: 18px; font-weight: 900;
+     color: var(--bg-color); text-transform: uppercase; font-style: italic;
    }
-   .composer.collapsed .context { display: none; }
+   .composer.collapsed .context { color: var(--ink); font-size: 16px; }
 
+   .collapse-toggle {
+     font-size: 10px; font-weight: 800; color: var(--bg-color);
+     text-transform: uppercase; cursor: pointer; padding: 4px 8px;
+     border: 1px solid var(--bg-color);
+   }
+   .composer.collapsed .collapse-toggle { color: var(--ink); border-color: var(--ink); }
+
+   .nudge-text {
+     font-size: 11px; color: var(--bg-color); opacity: 0.8; margin-bottom: 12px;
+   }
+   .composer.collapsed .nudge-text { display: none; }
+
+   /* Collapsed Input Style */
    .collapsed-row { display: block; }
    .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
   
@@ -367,9 +273,8 @@
    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
    .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
-   /* Context Awareness for Composer */
+   /* Townhall Mode Colors */
    .composer.mode-townhall #targetEmail { display: none; }
-   .composer.mode-townhall .context::after { content: " (PUBLIC BROADCAST)"; opacity: 0.7; }
    .composer.mode-townhall button { background: var(--accent); color: white; border-color: white; }
 
    /* --- BOTTOM SHEET --- */
@@ -381,14 +286,10 @@
 
    .bottom-sheet {
      position: fixed; left: 0; right: 0; bottom: -100%;
-     background: var(--bg-color);
-     border-top: 4px solid var(--ink);
-     padding: 32px 24px 48px;
-     z-index: 100;
+     background: var(--bg-color); border-top: 4px solid var(--ink);
+     padding: 32px 24px 48px; z-index: 100;
      transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-     box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
-     max-height: 85vh;
-     overflow-y: auto;
+     box-shadow: 0 -20px 50px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto;
    }
    .bottom-sheet.active { bottom: 0; }
 
@@ -400,13 +301,12 @@
      border-bottom: 3px solid var(--ink); padding-bottom: 12px;
    }
 
-   .bs-body { font-size: 14px; margin-bottom: 24px; font-weight: 600; line-height: 1.5; }
-
    .comment-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
    .comment-item { background: rgba(255,255,255,0.5); padding: 12px; border-left: 3px solid var(--ink); }
    .comment-meta { font-size: 10px; font-weight: 800; opacity: 0.6; margin-bottom: 4px; }
 
    .bs-btn { background: var(--ink); color: var(--bg-color); border: none; box-shadow: 6px 6px 0 white; }
+   .bs-btn-secondary { background: transparent; color: var(--ink); border: none; font-size: 12px; margin-top: 16px; text-decoration: underline; }
 
    .empty { padding: 24px; text-align: center; border: 2px dashed var(--ink); color: var(--ink); font-size: 12px; opacity: 0.6; }
    
@@ -434,7 +334,7 @@
 
    <div class="tab-nav">
      <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
-       WATER COOLER (PUBLIC)
+       THE TAPRI (PUBLIC)
      </button>
      <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
        MY DESK (PRIVATE)
@@ -443,8 +343,7 @@
    </div>
 
    <div id="view-tapri" class="tab-content">
-     <div id="townhallFeed" class="list">
-        </div>
+     <div id="townhallFeed" class="list"></div>
    </div>
 
    <div id="view-desk" class="tab-content active">
@@ -457,17 +356,21 @@
        <div id="sentInline" class="list"></div>
      </div>
 
-     <h2>Direct messages</h2>
+     <h2>Previous Signals</h2>
      <div class="chat-list" id="chatList"></div>
    </div>
 
    <div class="composer collapsed" id="mainComposer">
-     <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
-     <div class="context" id="composerLabel">Drop an anonymous note</div>
+     <div class="composer-header-row">
+       <div class="context" id="composerHeader">GOT A SECRET?</div>
+       <div class="collapse-toggle" onclick="toggleComposer()" id="composerToggle">▲ WRITE</div>
+     </div>
+     
+     <div class="nudge-text" id="composerNudge">Don't let the truth get in the way of a good story.</div>
 
      <div class="collapsed-row">
        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
-       <textarea id="rantText" placeholder="WHAT'S THE SCOOP?"></textarea>
+       <textarea id="rantText" placeholder="Start typing..."></textarea>
      </div>
 
      <div class="hint">delivery is quiet · no name attached</div>
@@ -481,11 +384,9 @@
  </div>
 
  <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
- 
  <div class="bottom-sheet" id="dynamicSheet">
    <div class="drag-handle"></div>
-   <div id="sheetContent">
-     </div>
+   <div id="sheetContent"></div>
  </div>
 
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -495,7 +396,7 @@
  <script>
    // --- CONFIGURATION ---
    const PRIVATE_TTL_MINS = 15; 
-   const PUBLIC_TTL_HOURS = 2; 
+   const PUBLIC_TTL_HOURS = 12; 
 
    // --- Global State ---
    window.__hotInboxPending = 0;
@@ -505,20 +406,16 @@
    let currentTab = "desk";
    let activeChats = []; 
    let activeTownhallPosts = [];
-  
    const userExistenceCache = {};
 
-   // --- TIMER LOGIC (Runs every second) ---
+   // --- TIMER ---
    setInterval(() => {
      const now = new Date();
-
-     // 1. Private Chat Timers
      activeChats.forEach(chat => {
        const el = document.getElementById(`timer-${chat.id}`);
        if (!el) return;
        const expiresAt = new Date(chat.createdAt.toDate().getTime() + PRIVATE_TTL_MINS * 60000);
        const diff = expiresAt - now;
-
        if (diff <= 0) {
          deleteChat(chat.id);
        } else {
@@ -528,34 +425,25 @@
        }
      });
 
-     // 2. Townhall Feed Timers
      activeTownhallPosts.forEach(post => {
         const el = document.getElementById(`th-timer-${post.id}`);
         if (!el) return;
         const expiresAt = new Date(post.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
         const diff = expiresAt - now;
-
         if (diff <= 0) {
             deleteTownhallPost(post.id);
-            if(el) el.closest('.item').remove(); // Optimistic remove
         } else {
             const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             el.innerText = `⏳ ${hrs}h ${mins}m LEFT`;
         }
      });
-
    }, 1000);
 
-   function deleteChat(chatId) {
-     db.collection("chats").doc(chatId).delete().catch(console.error);
-   }
+   function deleteChat(chatId) { db.collection("chats").doc(chatId).delete().catch(console.error); }
+   function deleteTownhallPost(postId) { db.collection("townhall").doc(postId).delete().catch(console.error); }
 
-   function deleteTownhallPost(postId) {
-       db.collection("townhall").doc(postId).delete().catch(console.error);
-   }
-
-   // --- TAB LOGIC ---
+   // --- TAB & UI LOGIC ---
    function switchTab(tabName) {
      currentTab = tabName;
      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -565,23 +453,49 @@
      document.getElementById(`btn-${tabName}`).classList.add('active');
 
      const composer = document.getElementById('mainComposer');
-     const label = document.getElementById('composerLabel');
      const btn = document.getElementById('sendBtn');
      
      if (tabName === 'tapri') {
        composer.classList.add('mode-townhall');
-       label.innerText = "BROADCAST TO EVERYONE";
        btn.innerText = "POST TO TOWN HALL";
      } else {
        composer.classList.remove('mode-townhall');
-       label.innerText = "Drop an anonymous note";
        btn.innerText = "DROP MSG";
+     }
+     updateComposerText();
+   }
+
+   function updateComposerText() {
+     const isCollapsed = document.getElementById('mainComposer').classList.contains('collapsed');
+     const header = document.getElementById('composerHeader');
+     const toggle = document.getElementById('composerToggle');
+     const nudge = document.getElementById('composerNudge');
+
+     if (isCollapsed) {
+        header.innerText = "GOT A SECRET?";
+        toggle.innerText = "▲ WRITE";
+     } else {
+        header.innerText = "SPILL THE TEA";
+        toggle.innerText = "▼ MINIMIZE";
+        nudge.innerText = "Make them panic. Or make them laugh. Just make it stick.";
      }
    }
 
-   // --- FIREBASE INIT ---
+   function toggleComposer() {
+     document.querySelector(".composer").classList.toggle("collapsed");
+     updateComposerText();
+   }
+
+   ["targetEmail", "rantText"].forEach(id => {
+     document.getElementById(id).addEventListener("focus", () => {
+       document.querySelector(".composer").classList.remove("collapsed");
+       updateComposerText();
+     });
+   });
+
+   // --- FIREBASE ---
    const firebaseConfig = {
-     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Replace if needed
+     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", 
      authDomain: "rant-2me.firebaseapp.com",
      projectId: "rant-2me"
    };
@@ -591,26 +505,17 @@
    const db = firebase.firestore();
 
    auth.onAuthStateChanged(user => {
-     if (!user) {
-       window.location.href = "index.html";
-       return;
-     }
+     if (!user) { window.location.href = "index.html"; return; }
      db.collection("users").doc(user.email).set({ email: user.email, lastSeen: new Date() }, { merge: true });
-
      loadInboxInline(user.email);
      loadSentInline(user.email);
      loadChats(user.email);
-     loadTownhall(); // New Feed
+     loadTownhall(user.email);
    });
 
    // --- TOWNHALL LOGIC ---
-
-   function loadTownhall() {
-     // Order by time. In real app, you'd filter by createdAt > (Now - 12h) to save reads.
-     db.collection("townhall")
-       .orderBy("createdAt", "desc")
-       .limit(50)
-       .onSnapshot(snapshot => {
+   function loadTownhall(myEmail) {
+     db.collection("townhall").orderBy("createdAt", "desc").limit(50).onSnapshot(snapshot => {
          const list = document.getElementById("townhallFeed");
          list.innerHTML = "";
          activeTownhallPosts = [];
@@ -624,21 +529,22 @@
             const data = doc.data();
             activeTownhallPosts.push({ id: doc.id, createdAt: data.createdAt });
             
-            // Likes logic
-            const likes = data.likes || 0;
+            const likedBy = data.likedBy || [];
+            const isLiked = likedBy.includes(myEmail);
+            const likesCount = likedBy.length;
             const comments = data.commentCount || 0;
 
             list.innerHTML += `
               <div class="item">
                 <div class="meta">
                    <span>ANONYMOUS</span>
-                   <span class="th-timer" id="th-timer-${doc.id}">CALCULATING...</span>
+                   <span class="th-timer" id="th-timer-${doc.id}">...</span>
                 </div>
                 <div class="text" style="font-size:18px">${data.text}</div>
                 
                 <div class="townhall-actions">
-                    <div class="action-pill" onclick="likePost('${doc.id}')">
-                        ❤️ ${likes}
+                    <div class="action-pill ${isLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
+                        ${isLiked ? '❤️' : '♡'} ${likesCount}
                     </div>
                     <div class="action-pill" onclick="openThread('${doc.id}', '${escape(data.text)}')">
                         💬 ${comments}
@@ -654,11 +560,13 @@
    }
 
    function likePost(postId) {
-       // Simple increment. For strict unique likes, we'd need a subcollection or array of UIDs.
-       // Keeping it "loose" for anonymity speed.
+       const user = auth.currentUser;
+       if(!user) return;
        const ref = db.collection("townhall").doc(postId);
+       
+       // Use Firestore ArrayUnion to ensure unique likes
        ref.update({
-           likes: firebase.firestore.FieldValue.increment(1)
+           likedBy: firebase.firestore.FieldValue.arrayUnion(user.email)
        });
    }
 
@@ -673,16 +581,11 @@
        const text = unescape(escapedText);
        const container = document.getElementById('sheetContent');
        
-       // Render Thread Layout in Bottom Sheet
        container.innerHTML = `
           <div class="bs-title">Gossip Thread</div>
-          <div style="background:#FFFDF0; padding:16px; border:2px solid black; margin-bottom:20px;">
-             "${text}"
-          </div>
+          <div style="background:#FFFDF0; padding:16px; border:2px solid black; margin-bottom:20px;">"${text}"</div>
           <div class="bs-title" style="font-size:16px; border:none;">Comments</div>
-          <div id="bs-comments" class="comment-list">
-             <div class="empty">Loading whispers...</div>
-          </div>
+          <div id="bs-comments" class="comment-list"><div class="empty">Loading whispers...</div></div>
           <textarea id="threadComment" placeholder="Add your whisper..." style="margin-bottom:8px;"></textarea>
           <button class="bs-btn" onclick="postComment('${postId}')">REPLY TO THREAD</button>
        `;
@@ -690,26 +593,14 @@
        document.getElementById('sheetOverlay').classList.add('active');
        document.getElementById('dynamicSheet').classList.add('active');
 
-       // Load comments
-       db.collection("townhall").doc(postId).collection("comments")
-         .orderBy("createdAt", "asc")
-         .onSnapshot(snap => {
+       db.collection("townhall").doc(postId).collection("comments").orderBy("createdAt", "asc").onSnapshot(snap => {
              const list = document.getElementById("bs-comments");
              list.innerHTML = "";
-             if(snap.empty) {
-                 list.innerHTML = "<div class='empty'>No comments yet. Start the drama.</div>";
-                 return;
-             }
+             if(snap.empty) { list.innerHTML = "<div class='empty'>No comments yet. Start the drama.</div>"; return; }
              snap.forEach(d => {
-                 const c = d.data();
-                 list.innerHTML += `
-                    <div class="comment-item">
-                        <div class="comment-meta">ANONYMOUS · JUST NOW</div>
-                        <div>${c.text}</div>
-                    </div>
-                 `;
+                 list.innerHTML += `<div class="comment-item"><div class="comment-meta">ANONYMOUS · JUST NOW</div><div>${d.data().text}</div></div>`;
              });
-         });
+       });
    }
 
    function postComment(postId) {
@@ -721,28 +612,15 @@
        const postRef = db.collection("townhall").doc(postId);
        const commentRef = postRef.collection("comments").doc();
 
-       batch.set(commentRef, {
-           text: text,
-           createdAt: new Date()
-       });
-       batch.update(postRef, {
-           commentCount: firebase.firestore.FieldValue.increment(1)
-       });
-
-       batch.commit().then(() => {
-           input.value = "";
-       });
+       batch.set(commentRef, { text: text, createdAt: new Date() });
+       batch.update(postRef, { commentCount: firebase.firestore.FieldValue.increment(1) });
+       batch.commit().then(() => { input.value = ""; });
    }
 
-
-   // --- SENDING LOGIC (Unified) ---
-
+   // --- SENDING LOGIC ---
    function handleSend() {
-       if (currentTab === 'tapri') {
-           sendTownhallPost();
-       } else {
-           sendPrivateRant();
-       }
+       if (currentTab === 'tapri') sendTownhallPost();
+       else sendPrivateRant();
    }
 
    function sendTownhallPost() {
@@ -751,14 +629,9 @@
        if(!text) return;
 
        db.collection("townhall").add({
-           text: text,
-           createdAt: new Date(),
-           likes: 0,
-           commentCount: 0
+           text: text, createdAt: new Date(), likedBy: [], commentCount: 0
        }).then(() => {
-           textEl.value = "";
-           toggleComposer();
-           // Switch to tapri view to see it if not there
+           textEl.value = ""; toggleComposer();
            if(currentTab !== 'tapri') switchTab('tapri');
        });
    }
@@ -773,20 +646,11 @@
      if (!text || !target || !user) return;
 
      db.collection("rants").add({
-       from: user.email,
-       to: target,
-       text,
-       status: "pending",
-       createdAt: new Date()
+       from: user.email, to: target, text, status: "pending", createdAt: new Date()
      }).then(() => {
-       textEl.value = "";
-       targetEl.value = "";
-       document.querySelector(".composer").classList.add("collapsed");
-       
-       // Invite logic
+       textEl.value = ""; targetEl.value = ""; toggleComposer();
        checkUserExists(target).then(exists => {
          if (!exists) {
-            // Show invite sheet
             document.getElementById('sheetContent').innerHTML = `
                <div class="bs-title">They aren't here yet</div>
                <div class="bs-body">This person hasn't signed up. Your whisper is pending, but they won't see it until they join.</div>
@@ -804,26 +668,10 @@
      if (userExistenceCache[email] !== undefined) return userExistenceCache[email];
      try {
        const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-       const exists = !snap.empty;
-       userExistenceCache[email] = exists;
-       return exists;
+       userExistenceCache[email] = !snap.empty;
+       return !snap.empty;
      } catch (e) { return false; }
    }
-
-   // --- UTILS ---
-   function toggleComposer() {
-     document.querySelector(".composer").classList.toggle("collapsed");
-   }
-
-   ["targetEmail", "rantText"].forEach(id => {
-     document.getElementById(id).addEventListener("focus", () => {
-       document.querySelector(".composer").classList.remove("collapsed");
-     });
-   });
-
-   document.querySelector(".collapsed-row").addEventListener("click", () => {
-     document.querySelector(".composer").classList.remove("collapsed");
-   });
 
    function closeBottomSheet() {
      document.getElementById('sheetOverlay').classList.remove('active');
@@ -831,9 +679,7 @@
    }
 
    function sendInviteEmail(target) {
-     const subject = "Someone is talking about you 🤫";
-     const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
-     window.location.href = `mailto:${target}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+     window.location.href = `mailto:${target}?subject=Someone is talking about you 🤫&body=Someone dropped a hot goss about you. Check it out: https://oh-my-goss.netlify.app/`;
      closeBottomSheet();
    }
 
@@ -855,7 +701,7 @@
      }
    }
 
-   // --- LOADING DESK DATA ---
+   // --- DESK DATA LOADER (No Empty States shown) ---
    function loadSentInline(email) {
      db.collection("rants").where("from", "==", email).onSnapshot(snapshot => {
          window.__hotSentPending = 0; window.__sentReady = true;
@@ -884,7 +730,6 @@
                ${echoBlock} ${actionBlock}
              </div>`;
          });
-         if (!container.innerHTML) container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
          updateHotGossVisibility();
        });
    }
@@ -895,11 +740,6 @@
          const container = document.getElementById("inboxList");
          container.innerHTML = "";
          
-         if (snapshot.empty) {
-           container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
-           updateHotGossVisibility(); return;
-         }
-
          const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
          docs.forEach(doc => {
            const rant = doc.data();
@@ -945,13 +785,12 @@
          const list = document.getElementById("chatList");
          list.innerHTML = ""; activeChats = [];
          if (snapshot.empty) { list.innerHTML = "<div class='empty'>NO FILES FOUND</div>"; return; }
-         
          snapshot.forEach(doc => {
            const chat = doc.data();
            activeChats.push({ id: doc.id, createdAt: chat.createdAt });
            const peer = chat.users.find(u => u !== userEmail);
            list.innerHTML += `<div class="chat-item" onclick="openChat('${doc.id}')">
-               <div class="chat-row"><div class="chat-peer">${peer}</div><div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div></div>
+               <div class="chat-row"><div class="chat-peer">${peer}</div><div class="countdown-timer" id="timer-${doc.id}">...</div></div>
                <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div></div>`;
          });
        });
