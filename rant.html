@@ -5,9 +5,7 @@
  <title>Goss · Central</title>
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-
  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-
 
  <style>
    :root {
@@ -19,22 +17,18 @@
      --grey: #F0F0F0;
    }
 
-
    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
 
    body {
      margin: 0;
      background-color: var(--bg-color);
-     /* Subtle noise pattern */
      background-image: radial-gradient(circle at top center, #FFD600 0%, #FFC107 100%);
      color: var(--ink);
      font-family: "JetBrains Mono", monospace;
      overflow-x: hidden;
      min-height: 100vh;
-     padding-bottom: 140px; /* Space for composer */
+     padding-bottom: 140px; 
    }
-
 
    .grain {
      position: fixed;
@@ -45,7 +39,6 @@
      mix-blend-mode: multiply;
    }
 
-
    .wrap {
      max-width: 500px;
      margin: 0 auto;
@@ -54,14 +47,12 @@
      z-index: 1;
    }
 
-
    /* --- HEADER --- */
    .top {
-     margin-bottom: 32px;
+     margin-bottom: 24px;
      border-bottom: 4px solid var(--ink);
      padding-bottom: 16px;
    }
-
 
    .top h1 {
      font-family: "Archivo", sans-serif;
@@ -74,7 +65,6 @@
      line-height: 0.9;
    }
 
-
    .top p {
      margin-top: 8px;
      font-size: 13px;
@@ -86,8 +76,75 @@
      transform: rotate(-1deg);
    }
 
+   /* --- TABS --- */
+   .tab-nav {
+     display: flex;
+     border: 3px solid var(--ink);
+     background: var(--paper);
+     margin-bottom: 32px;
+     box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+   }
 
-   /* --- SECTIONS --- */
+   .tab-btn {
+     flex: 1;
+     background: transparent;
+     border: none;
+     border-right: 3px solid var(--ink);
+     padding: 16px 8px;
+     font-family: "Archivo", sans-serif;
+     font-weight: 800;
+     font-size: 14px;
+     text-transform: uppercase;
+     cursor: pointer;
+     position: relative;
+     color: var(--ink);
+     transition: all 0.2s;
+     box-shadow: none; /* Reset button shadow */
+     margin: 0;
+   }
+
+   .tab-btn:last-child { border-right: none; }
+
+   .tab-btn.active {
+     background: var(--ink);
+     color: var(--bg-color);
+   }
+
+   .tab-btn:hover:not(.active) {
+     background: #FFFDF0;
+   }
+
+   /* Notification Counter */
+   .badge {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     background: var(--accent);
+     color: white;
+     font-size: 10px;
+     height: 18px;
+     min-width: 18px;
+     padding: 0 5px;
+     border-radius: 99px;
+     position: absolute;
+     top: 10px;
+     right: 10px;
+     border: 2px solid var(--ink);
+     font-family: "JetBrains Mono", monospace;
+   }
+   
+   /* Invert badge border when active to match black bg */
+   .tab-btn.active .badge { border-color: var(--bg-color); }
+
+   /* --- SECTIONS & CARDS --- */
+   .tab-content { display: none; }
+   .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+   @keyframes fadeIn {
+     from { opacity: 0; transform: translateY(10px); }
+     to { opacity: 1; transform: translateY(0); }
+   }
+
    h2 {
      font-family: "Archivo", sans-serif;
      font-size: 18px;
@@ -107,10 +164,7 @@
      background: var(--ink);
    }
 
-
-   /* --- CARDS (ITEMS) --- */
    .list { display: flex; flex-direction: column; gap: 16px; }
-
 
    .item {
      background: var(--paper);
@@ -123,7 +177,6 @@
   
    .item:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.15); }
 
-
    .meta {
      font-size: 10px;
      font-weight: 700;
@@ -135,7 +188,6 @@
      padding-bottom: 8px;
    }
 
-
    .text {
      font-size: 15px;
      line-height: 1.5;
@@ -143,8 +195,6 @@
      color: var(--ink);
    }
 
-
-   /* --- STATUS BADGES --- */
    .status {
      margin-top: 16px;
      font-size: 11px;
@@ -156,7 +206,6 @@
      text-transform: uppercase;
    }
 
-
    .prompt {
      margin-top: 16px;
      font-size: 12px;
@@ -167,11 +216,10 @@
      display: inline-block;
    }
 
-
    .echo {
      margin-top: 16px;
      padding: 12px;
-     background: var(--bg-color); /* Yellow highlight */
+     background: var(--bg-color);
      border: 2px solid var(--ink);
      font-size: 13px;
      font-style: italic;
@@ -185,8 +233,6 @@
      margin-bottom: 4px;
    }
 
-
-   /* --- FORMS & INPUTS --- */
    textarea, input {
      width: 100%;
      background: var(--paper);
@@ -206,8 +252,6 @@
      background: #FFFDF0;
    }
 
-
-   /* --- BUTTONS --- */
    button {
      width: 100%;
      padding: 16px;
@@ -224,7 +268,6 @@
      box-shadow: 4px 4px 0px var(--accent);
    }
 
-
    button:hover {
      transform: translate(-2px, -2px);
      box-shadow: 6px 6px 0px var(--accent);
@@ -235,8 +278,6 @@
      box-shadow: 0px 0px 0px var(--accent);
    }
 
-
-   /* Specialized buttons */
    .invite-btn {
      background: var(--accent);
      color: white;
@@ -244,8 +285,6 @@
      box-shadow: 4px 4px 0 var(--ink);
    }
 
-
-   /* --- CHAT LIST --- */
    .chat-item {
      background: var(--paper);
      border: 3px solid var(--ink);
@@ -268,26 +307,30 @@
      opacity: 0.6;
    }
 
-
-   /* --- COMPOSER (FIXED BOTTOM) --- */
+   /* --- COMPOSER --- */
    .composer {
      position: fixed;
      left: 0;
      right: 0;
      bottom: 0;
-     background: var(--ink); /* Black bar */
+     background: var(--ink);
      border-top: 4px solid var(--accent);
      padding: 16px 20px;
      z-index: 50;
      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+     display: block; /* Default visible */
    }
   
+   /* Helper to hide composer on Townhall tab */
+   .composer.hidden {
+     display: none !important;
+   }
+
    .composer.collapsed {
      padding: 12px 20px;
      background: var(--paper);
      border-top: 4px solid var(--ink);
    }
-
 
    .collapse-toggle {
      font-size: 10px;
@@ -300,7 +343,6 @@
    }
    .composer.collapsed .collapse-toggle { color: var(--ink); }
 
-
    .context {
      font-family: "Archivo", sans-serif;
      font-size: 14px;
@@ -310,11 +352,9 @@
      text-transform: uppercase;
    }
 
-
    .collapsed-row { display: block; }
    .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
   
-   /* Inputs inside composer */
    .composer textarea, .composer input {
      border: 2px solid var(--bg-color);
      background: #222;
@@ -333,14 +373,12 @@
    }
    .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
 
-
    .composer button {
      background: var(--bg-color);
      color: var(--ink);
      box-shadow: 4px 4px 0 var(--paper);
      border-color: var(--paper);
    }
-
 
    .composer.collapsed .hint,
    .composer.collapsed .context,
@@ -350,12 +388,11 @@
    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
    .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
-
    /* --- BOTTOM SHEET --- */
    .overlay {
      position: fixed;
      inset: 0;
-     background: rgba(16, 16, 16, 0.85); /* Dark scrim */
+     background: rgba(16, 16, 16, 0.85);
      backdrop-filter: blur(4px);
      z-index: 99;
      opacity: 0;
@@ -363,7 +400,6 @@
      transition: opacity 0.3s;
    }
    .overlay.active { opacity: 1; pointer-events: auto; }
-
 
    .bottom-sheet {
      position: fixed;
@@ -377,13 +413,11 @@
    }
    .bottom-sheet.active { bottom: 0; }
 
-
    .drag-handle {
      width: 60px; height: 6px;
      background: var(--ink);
      margin: 0 auto 24px;
    }
-
 
    .bs-title {
      font-family: "Archivo", sans-serif;
@@ -394,14 +428,12 @@
      margin-bottom: 16px;
    }
 
-
    .bs-body {
      font-size: 14px;
      margin-bottom: 24px;
      font-weight: 600;
      line-height: 1.5;
    }
-
 
    .bs-btn {
      background: var(--ink);
@@ -420,8 +452,6 @@
    }
    .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
 
-
-   /* Helpers */
    .empty {
      padding: 24px;
      text-align: center;
@@ -446,15 +476,26 @@
        border-radius: 4px;
        font-size: 12px;
    }
-
+   
+   /* Placeholder for townhall */
+   .coming-soon-box {
+     text-align: center;
+     padding: 40px 20px;
+     border: 3px dashed var(--ink);
+     opacity: 0.5;
+   }
+   .coming-soon-box h3 {
+     font-family: "Archivo", sans-serif;
+     font-size: 24px;
+     text-transform: uppercase;
+     margin-bottom: 8px;
+   }
 
  </style>
 </head>
 
-
 <body>
  <div class="grain"></div>
-
 
  <div class="wrap">
    <div class="top">
@@ -462,48 +503,56 @@
      <p>UNOFFICIAL TRUTHS ONLY</p>
    </div>
 
-
-   <div id="hotGoss" style="display:none;">
-     <h2>
-       URGENT FILES
-       <span id="hotGossCount"></span>
-     </h2>
-     <div id="inboxList" class="list"></div>
-     <div id="sentInline" class="list"></div>
+   <div class="tab-nav">
+     <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
+       THE TAPRI
+     </button>
+     <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
+       MY DESK
+       <span id="deskBadge" class="badge" style="display:none">0</span>
+     </button>
    </div>
 
+   <div id="view-tapri" class="tab-content">
+     <div class="coming-soon-box">
+       <h3>Chai Break</h3>
+       <p>The townhall is under construction.</p>
+       <p style="font-size:10px; margin-top:10px">ESTIMATED ARRIVAL: SOON</p>
+     </div>
+   </div>
 
-   <h2>
-     Previous Signals
-   </h2>
+   <div id="view-desk" class="tab-content active">
+     <div id="hotGoss" style="display:none;">
+       <h2>
+         URGENT FILES
+         <span id="hotGossCount"></span>
+       </h2>
+       <div id="inboxList" class="list"></div>
+       <div id="sentInline" class="list"></div>
+     </div>
 
+     <h2>Previous Signals</h2>
+     <div class="chat-list" id="chatList"></div>
+   </div>
 
-   <div class="chat-list" id="chatList"></div>
-
-
-   <div class="composer collapsed">
+   <div class="composer collapsed" id="mainComposer">
      <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
      <div class="context">Spill the tea.</div>
-
 
      <div class="collapsed-row">
        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
        <textarea id="rantText" placeholder="WHAT HAPPENED?"></textarea>
      </div>
 
-
      <div class="hint">delivery is quiet · no name attached</div>
-
 
      <div class="action">
        <button onclick="sendRant()">START RUMOR</button>
      </div>
 
-
      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
    </div>
  </div>
-
 
  <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
  <div class="bottom-sheet" id="inviteSheet">
@@ -516,11 +565,9 @@
    <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
  </div>
 
-
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 
  <script>
    // --- Global State ---
@@ -529,27 +576,57 @@
    window.__inboxReady = false;
    window.__sentReady = false;
    let currentInviteTarget = "";
+   let currentTab = "desk"; // Default tab
   
    const userExistenceCache = {};
 
+   // --- TAB LOGIC ---
+   function switchTab(tabName) {
+     currentTab = tabName;
+     
+     // Toggle Content
+     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+     document.getElementById(`view-${tabName}`).classList.add('active');
 
+     // Toggle Buttons
+     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+     document.getElementById(`btn-${tabName}`).classList.add('active');
+
+     // Toggle Composer visibility (Hide in Tapri for now)
+     const composer = document.getElementById('mainComposer');
+     if (tabName === 'tapri') {
+       composer.classList.add('hidden');
+     } else {
+       composer.classList.remove('hidden');
+     }
+   }
+
+   // Modified to also update Tab Badge
    function updateHotGossVisibility() {
      if (!window.__inboxReady || !window.__sentReady) return;
 
-
      const hot = document.getElementById("hotGoss");
      const countEl = document.getElementById("hotGossCount");
+     const badgeEl = document.getElementById("deskBadge");
+     
      const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
 
-
+     // 1. Update the "Hot Goss" Section (inside Desk tab)
      if (total > 0) {
        hot.style.display = "block";
        countEl.textContent = total + " PENDING";
      } else {
        hot.style.display = "none";
      }
-   }
 
+     // 2. Update the Tab Badge (Always visible if count > 0)
+     if (total > 0) {
+       badgeEl.style.display = "inline-flex";
+       badgeEl.textContent = total;
+     } else {
+       badgeEl.style.display = "none";
+     }
+   }
 
    const firebaseConfig = {
      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
@@ -557,11 +634,9 @@
      projectId: "rant-2me"
    };
 
-
    firebase.initializeApp(firebaseConfig);
    const auth = firebase.auth();
    const db = firebase.firestore();
-
 
    auth.onAuthStateChanged(user => {
      if (!user) {
@@ -569,22 +644,18 @@
        return;
      }
 
-
      db.collection("users").doc(user.email).set({
        email: user.email,
        lastSeen: new Date()
      }, { merge: true });
 
-
      // Dummy listener for general updates if needed
      db.collection("rants").where("to", "==", user.email).where("status", "!=", "read").onSnapshot(()=>{});
-
 
      loadInboxInline(user.email);
      loadSentInline(user.email);
      loadChats(user.email);
    });
-
 
    async function checkUserExists(email) {
      if (userExistenceCache[email] !== undefined) {
@@ -600,7 +671,6 @@
      }
    }
 
-
    function loadSentInline(email) {
      db.collection("rants")
        .where("from", "==", email)
@@ -611,23 +681,19 @@
          const container = document.getElementById("sentInline");
          container.innerHTML = "";
 
-
          const docs = snapshot.docs.sort((a, b) => {
            const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
            return getTime(b) - getTime(a);
          });
 
-
          docs.forEach(doc => {
            const rant = doc.data();
            if (rant.status === "accepted") return;
-
 
            if (rant.status === "pending" || rant.status === "echoed") {
              localIndex++;
              window.__hotSentPending++;
            }
-
 
            const echoBlock = rant.echo ? `<div class="echo">${rant.echo}</div>` : "";
           
@@ -639,14 +705,11 @@
                  </div>`;
            }
 
-
            const statusText = rant.status === "pending"
              ? "<span style='color:var(--accent)'>AWAITING ECHO</span>"
              : rant.status === "echoed" ? "ECHO RECEIVED" : rant.status;
 
-
            const inviteContainerId = `invite-ui-${doc.id}`;
-
 
            container.innerHTML += `
              <div class="item">
@@ -663,7 +726,6 @@
              </div>
            `;
 
-
            if (rant.status === "pending") {
              checkUserExists(rant.to).then(exists => {
                if (!exists) {
@@ -674,14 +736,12 @@
            }
          });
 
-
          if (!container.innerHTML) {
            container.innerHTML = "<div class='empty'>NO OUTGOING RUMORS</div>";
          }
          updateHotGossVisibility();
        });
    }
-
 
    function loadInboxInline(email) {
      db.collection("rants")
@@ -693,19 +753,16 @@
          container.innerHTML = "";
          let pendingCount = 0;
 
-
          if (snapshot.empty) {
            container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
            updateHotGossVisibility();
            return;
          }
 
-
          const docs = snapshot.docs.sort((a, b) => {
            const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
            return getTime(b) - getTime(a);
          });
-
 
          docs.forEach(doc => {
            const rant = doc.data();
@@ -714,7 +771,6 @@
              pendingCount++;
              window.__hotInboxPending++;
            }
-
 
            let block = "";
            if (rant.status === "pending") {
@@ -732,7 +788,6 @@
              `;
            }
 
-
            container.innerHTML += `
              <div class="item">
                <div class="meta">INCOMING · ANONYMOUS</div>
@@ -744,7 +799,6 @@
          updateHotGossVisibility();
        });
    }
-
 
    function submitEcho(rantId) {
      const input = document.getElementById(`echo-${rantId}`);
@@ -760,7 +814,6 @@
        });
      });
    }
-
 
    function acceptEchoInline(rantId) {
      const chatRef = db.collection("chats").doc();
@@ -782,23 +835,19 @@
      });
    }
 
-
    function openInviteBottomSheet(email) {
      currentInviteTarget = email;
      document.getElementById('sheetOverlay').classList.add('active');
      document.getElementById('inviteSheet').classList.add('active');
    }
 
-
    function closeBottomSheet() {
      document.getElementById('sheetOverlay').classList.remove('active');
      document.getElementById('inviteSheet').classList.remove('active');
    }
 
-
    function sendInviteEmail() {
      if (!currentInviteTarget) return;
-
 
      const subject = "Someone is talking about you 🤫";
      const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
@@ -808,7 +857,6 @@
      closeBottomSheet();
    }
 
-
    function sendRant() {
      const textEl = document.getElementById("rantText");
      const targetEl = document.getElementById("targetEmail");
@@ -816,9 +864,7 @@
      const target = targetEl.value.trim();
      const user = auth.currentUser;
 
-
      if (!text || !target || !user) return;
-
 
      db.collection("rants").add({
        from: user.email,
@@ -831,7 +877,6 @@
        targetEl.value = "";
        document.querySelector(".composer").classList.add("collapsed");
 
-
        checkUserExists(target).then(exists => {
          if (!exists) {
            openInviteBottomSheet(target);
@@ -840,11 +885,9 @@
      });
    }
 
-
    function toggleComposer() {
      document.querySelector(".composer").classList.toggle("collapsed");
    }
-
 
    ["targetEmail", "rantText"].forEach(id => {
      document.getElementById(id).addEventListener("focus", () => {
@@ -852,11 +895,9 @@
      });
    });
 
-
    document.querySelector(".collapsed-row").addEventListener("click", () => {
      document.querySelector(".composer").classList.remove("collapsed");
    });
-
 
    function loadChats(userEmail) {
      db.collection("chats")
@@ -880,7 +921,6 @@
          });
        });
    }
-
 
    function openChat(chatId) {
      window.location.href = `chat.html?chatId=${chatId}`;
