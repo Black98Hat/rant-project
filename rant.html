@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
  <meta charset="UTF-8" />
- <title>Goss · Central</title>
+ <title>Goss · Townhall</title>
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
@@ -123,10 +123,6 @@
      color: var(--bg-color);
    }
 
-   .tab-btn:hover:not(.active) {
-     background: #FFFDF0;
-   }
-
    /* Notification Counter */
    .badge {
      display: inline-flex;
@@ -198,6 +194,8 @@
      letter-spacing: 0.05em;
      border-bottom: 2px solid var(--grey);
      padding-bottom: 8px;
+     display: flex;
+     justify-content: space-between;
    }
 
    .text {
@@ -207,26 +205,53 @@
      color: var(--ink);
    }
 
-   .status {
+   /* --- TOWNHALL SPECIFIC --- */
+   .townhall-actions {
+     display: flex;
+     gap: 8px;
+     margin-top: 16px;
+     padding-top: 12px;
+     border-top: 2px dashed var(--grey);
+   }
+
+   .action-pill {
+     flex: 1;
+     background: var(--bg-color);
+     border: 2px solid var(--ink);
+     padding: 8px;
+     font-size: 12px;
+     font-weight: 800;
+     text-align: center;
+     cursor: pointer;
+     transition: 0.1s;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 6px;
+   }
+
+   .action-pill:hover { background: white; }
+   .action-pill:active { transform: scale(0.98); }
+   .action-pill.liked { background: var(--accent); color: white; border-color: var(--ink); }
+
+   .th-timer {
+     background: var(--ink);
+     color: var(--bg-color);
+     padding: 2px 6px;
+     font-size: 10px;
+   }
+
+   /* --- FORMS --- */
+   .status, .prompt {
      margin-top: 16px;
      font-size: 11px;
      font-weight: 700;
      display: inline-block;
      padding: 4px 8px;
      border: 2px solid var(--ink);
-     background: var(--grey);
-     text-transform: uppercase;
    }
-
-   .prompt {
-     margin-top: 16px;
-     font-size: 12px;
-     font-weight: 800;
-     color: var(--accent);
-     background: rgba(255, 85, 0, 0.1);
-     padding: 4px 8px;
-     display: inline-block;
-   }
+   .status { background: var(--grey); }
+   .prompt { color: var(--accent); background: rgba(255, 85, 0, 0.1); }
 
    .reply-box {
      margin-top: 16px;
@@ -236,13 +261,6 @@
      font-size: 13px;
      font-style: italic;
      position: relative;
-   }
-   .reply-box::before {
-     content: "↳ RE:";
-     font-weight: 800;
-     font-size: 10px;
-     display: block;
-     margin-bottom: 4px;
    }
 
    textarea, input {
@@ -259,11 +277,6 @@
      margin-top: 12px;
    }
   
-   textarea:focus, input:focus {
-     border-color: var(--accent);
-     background: #FFFDF0;
-   }
-
    button {
      width: 100%;
      padding: 16px;
@@ -276,19 +289,9 @@
      text-transform: uppercase;
      cursor: pointer;
      margin-top: 12px;
-     transition: all 0.1s;
      box-shadow: 4px 4px 0px var(--accent);
    }
-
-   button:hover {
-     transform: translate(-2px, -2px);
-     box-shadow: 6px 6px 0px var(--accent);
-   }
-  
-   button:active {
-     transform: translate(2px, 2px);
-     box-shadow: 0px 0px 0px var(--accent);
-   }
+   button:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--accent); }
 
    .invite-btn {
      background: var(--accent);
@@ -309,19 +312,9 @@
      flex-direction: column;
      gap: 8px;
    }
-   .chat-item:hover { transform: translateX(4px); }
    
-   .chat-row {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-   }
-  
-   .chat-peer {
-     font-weight: 800;
-     font-size: 14px;
-   }
-   
+   .chat-row { display: flex; justify-content: space-between; align-items: center; }
+   .chat-peer { font-weight: 800; font-size: 14px; }
    .countdown-timer {
      font-size: 11px;
      font-weight: 800;
@@ -330,191 +323,99 @@
      padding: 2px 6px;
      border: 1px solid var(--accent);
    }
-
-   .chat-preview {
-     font-size: 11px;
-     opacity: 0.6;
-   }
+   .chat-preview { font-size: 11px; opacity: 0.6; }
 
    /* --- COMPOSER --- */
    .composer {
-     position: fixed;
-     left: 0;
-     right: 0;
-     bottom: 0;
+     position: fixed; left: 0; right: 0; bottom: 0;
      background: var(--ink);
      border-top: 4px solid var(--accent);
      padding: 16px 20px;
      z-index: 50;
      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-     display: block; 
    }
-  
-   .composer.hidden { display: none !important; }
 
-   .composer.collapsed {
-     padding: 12px 20px;
-     background: var(--paper);
-     border-top: 4px solid var(--ink);
-   }
+   .composer.collapsed { padding: 12px 20px; background: var(--paper); border-top: 4px solid var(--ink); }
 
    .collapse-toggle {
-     font-size: 10px;
-     font-weight: 800;
-     color: var(--paper);
-     text-transform: uppercase;
-     text-align: right;
-     cursor: pointer;
-     margin-bottom: 8px;
+     font-size: 10px; font-weight: 800; color: var(--paper);
+     text-transform: uppercase; text-align: right; cursor: pointer; margin-bottom: 8px;
    }
    .composer.collapsed .collapse-toggle { color: var(--ink); }
 
    .context {
-     font-family: "Archivo", sans-serif;
-     font-size: 14px;
-     font-weight: 700;
-     color: var(--bg-color);
-     margin-bottom: 12px;
-     text-transform: uppercase;
+     font-family: "Archivo", sans-serif; font-size: 14px; font-weight: 700;
+     color: var(--bg-color); margin-bottom: 12px; text-transform: uppercase;
    }
+   .composer.collapsed .context { display: none; }
 
    .collapsed-row { display: block; }
    .composer.collapsed .collapsed-row { display: flex; gap: 10px; align-items: center; }
   
    .composer textarea, .composer input {
-     border: 2px solid var(--bg-color);
-     background: #222;
-     color: var(--bg-color);
-     margin-top: 8px;
+     border: 2px solid var(--bg-color); background: #222; color: var(--bg-color); margin-top: 8px;
    }
-   .composer ::placeholder { color: rgba(255, 214, 0, 0.5); }
-  
    .composer.collapsed textarea, .composer.collapsed input {
-     border: 2px solid var(--ink);
-     background: var(--paper);
-     color: var(--ink);
-     margin: 0;
-     height: 44px;
-     padding: 10px;
+     border: 2px solid var(--ink); background: var(--paper); color: var(--ink); margin: 0; height: 44px; padding: 10px;
    }
-   .composer.collapsed ::placeholder { color: rgba(0,0,0,0.4); }
 
    .composer button {
-     background: var(--bg-color);
-     color: var(--ink);
-     box-shadow: 4px 4px 0 var(--paper);
-     border-color: var(--paper);
+     background: var(--bg-color); color: var(--ink); box-shadow: 4px 4px 0 var(--paper); border-color: var(--paper);
    }
 
-   .composer.collapsed .hint,
-   .composer.collapsed .context,
-   .composer.collapsed .action,
-   .composer.collapsed .footer { display: none; }
-  
+   .composer.collapsed .hint, .composer.collapsed .action, .composer.collapsed .footer { display: none; }
    .hint { font-size: 11px; color: var(--paper); opacity: 0.7; margin-top: 4px; }
    .footer { margin-top: 16px; font-size: 10px; text-align: center; color: var(--paper); opacity: 0.5; }
 
+   /* Context Awareness for Composer */
+   .composer.mode-townhall #targetEmail { display: none; }
+   .composer.mode-townhall .context::after { content: " (PUBLIC BROADCAST)"; opacity: 0.7; }
+   .composer.mode-townhall button { background: var(--accent); color: white; border-color: white; }
+
    /* --- BOTTOM SHEET --- */
    .overlay {
-     position: fixed;
-     inset: 0;
-     background: rgba(16, 16, 16, 0.85);
-     backdrop-filter: blur(4px);
-     z-index: 99;
-     opacity: 0;
-     pointer-events: none;
-     transition: opacity 0.3s;
+     position: fixed; inset: 0; background: rgba(16, 16, 16, 0.85);
+     backdrop-filter: blur(4px); z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.3s;
    }
    .overlay.active { opacity: 1; pointer-events: auto; }
 
    .bottom-sheet {
-     position: fixed;
-     left: 0; right: 0; bottom: -100%;
+     position: fixed; left: 0; right: 0; bottom: -100%;
      background: var(--bg-color);
      border-top: 4px solid var(--ink);
      padding: 32px 24px 48px;
      z-index: 100;
      transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
      box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+     max-height: 85vh;
+     overflow-y: auto;
    }
    .bottom-sheet.active { bottom: 0; }
 
-   .drag-handle {
-     width: 60px; height: 6px;
-     background: var(--ink);
-     margin: 0 auto 24px;
-   }
+   .drag-handle { width: 60px; height: 6px; background: var(--ink); margin: 0 auto 24px; }
 
    .bs-title {
-     font-family: "Archivo", sans-serif;
-     font-size: 28px;
-     font-weight: 900;
-     font-style: italic;
-     text-transform: uppercase;
-     margin-bottom: 16px;
+     font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900;
+     font-style: italic; text-transform: uppercase; margin-bottom: 16px;
+     border-bottom: 3px solid var(--ink); padding-bottom: 12px;
    }
 
-   .bs-body {
-     font-size: 14px;
-     margin-bottom: 24px;
-     font-weight: 600;
-     line-height: 1.5;
-   }
+   .bs-body { font-size: 14px; margin-bottom: 24px; font-weight: 600; line-height: 1.5; }
 
-   .bs-btn {
-     background: var(--ink);
-     color: var(--bg-color);
-     border: none;
-     box-shadow: 6px 6px 0 white;
-   }
-   .bs-btn-secondary {
-     background: transparent;
-     color: var(--ink);
-     border: none;
-     font-size: 12px;
-     margin-top: 16px;
-     text-decoration: underline;
-     box-shadow: none;
-   }
-   .bs-btn-secondary:hover { transform: none; box-shadow: none; color: var(--accent); }
+   .comment-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+   .comment-item { background: rgba(255,255,255,0.5); padding: 12px; border-left: 3px solid var(--ink); }
+   .comment-meta { font-size: 10px; font-weight: 800; opacity: 0.6; margin-bottom: 4px; }
 
-   .empty {
-     padding: 24px;
-     text-align: center;
-     border: 2px dashed var(--ink);
-     color: var(--ink);
-     font-size: 12px;
-     opacity: 0.6;
-   }
-  
+   .bs-btn { background: var(--ink); color: var(--bg-color); border: none; box-shadow: 6px 6px 0 white; }
+
+   .empty { padding: 24px; text-align: center; border: 2px dashed var(--ink); color: var(--ink); font-size: 12px; opacity: 0.6; }
+   
    #hotGoss {
-     border: 3px solid var(--accent);
-     background: rgba(255, 255, 255, 0.5);
-     padding: 16px;
-     margin: 20px 0;
-     box-shadow: 8px 8px 0 var(--accent);
+     border: 3px solid var(--accent); background: rgba(255, 255, 255, 0.5);
+     padding: 16px; margin: 20px 0; box-shadow: 8px 8px 0 var(--accent);
    }
    #hotGoss h2 { margin-top: 0; color: var(--accent); }
-   #hotGossCount {
-       background: var(--accent);
-       color: white;
-       padding: 2px 8px;
-       border-radius: 4px;
-       font-size: 12px;
-   }
-   
-   .coming-soon-box {
-     text-align: center;
-     padding: 40px 20px;
-     border: 3px dashed var(--ink);
-     opacity: 0.5;
-   }
-   .coming-soon-box h3 {
-     font-family: "Archivo", sans-serif;
-     font-size: 24px;
-     text-transform: uppercase;
-     margin-bottom: 8px;
-   }
+   #hotGossCount { background: var(--accent); color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
 
  </style>
 </head>
@@ -527,26 +428,23 @@
      <h1>Goss · Central</h1>
      <p>UNOFFICIAL TRUTHS ONLY</p>
      <div class="warning-ticker">
-       ⚠️ ALL CHATS SELF-DESTRUCT IN <span id="timeLimitDisplay"></span> MINS
+       ⚠️ ALL DATA SELF-DESTRUCTS
      </div>
    </div>
 
    <div class="tab-nav">
      <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
-       THE TAPRI
+       THE TAPRI (PUBLIC)
      </button>
      <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
-       MY DESK
+       MY DESK (PRIVATE)
        <span id="deskBadge" class="badge" style="display:none">0</span>
      </button>
    </div>
 
    <div id="view-tapri" class="tab-content">
-     <div class="coming-soon-box">
-       <h3>Chai Break</h3>
-       <p>The townhall is under construction.</p>
-       <p style="font-size:10px; margin-top:10px">ESTIMATED ARRIVAL: SOON</p>
-     </div>
+     <div id="townhallFeed" class="list">
+        </div>
    </div>
 
    <div id="view-desk" class="tab-content active">
@@ -565,7 +463,7 @@
 
    <div class="composer collapsed" id="mainComposer">
      <div class="collapse-toggle" onclick="toggleComposer()">▼ MINIMIZE</div>
-     <div class="context">Drop an anonymous note</div>
+     <div class="context" id="composerLabel">Drop an anonymous note</div>
 
      <div class="collapsed-row">
        <input id="targetEmail" type="email" placeholder="TARGET EMAIL">
@@ -575,7 +473,7 @@
      <div class="hint">delivery is quiet · no name attached</div>
 
      <div class="action">
-       <button onclick="sendRant()">DROP ANONYMOUS MSG</button>
+       <button id="sendBtn" onclick="handleSend()">DROP MSG</button>
      </div>
 
      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
@@ -583,14 +481,11 @@
  </div>
 
  <div class="overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
- <div class="bottom-sheet" id="inviteSheet">
+ 
+ <div class="bottom-sheet" id="dynamicSheet">
    <div class="drag-handle"></div>
-   <div class="bs-title">They aren't here yet</div>
-   <div class="bs-body">
-     This person hasn't signed up for Oh my Goss. Your whisper is pending, but they won't see it until they join.
-   </div>
-   <button class="bs-btn" onclick="sendInviteEmail()">SEND MYSTERIOUS INVITE</button>
-   <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+   <div id="sheetContent">
+     </div>
  </div>
 
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -599,49 +494,65 @@
 
  <script>
    // --- CONFIGURATION ---
-   const CHAT_TTL_MINUTES = 15; 
-   document.getElementById('timeLimitDisplay').innerText = CHAT_TTL_MINUTES;
+   const PRIVATE_TTL_MINS = 15; 
+   const PUBLIC_TTL_HOURS = 12; 
 
    // --- Global State ---
    window.__hotInboxPending = 0;
    window.__hotSentPending = 0;
    window.__inboxReady = false;
    window.__sentReady = false;
-   let currentInviteTarget = "";
    let currentTab = "desk";
-   let activeChats = []; // To track chats for countdown
+   let activeChats = []; 
+   let activeTownhallPosts = [];
   
    const userExistenceCache = {};
 
    // --- TIMER LOGIC (Runs every second) ---
    setInterval(() => {
-     if(activeChats.length === 0) return;
+     const now = new Date();
 
+     // 1. Private Chat Timers
      activeChats.forEach(chat => {
        const el = document.getElementById(`timer-${chat.id}`);
        if (!el) return;
-
-       const createdAt = chat.createdAt.toDate();
-       const expiresAt = new Date(createdAt.getTime() + CHAT_TTL_MINUTES * 60000);
-       const now = new Date();
+       const expiresAt = new Date(chat.createdAt.toDate().getTime() + PRIVATE_TTL_MINS * 60000);
        const diff = expiresAt - now;
 
        if (diff <= 0) {
-         // EXPIRED: Delete chat
          deleteChat(chat.id);
        } else {
-         // UPDATE UI
          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
          const secs = Math.floor((diff % (1000 * 60)) / 1000);
          el.innerText = `💥 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
        }
      });
+
+     // 2. Townhall Feed Timers
+     activeTownhallPosts.forEach(post => {
+        const el = document.getElementById(`th-timer-${post.id}`);
+        if (!el) return;
+        const expiresAt = new Date(post.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
+        const diff = expiresAt - now;
+
+        if (diff <= 0) {
+            deleteTownhallPost(post.id);
+            if(el) el.closest('.item').remove(); // Optimistic remove
+        } else {
+            const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            el.innerText = `⏳ ${hrs}h ${mins}m LEFT`;
+        }
+     });
+
    }, 1000);
 
    function deleteChat(chatId) {
-     db.collection("chats").doc(chatId).delete().then(() => {
-       console.log("Chat expired and deleted");
-     }).catch(err => console.error(err));
+     db.collection("chats").doc(chatId).delete().catch(console.error);
+   }
+
+   function deleteTownhallPost(postId) {
+       db.collection("townhall").doc(postId).delete().catch(console.error);
    }
 
    // --- TAB LOGIC ---
@@ -649,37 +560,28 @@
      currentTab = tabName;
      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
      document.getElementById(`view-${tabName}`).classList.add('active');
+     
      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
      document.getElementById(`btn-${tabName}`).classList.add('active');
+
      const composer = document.getElementById('mainComposer');
+     const label = document.getElementById('composerLabel');
+     const btn = document.getElementById('sendBtn');
+     
      if (tabName === 'tapri') {
-       composer.classList.add('hidden');
+       composer.classList.add('mode-townhall');
+       label.innerText = "BROADCAST TO EVERYONE";
+       btn.innerText = "POST TO TOWN HALL";
      } else {
-       composer.classList.remove('hidden');
+       composer.classList.remove('mode-townhall');
+       label.innerText = "Drop an anonymous note";
+       btn.innerText = "DROP MSG";
      }
    }
 
-   function updateHotGossVisibility() {
-     if (!window.__inboxReady || !window.__sentReady) return;
-
-     const hot = document.getElementById("hotGoss");
-     const countEl = document.getElementById("hotGossCount");
-     const badgeEl = document.getElementById("deskBadge");
-     const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
-
-     if (total > 0) {
-       hot.style.display = "block";
-       countEl.textContent = total + " PENDING";
-       badgeEl.style.display = "inline-flex";
-       badgeEl.textContent = total;
-     } else {
-       hot.style.display = "none";
-       badgeEl.style.display = "none";
-     }
-   }
-
+   // --- FIREBASE INIT ---
    const firebaseConfig = {
-     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8",
+     apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", // Replace if needed
      authDomain: "rant-2me.firebaseapp.com",
      projectId: "rant-2me"
    };
@@ -693,219 +595,175 @@
        window.location.href = "index.html";
        return;
      }
-
-     db.collection("users").doc(user.email).set({
-       email: user.email,
-       lastSeen: new Date()
-     }, { merge: true });
+     db.collection("users").doc(user.email).set({ email: user.email, lastSeen: new Date() }, { merge: true });
 
      loadInboxInline(user.email);
      loadSentInline(user.email);
      loadChats(user.email);
+     loadTownhall(); // New Feed
    });
 
-   async function checkUserExists(email) {
-     if (userExistenceCache[email] !== undefined) {
-       return userExistenceCache[email];
-     }
-     try {
-       const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-       const exists = !snap.empty;
-       userExistenceCache[email] = exists;
-       return exists;
-     } catch (e) {
-       return false;
-     }
-   }
+   // --- TOWNHALL LOGIC ---
 
-   function loadSentInline(email) {
-     db.collection("rants")
-       .where("from", "==", email)
+   function loadTownhall() {
+     // Order by time. In real app, you'd filter by createdAt > (Now - 12h) to save reads.
+     db.collection("townhall")
+       .orderBy("createdAt", "desc")
+       .limit(50)
        .onSnapshot(snapshot => {
-         window.__hotSentPending = 0;
-         window.__sentReady = true;
-         const container = document.getElementById("sentInline");
-         container.innerHTML = "";
-
-         const docs = snapshot.docs.sort((a, b) => {
-           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
-           return getTime(b) - getTime(a);
-         });
-
-         docs.forEach(doc => {
-           const rant = doc.data();
-           if (rant.status === "accepted") return;
-
-           if (rant.status === "pending" || rant.status === "echoed") {
-             window.__hotSentPending++;
-           }
-
-           // RENAMED COPY: "Echo" -> "Reply"
-           const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
-          
-           let actionBlock = "";
-           if (rant.status === "echoed" && rant.echo) {
-               actionBlock = `
-                 <div class="action">
-                   <button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button>
-                 </div>`;
-           }
-
-           const statusText = rant.status === "pending"
-             ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>"
-             : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
-
-           const inviteContainerId = `invite-ui-${doc.id}`;
-
-           container.innerHTML += `
-             <div class="item">
-               <div class="meta">OUTGOING · TO ${rant.to}</div>
-               <div class="text">${rant.text}</div>
-               <div class="status">STATUS: ${statusText}</div>
-               ${echoBlock}
-               ${actionBlock}
-               <div id="${inviteContainerId}" style="display:none; margin-top:12px;">
-                  <button class="invite-btn" onclick="openInviteBottomSheet('${rant.to}')">
-                    INVITE THEM TO GOSS
-                  </button>
-               </div>
-             </div>
-           `;
-
-           if (rant.status === "pending") {
-             checkUserExists(rant.to).then(exists => {
-               if (!exists) {
-                 const el = document.getElementById(inviteContainerId);
-                 if (el) el.style.display = "block";
-               }
-             });
-           }
-         });
-
-         if (!container.innerHTML) {
-           container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
-         }
-         updateHotGossVisibility();
-       });
-   }
-
-   function loadInboxInline(email) {
-     db.collection("rants")
-       .where("to", "==", email)
-       .onSnapshot(snapshot => {
-         window.__hotInboxPending = 0;
-         window.__inboxReady = true;
-         const container = document.getElementById("inboxList");
-         container.innerHTML = "";
-         let pendingCount = 0;
+         const list = document.getElementById("townhallFeed");
+         list.innerHTML = "";
+         activeTownhallPosts = [];
 
          if (snapshot.empty) {
-           container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
-           updateHotGossVisibility();
-           return;
+            list.innerHTML = "<div class='empty'>THE TOWN SQUARE IS SILENT</div>";
+            return;
          }
 
-         const docs = snapshot.docs.sort((a, b) => {
-           const getTime = d => d.data().updatedAt?.toMillis?.() || d.data().createdAt?.toMillis?.() || 0;
-           return getTime(b) - getTime(a);
+         snapshot.forEach(doc => {
+            const data = doc.data();
+            activeTownhallPosts.push({ id: doc.id, createdAt: data.createdAt });
+            
+            // Likes logic
+            const likes = data.likes || 0;
+            const comments = data.commentCount || 0;
+
+            list.innerHTML += `
+              <div class="item">
+                <div class="meta">
+                   <span>ANONYMOUS</span>
+                   <span class="th-timer" id="th-timer-${doc.id}">CALCULATING...</span>
+                </div>
+                <div class="text" style="font-size:18px">${data.text}</div>
+                
+                <div class="townhall-actions">
+                    <div class="action-pill" onclick="likePost('${doc.id}')">
+                        ❤️ ${likes}
+                    </div>
+                    <div class="action-pill" onclick="openThread('${doc.id}', '${escape(data.text)}')">
+                        💬 ${comments}
+                    </div>
+                    <div class="action-pill" onclick="sharePost('${escape(data.text)}')">
+                        📢 SHARE
+                    </div>
+                </div>
+              </div>
+            `;
          });
-
-         docs.forEach(doc => {
-           const rant = doc.data();
-           if (rant.status === "accepted") return;
-           if (rant.status === "pending" || rant.status === "echoed") {
-             pendingCount++;
-             window.__hotInboxPending++;
-           }
-
-           let block = "";
-           // UPDATED COPY: "Echo" -> "Reply/Unlock"
-           if (rant.status === "pending") {
-             block = `
-               <div class="prompt">ACTION REQUIRED</div>
-               <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
-               <div class="action">
-                 <button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button>
-               </div>
-             `;
-           } else if (rant.status === "echoed") {
-             block = `
-               <div class="reply-box">${rant.echo}</div>
-               <div class="status">WAITING ON SENDER TO UNLOCK</div>
-             `;
-           }
-
-           container.innerHTML += `
-             <div class="item">
-               <div class="meta">INCOMING · ANONYMOUS</div>
-               <div class="text">${rant.text}</div>
-               ${block}
-             </div>
-           `;
-         });
-         updateHotGossVisibility();
        });
    }
 
-   function submitEcho(rantId) {
-     const input = document.getElementById(`echo-${rantId}`);
-     if (!input) return;
-     const text = input.value.trim();
-     if (!text) return;
-     input.disabled = true;
-    
-     db.collection("rants").doc(rantId).get().then(doc => {
-       if (doc.data().status !== "pending") return;
-       db.collection("rants").doc(rantId).update({
-         echo: text, status: "echoed", updatedAt: new Date()
+   function likePost(postId) {
+       // Simple increment. For strict unique likes, we'd need a subcollection or array of UIDs.
+       // Keeping it "loose" for anonymity speed.
+       const ref = db.collection("townhall").doc(postId);
+       ref.update({
+           likes: firebase.firestore.FieldValue.increment(1)
        });
-     });
    }
 
-   function acceptEchoInline(rantId) {
-     const chatRef = db.collection("chats").doc();
-     db.collection("rants").doc(rantId).get().then(doc => {
-       const rant = doc.data();
-       // Create Chat (Timer starts based on createdAt)
-       chatRef.set({
-         users: [rant.from, rant.to],
-         createdAt: new Date(),
-         seed: [
-           { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() },
-           { from: rant.to, text: rant.echo, createdAt: new Date() }
-         ]
+   function sharePost(escapedText) {
+       const text = unescape(escapedText);
+       const subject = "👀 You know what is being circulated today?";
+       const body = `Saw this on the townhall just now:\n\n"${text}"\n\nIt vanishes in a few hours. Check it out: https://oh-my-goss.netlify.app/`;
+       window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+   }
+
+   function openThread(postId, escapedText) {
+       const text = unescape(escapedText);
+       const container = document.getElementById('sheetContent');
+       
+       // Render Thread Layout in Bottom Sheet
+       container.innerHTML = `
+          <div class="bs-title">Gossip Thread</div>
+          <div style="background:#FFFDF0; padding:16px; border:2px solid black; margin-bottom:20px;">
+             "${text}"
+          </div>
+          <div class="bs-title" style="font-size:16px; border:none;">Comments</div>
+          <div id="bs-comments" class="comment-list">
+             <div class="empty">Loading whispers...</div>
+          </div>
+          <textarea id="threadComment" placeholder="Add your whisper..." style="margin-bottom:8px;"></textarea>
+          <button class="bs-btn" onclick="postComment('${postId}')">REPLY TO THREAD</button>
+       `;
+       
+       document.getElementById('sheetOverlay').classList.add('active');
+       document.getElementById('dynamicSheet').classList.add('active');
+
+       // Load comments
+       db.collection("townhall").doc(postId).collection("comments")
+         .orderBy("createdAt", "asc")
+         .onSnapshot(snap => {
+             const list = document.getElementById("bs-comments");
+             list.innerHTML = "";
+             if(snap.empty) {
+                 list.innerHTML = "<div class='empty'>No comments yet. Start the drama.</div>";
+                 return;
+             }
+             snap.forEach(d => {
+                 const c = d.data();
+                 list.innerHTML += `
+                    <div class="comment-item">
+                        <div class="comment-meta">ANONYMOUS · JUST NOW</div>
+                        <div>${c.text}</div>
+                    </div>
+                 `;
+             });
+         });
+   }
+
+   function postComment(postId) {
+       const input = document.getElementById('threadComment');
+       const text = input.value.trim();
+       if(!text) return;
+
+       const batch = db.batch();
+       const postRef = db.collection("townhall").doc(postId);
+       const commentRef = postRef.collection("comments").doc();
+
+       batch.set(commentRef, {
+           text: text,
+           createdAt: new Date()
        });
-       db.collection("rants").doc(rantId).update({
-         status: "accepted", chatId: chatRef.id, updatedAt: new Date()
+       batch.update(postRef, {
+           commentCount: firebase.firestore.FieldValue.increment(1)
+       });
+
+       batch.commit().then(() => {
+           input.value = "";
+       });
+   }
+
+
+   // --- SENDING LOGIC (Unified) ---
+
+   function handleSend() {
+       if (currentTab === 'tapri') {
+           sendTownhallPost();
+       } else {
+           sendPrivateRant();
+       }
+   }
+
+   function sendTownhallPost() {
+       const textEl = document.getElementById("rantText");
+       const text = textEl.value.trim();
+       if(!text) return;
+
+       db.collection("townhall").add({
+           text: text,
+           createdAt: new Date(),
+           likes: 0,
+           commentCount: 0
        }).then(() => {
-         window.location.href = `chat.html?chatId=${chatRef.id}`;
+           textEl.value = "";
+           toggleComposer();
+           // Switch to tapri view to see it if not there
+           if(currentTab !== 'tapri') switchTab('tapri');
        });
-     });
    }
 
-   function openInviteBottomSheet(email) {
-     currentInviteTarget = email;
-     document.getElementById('sheetOverlay').classList.add('active');
-     document.getElementById('inviteSheet').classList.add('active');
-   }
-
-   function closeBottomSheet() {
-     document.getElementById('sheetOverlay').classList.remove('active');
-     document.getElementById('inviteSheet').classList.remove('active');
-   }
-
-   function sendInviteEmail() {
-     if (!currentInviteTarget) return;
-
-     const subject = "Someone is talking about you 🤫";
-     const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
-    
-     const mailtoLink = `mailto:${currentInviteTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-     window.location.href = mailtoLink;
-     closeBottomSheet();
-   }
-
-   function sendRant() {
+   function sendPrivateRant() {
      const textEl = document.getElementById("rantText");
      const targetEl = document.getElementById("targetEmail");
      const text = textEl.value.trim();
@@ -924,15 +782,35 @@
        textEl.value = "";
        targetEl.value = "";
        document.querySelector(".composer").classList.add("collapsed");
-
+       
+       // Invite logic
        checkUserExists(target).then(exists => {
          if (!exists) {
-           openInviteBottomSheet(target);
+            // Show invite sheet
+            document.getElementById('sheetContent').innerHTML = `
+               <div class="bs-title">They aren't here yet</div>
+               <div class="bs-body">This person hasn't signed up. Your whisper is pending, but they won't see it until they join.</div>
+               <button class="bs-btn" onclick="sendInviteEmail('${target}')">SEND MYSTERIOUS INVITE</button>
+               <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+            `;
+            document.getElementById('sheetOverlay').classList.add('active');
+            document.getElementById('dynamicSheet').classList.add('active');
          }
        });
      });
    }
+   
+   async function checkUserExists(email) {
+     if (userExistenceCache[email] !== undefined) return userExistenceCache[email];
+     try {
+       const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+       const exists = !snap.empty;
+       userExistenceCache[email] = exists;
+       return exists;
+     } catch (e) { return false; }
+   }
 
+   // --- UTILS ---
    function toggleComposer() {
      document.querySelector(".composer").classList.toggle("collapsed");
    }
@@ -947,42 +825,138 @@
      document.querySelector(".composer").classList.remove("collapsed");
    });
 
-   function loadChats(userEmail) {
-     db.collection("chats")
-       .where("users", "array-contains", userEmail)
-       .onSnapshot(snapshot => {
-         const list = document.getElementById("chatList");
-         list.innerHTML = "";
-         activeChats = []; // Reset list for timer loop
+   function closeBottomSheet() {
+     document.getElementById('sheetOverlay').classList.remove('active');
+     document.getElementById('dynamicSheet').classList.remove('active');
+   }
 
-         if (snapshot.empty) {
-           list.innerHTML = "<div class='empty'>NO FILES FOUND</div>";
-           return;
-         }
+   function sendInviteEmail(target) {
+     const subject = "Someone is talking about you 🤫";
+     const body = `Someone just dropped a hot goss about you on Oh my Goss.\n\nIt's anonymous, it's pending, and it's waiting for you to unlock it.\n\nSee what they said before it expires:\nhttps://oh-my-goss.netlify.app/`;
+     window.location.href = `mailto:${target}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+     closeBottomSheet();
+   }
+
+   function updateHotGossVisibility() {
+     if (!window.__inboxReady || !window.__sentReady) return;
+     const hot = document.getElementById("hotGoss");
+     const countEl = document.getElementById("hotGossCount");
+     const badgeEl = document.getElementById("deskBadge");
+     const total = (window.__hotInboxPending || 0) + (window.__hotSentPending || 0);
+
+     if (total > 0) {
+       hot.style.display = "block";
+       countEl.textContent = total + " PENDING";
+       badgeEl.style.display = "inline-flex";
+       badgeEl.textContent = total;
+     } else {
+       hot.style.display = "none";
+       badgeEl.style.display = "none";
+     }
+   }
+
+   // --- LOADING DESK DATA ---
+   function loadSentInline(email) {
+     db.collection("rants").where("from", "==", email).onSnapshot(snapshot => {
+         window.__hotSentPending = 0; window.__sentReady = true;
+         const container = document.getElementById("sentInline");
+         container.innerHTML = "";
+         const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
          
-         snapshot.forEach(doc => {
-           const chat = doc.data();
-           const peer = chat.users.find(u => u !== userEmail);
+         docs.forEach(doc => {
+           const rant = doc.data();
+           if (rant.status === "accepted") return;
+           if (rant.status === "pending" || rant.status === "echoed") window.__hotSentPending++;
            
-           // Push to activeChats for the interval timer to pick up
-           activeChats.push({ id: doc.id, createdAt: chat.createdAt });
-
-           list.innerHTML += `
-             <div class="chat-item" onclick="openChat('${doc.id}')">
-               <div class="chat-row">
-                 <div class="chat-peer">${peer}</div>
-                 <div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div>
-               </div>
-               <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
-             </div>
-           `;
+           const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
+           const statusText = rant.status === "pending" ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>" : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
+           
+           let actionBlock = "";
+           if (rant.status === "echoed") {
+               actionBlock = `<div class="action"><button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button></div>`;
+           }
+           
+           container.innerHTML += `
+             <div class="item">
+               <div class="meta">OUTGOING · TO ${rant.to}</div>
+               <div class="text">${rant.text}</div>
+               <div class="status">STATUS: ${statusText}</div>
+               ${echoBlock} ${actionBlock}
+             </div>`;
          });
+         if (!container.innerHTML) container.innerHTML = "<div class='empty'>NO OUTGOING SECRETS</div>";
+         updateHotGossVisibility();
        });
    }
 
-   function openChat(chatId) {
-     window.location.href = `chat.html?chatId=${chatId}`;
+   function loadInboxInline(email) {
+     db.collection("rants").where("to", "==", email).onSnapshot(snapshot => {
+         window.__hotInboxPending = 0; window.__inboxReady = true;
+         const container = document.getElementById("inboxList");
+         container.innerHTML = "";
+         
+         if (snapshot.empty) {
+           container.innerHTML = "<div class='empty'>NOTHING HOT YET</div>";
+           updateHotGossVisibility(); return;
+         }
+
+         const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
+         docs.forEach(doc => {
+           const rant = doc.data();
+           if (rant.status === "accepted") return;
+           if (rant.status === "pending" || rant.status === "echoed") window.__hotInboxPending++;
+
+           let block = "";
+           if (rant.status === "pending") {
+             block = `<div class="prompt">ACTION REQUIRED</div>
+               <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
+               <div class="action"><button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button></div>`;
+           } else if (rant.status === "echoed") {
+             block = `<div class="reply-box">${rant.echo}</div><div class="status">WAITING ON SENDER TO UNLOCK</div>`;
+           }
+
+           container.innerHTML += `<div class="item"><div class="meta">INCOMING · ANONYMOUS</div><div class="text">${rant.text}</div>${block}</div>`;
+         });
+         updateHotGossVisibility();
+       });
    }
+
+   function submitEcho(rantId) {
+     const input = document.getElementById(`echo-${rantId}`);
+     if (!input || !input.value.trim()) return;
+     db.collection("rants").doc(rantId).update({ echo: input.value.trim(), status: "echoed", updatedAt: new Date() });
+   }
+
+   function acceptEchoInline(rantId) {
+     const chatRef = db.collection("chats").doc();
+     db.collection("rants").doc(rantId).get().then(doc => {
+       const rant = doc.data();
+       chatRef.set({
+         users: [rant.from, rant.to], createdAt: new Date(),
+         seed: [{ from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, { from: rant.to, text: rant.echo, createdAt: new Date() }]
+       });
+       db.collection("rants").doc(rantId).update({ status: "accepted", chatId: chatRef.id, updatedAt: new Date() })
+         .then(() => window.location.href = `chat.html?chatId=${chatRef.id}`);
+     });
+   }
+   
+   function loadChats(userEmail) {
+     db.collection("chats").where("users", "array-contains", userEmail).onSnapshot(snapshot => {
+         const list = document.getElementById("chatList");
+         list.innerHTML = ""; activeChats = [];
+         if (snapshot.empty) { list.innerHTML = "<div class='empty'>NO FILES FOUND</div>"; return; }
+         
+         snapshot.forEach(doc => {
+           const chat = doc.data();
+           activeChats.push({ id: doc.id, createdAt: chat.createdAt });
+           const peer = chat.users.find(u => u !== userEmail);
+           list.innerHTML += `<div class="chat-item" onclick="openChat('${doc.id}')">
+               <div class="chat-row"><div class="chat-peer">${peer}</div><div class="countdown-timer" id="timer-${doc.id}">CALCULATING...</div></div>
+               <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div></div>`;
+         });
+       });
+   }
+   function openChat(chatId) { window.location.href = `chat.html?chatId=${chatId}`; }
  </script>
 </body>
 </html>
