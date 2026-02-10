@@ -450,6 +450,7 @@
       const input = document.getElementById("msg");
       const text = input.value.trim();
       if (!text) return;
+      if (text.length > 2000) return;
 
       db.collection("chats").doc(chatId).collection("messages").add({
         from: auth.currentUser.email,

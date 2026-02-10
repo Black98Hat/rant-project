@@ -506,7 +506,7 @@
 
    auth.onAuthStateChanged(user => {
      if (!user) { window.location.href = "index.html"; return; }
-     db.collection("users").doc(user.email).set({ email: user.email, lastSeen: new Date() }, { merge: true });
+     db.collection("users").doc(user.uid).set({ email: user.email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
      loadInboxInline(user.email);
      loadSentInline(user.email);
      loadChats(user.email);
@@ -627,6 +627,7 @@
        const textEl = document.getElementById("rantText");
        const text = textEl.value.trim();
        if(!text) return;
+       if (text.length > 2000) return;
 
        db.collection("townhall").add({
            text: text, createdAt: new Date(), likedBy: [], commentCount: 0
@@ -644,6 +645,7 @@
      const user = auth.currentUser;
 
      if (!text || !target || !user) return;
+     if (text.length > 2000) return;
 
      db.collection("rants").add({
        from: user.email, to: target, text, status: "pending", createdAt: new Date()

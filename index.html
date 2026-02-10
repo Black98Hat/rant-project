@@ -422,6 +422,9 @@
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
+    // 🔐 ensure UID exists immediately
+    auth.signInAnonymously().catch(console.error);
+
     function enter() {
       const btn = document.querySelector('button');
       btn.innerHTML = "Authenticating...";
