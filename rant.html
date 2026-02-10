@@ -66,7 +66,7 @@
       font-style: italic;
       line-height: 0.9;
       text-transform: uppercase;
-      color: var(--ink);
+      color: var(--paper-shadow);
       margin-bottom: 8px;
     }
 
@@ -389,10 +389,10 @@
 
     <div class="tab-nav">
       <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
-        Tapri (Public)
+        Water Cooler (PUBLIC)
       </button>
       <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
-        My Desk
+        My Desk (PRIVATE)
         <span id="deskBadge" class="badge" style="display:none">0</span>
       </button>
     </div>
@@ -434,7 +434,7 @@
         <button id="sendBtn" onclick="handleSend()">DROP MSG</button>
       </div>
 
-      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
+      <div class="footer">CAN'T WAIT TO HEAR IT</div>
     </div>
   </div>
 
@@ -480,6 +480,7 @@
         }
       });
  
+      // Update existing Townhall posts
       activeTownhallPosts.forEach(post => {
          const el = document.getElementById(`th-timer-${post.id}`);
          if (!el) return;
@@ -487,10 +488,8 @@
          const diff = expiresAt - now;
          
          if (diff <= 0) {
-             // Expired while viewing: Delete from DB and visually remove immediately
+             // It expired while looking at it
              deleteTownhallPost(post.id);
-             const card = document.getElementById(`post-${post.id}`);
-             if(card) card.remove();
          } else {
              const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
              const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -583,26 +582,26 @@
              list.innerHTML = "<div class='empty'>THE TOWN SQUARE IS SILENT</div>";
              return;
           }
-          
+ 
           const now = new Date();
-
+ 
           snapshot.forEach(doc => {
              const data = doc.data();
              
-             // --- CHECK EXPIRY BEFORE RENDERING ---
+             // --- FLICKER FIX: Filter Expired Posts Immediately ---
              const expiresAt = new Date(data.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
-             const diff = expiresAt - now;
-
-             if (diff <= 0) {
-                 deleteTownhallPost(doc.id); // Delete from DB
-                 return; // Do not render (prevents flicker)
+             if (now >= expiresAt) {
+                 // Trigger background delete, DO NOT render to DOM
+                 deleteTownhallPost(doc.id);
+                 return; 
              }
-
-             // Calculate initial time string
+             
+             // --- VISIBILITY FIX: Calculate Time Immediately ---
+             const diff = expiresAt - now;
              const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
              const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-             const timeStr = `⏳ ${hrs}h ${mins}m LEFT`;
-
+             const initialTimeStr = `⏳ ${hrs}h ${mins}m LEFT`;
+ 
              activeTownhallPosts.push({ id: doc.id, createdAt: data.createdAt });
              
              const likedBy = data.likedBy || [];
@@ -611,10 +610,10 @@
              const comments = data.commentCount || 0;
  
              list.innerHTML += `
-               <div class="item" id="post-${doc.id}">
+               <div class="item">
                  <div class="meta">
                     <span>ANONYMOUS</span>
-                    <span class="th-timer" id="th-timer-${doc.id}">${timeStr}</span>
+                    <span class="th-timer" id="th-timer-${doc.id}">${initialTimeStr}</span>
                  </div>
                  <div class="text" style="font-size:16px">${data.text}</div>
                  
