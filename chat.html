@@ -256,12 +256,15 @@
         return;
       }
 
-      // 1. Listen to Chat Metadata (WITH ERROR HANDLER FIX)
+      // 1. Listen to Chat Metadata
       db.collection("chats").doc(chatId).onSnapshot(doc => {
         // --- KEY DESTRUCTION CHECK ---
         if (!doc.exists) {
           console.log("Chat deleted. Redirecting...");
-          window.location.href = "rant.html";
+          // Small delay to ensure browser handles the redirect smoothly
+          setTimeout(() => {
+             window.location.href = "rant.html";
+          }, 100);
           return;
         }
 
@@ -282,11 +285,6 @@
 
         // One-time Seed
         if (chat.seed) hydrateSeed(chat);
-      }, (error) => {
-          // --- THE FIX FOR SENDER ---
-          console.warn("Snapshot error (Likely Nuke Deletion):", error);
-          // If we lose permission, it's because the doc is gone. Redirect.
-          window.location.href = "rant.html";
       });
 
       // 2. Listen to Messages
@@ -351,7 +349,7 @@
       timerInterval = setInterval(update, 1000);
     }
 
-    // --- NUKE LOGIC ---
+    // --- NUKE LOGIC (FIXED END-TO-END) ---
 
     function handleNukeState(chat, myEmail) {
       const sheet = document.getElementById("nukeSheet");
