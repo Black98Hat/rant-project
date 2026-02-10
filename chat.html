@@ -240,7 +240,6 @@
     // Global State for efficiency
     let currentChatData = null; 
     let timerInterval = null;
-    let nukeStateVersion = 0; // Helps avoid UI flicker
 
     // Force focus logic
     window.onload = function() {
@@ -349,7 +348,7 @@
       timerInterval = setInterval(update, 1000);
     }
 
-    // --- NUKE LOGIC (FIXED END-TO-END) ---
+    // --- NUKE LOGIC (FIXED) ---
 
     function handleNukeState(chat, myEmail) {
       const sheet = document.getElementById("nukeSheet");
@@ -386,7 +385,7 @@
           `;
         }
       } else {
-        // Only close if we are not initiating locally
+        // Only close if we are not initiating locally (prevents closing the INIT screen)
         if (sheet.dataset.state === "WAITING" || sheet.dataset.state === "REQUEST") {
             overlay.classList.remove("active");
             sheet.classList.remove("active");
@@ -396,10 +395,9 @@
     }
 
     function initiateNuke() {
-      if(!currentChatData) return;
+      if(!currentChatData || !auth.currentUser) return; // Added auth safety check
 
       const myEmail = auth.currentUser.email;
-      // Handle self-chat edge case strictly
       const otherUsers = currentChatData.users.filter(u => u !== myEmail);
 
       if(otherUsers.length === 0) {
@@ -410,6 +408,9 @@
           const sheet = document.getElementById("nukeSheet");
           const overlay = document.getElementById("sheetOverlay");
           
+          // Don't overwrite if a request is already coming in from partner
+          if(currentChatData.nukeRequest) return;
+
           sheet.dataset.state = "INIT";
           sheet.innerHTML = `
             <div class="bs-title">INITIATE DESTRUCTION?</div>
@@ -432,13 +433,13 @@
     }
 
     function sendNukeRequest() {
-      console.log("Sending nuke request...");
       const btn = document.getElementById("armBtn");
       if(btn) {
           btn.innerText = "ARMING...";
           btn.disabled = true;
       }
-
+      
+      // We do not check auth here as it's checked in initiateNuke
       db.collection("chats").doc(chatId).update({
         nukeRequest: auth.currentUser.email
       }).catch(err => {
@@ -449,11 +450,10 @@
     }
 
     function cancelNuke() {
-      console.log("Cancelling nuke request...");
       db.collection("chats").doc(chatId).update({
         nukeRequest: firebase.firestore.FieldValue.delete()
       });
-      closeSheet();
+      // The snapshot listener will handle closing the sheet
     }
 
     function confirmDestruction() {
@@ -472,15 +472,17 @@
           sheet.innerHTML = `<div class="bs-title">GOODBYE.</div><div class="waiting-box">ERASING RECORDS...</div>`;
       }
 
-      // 1. Fetch messages to delete them (Batch Delete for cleanliness)
+      // 1. Fetch messages to delete them
       db.collection("chats").doc(chatId).collection("messages").get()
         .then(snapshot => {
             const batch = db.batch();
             
             // 2. Add all messages to batch (Limit 450 to be safe under 500 op limit)
-            snapshot.docs.slice(0, 450).forEach(doc => {
-                batch.delete(doc.ref);
-            });
+            if(!snapshot.empty) {
+                snapshot.docs.slice(0, 450).forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+            }
 
             // 3. Add Chat Document to batch
             const chatRef = db.collection("chats").doc(chatId);
@@ -490,9 +492,10 @@
             return batch.commit();
         })
         .then(() => {
-           console.log("Nuke complete. Redirecting...");
-           // 5. Force redirect for the clicker immediately (fixes "nothing happening")
-           window.location.href = "rant.html";
+           console.log("Nuke complete.");
+           // IMPORTANT FIX: Do NOT manually redirect here. 
+           // The onSnapshot listener on 'chats' will detect the deletion and redirect.
+           // This prevents race conditions between the commit success and the snapshot firing.
         })
         .catch((error) => {
            console.error("Nuke failed: ", error);
