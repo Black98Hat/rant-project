@@ -256,44 +256,37 @@
         return;
       }
 
-      // 1. Listen to Chat Metadata with Error Handling
-      db.collection("chats").doc(chatId).onSnapshot({
-        next: (doc) => {
-            // --- KEY DESTRUCTION CHECK (Standard) ---
-            if (!doc.exists) {
-              console.log("Chat deleted. Redirecting...");
-              window.location.href = "rant.html";
-              return;
-            }
-
-            const chat = doc.data();
-            currentChatData = chat; 
-
-            // Security Check
-            if (!chat.users.includes(user.email)) {
-              window.location.href = "rant.html"; return;
-            }
-
-            // UI Updates
-            document.getElementById("participantsText").innerText = 
-              `SECURE CONNECTION: ${chat.users.join('  <->  ')}   ///   ENCRYPTED`;
-
-            startTimer(chat.createdAt);
-            handleNukeState(chat, user.email);
-
-            // One-time Seed
-            if (chat.seed) hydrateSeed(chat);
-        },
-        error: (error) => {
-            // --- FIX: DETECT DELETION VIA PERMISSION ERROR ---
-            console.warn("Snapshot error:", error);
-            // When the doc is deleted, Firestore rules deny access (because 'resource' is null).
-            // We interpret this permission failure as the chat being nuked.
-            if (error.code === 'permission-denied' || error.message.includes("permission")) {
-                 console.log("Permission lost (Chat likely nuked). Redirecting...");
-                 window.location.href = "rant.html";
-            }
+      // 1. Listen to Chat Metadata (WITH ERROR HANDLER FIX)
+      db.collection("chats").doc(chatId).onSnapshot(doc => {
+        // --- KEY DESTRUCTION CHECK ---
+        if (!doc.exists) {
+          console.log("Chat deleted. Redirecting...");
+          window.location.href = "rant.html";
+          return;
         }
+
+        const chat = doc.data();
+        currentChatData = chat; 
+
+        // Security Check
+        if (!chat.users.includes(user.email)) {
+          window.location.href = "rant.html"; return;
+        }
+
+        // UI Updates
+        document.getElementById("participantsText").innerText = 
+          `SECURE CONNECTION: ${chat.users.join('  <->  ')}   ///   ENCRYPTED`;
+
+        startTimer(chat.createdAt);
+        handleNukeState(chat, user.email);
+
+        // One-time Seed
+        if (chat.seed) hydrateSeed(chat);
+      }, (error) => {
+          // --- THE FIX FOR SENDER ---
+          console.warn("Snapshot error (Likely Nuke Deletion):", error);
+          // If we lose permission, it's because the doc is gone. Redirect.
+          window.location.href = "rant.html";
       });
 
       // 2. Listen to Messages
@@ -368,6 +361,7 @@
         overlay.classList.add("active");
         sheet.classList.add("active");
 
+        // Prevent UI flickering if already showing the correct state
         const newState = chat.nukeRequest === myEmail ? "WAITING" : "REQUEST";
         if (sheet.dataset.state === newState) return;
         sheet.dataset.state = newState;
@@ -394,6 +388,7 @@
           `;
         }
       } else {
+        // Only close if we are not initiating locally
         if (sheet.dataset.state === "WAITING" || sheet.dataset.state === "REQUEST") {
             overlay.classList.remove("active");
             sheet.classList.remove("active");
@@ -406,11 +401,14 @@
       if(!currentChatData) return;
 
       const myEmail = auth.currentUser.email;
+      // Handle self-chat edge case strictly
       const otherUsers = currentChatData.users.filter(u => u !== myEmail);
 
       if(otherUsers.length === 0) {
+          // Self Chat: Instant Kill
           confirmDestruction();
       } else {
+          // Real Chat: Show Local Prompt
           const sheet = document.getElementById("nukeSheet");
           const overlay = document.getElementById("sheetOverlay");
           
@@ -468,6 +466,7 @@
           btn.innerText = "ERASING DATA...";
           btn.disabled = true;
       } else {
+          // Fallback UI for self-chat
           const sheet = document.getElementById("nukeSheet");
           const overlay = document.getElementById("sheetOverlay");
           overlay.classList.add("active");
@@ -475,19 +474,26 @@
           sheet.innerHTML = `<div class="bs-title">GOODBYE.</div><div class="waiting-box">ERASING RECORDS...</div>`;
       }
 
-      // 1. Fetch messages to delete them (Batch Delete)
+      // 1. Fetch messages to delete them (Batch Delete for cleanliness)
       db.collection("chats").doc(chatId).collection("messages").get()
         .then(snapshot => {
             const batch = db.batch();
+            
+            // 2. Add all messages to batch (Limit 450 to be safe under 500 op limit)
             snapshot.docs.slice(0, 450).forEach(doc => {
                 batch.delete(doc.ref);
             });
+
+            // 3. Add Chat Document to batch
             const chatRef = db.collection("chats").doc(chatId);
             batch.delete(chatRef);
+
+            // 4. Commit Atomically
             return batch.commit();
         })
         .then(() => {
            console.log("Nuke complete. Redirecting...");
+           // 5. Force redirect for the clicker immediately (fixes "nothing happening")
            window.location.href = "rant.html";
         })
         .catch((error) => {
