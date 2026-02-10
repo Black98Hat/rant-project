@@ -9,12 +9,12 @@
 
   <style>
     :root {
-      /* Premium Panic Palette (From Index) */
-      --bg-gradient-start: #FFB300; /* Amber Warning */
-      --bg-gradient-end: #FF3D00;   /* Deep Orange */
-      --accent: #D50000;            /* Alarm Red */
-      --ink: #121212;               /* Soft Black */
-      --paper: #F4F1EA;             /* Archival Paper */
+      /* Premium Panic Palette */
+      --bg-gradient-start: #FFB300; 
+      --bg-gradient-end: #FF3D00;   
+      --accent: #D50000;            
+      --ink: #121212;               
+      --paper: #F4F1EA;             
       --paper-shadow: #BEBDB8;
     }
 
@@ -32,7 +32,7 @@
       min-height: 100vh;
       width: 100vw;
       overflow-x: hidden;
-      padding-bottom: 180px; /* Space for composer */
+      padding-bottom: 180px; 
     }
 
     /* --- ATMOSPHERE --- */
@@ -66,7 +66,7 @@
       font-style: italic;
       line-height: 0.9;
       text-transform: uppercase;
-      color: var(--paper-shadow);
+      color: var(--paper); /* Fixed visibility color */
       margin-bottom: 8px;
     }
 
@@ -156,10 +156,14 @@
       padding: 20px;
       position: relative;
       box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
-      transition: transform 0.1s;
+      transition: box-shadow 0.1s; /* Only animate shadow */
     }
     
-    .item:hover { transform: translate(-2px, -2px); box-shadow: 10px 10px 0px rgba(0,0,0,0.2); }
+    /* FIX: Removed 'transform' to stop the push/pull loop. 
+       We only increase shadow to simulate lift. */
+    .item:hover { 
+        box-shadow: 12px 12px 0px rgba(0,0,0,0.25); 
+    }
 
     .meta {
       font-family: "Archivo", sans-serif;
@@ -194,6 +198,7 @@
 
     .th-timer {
       background: var(--ink); color: #fff; padding: 2px 4px; font-size: 9px;
+      min-width: 60px; text-align: center; display: inline-block;
     }
 
     /* --- FORMS & INPUTS --- */
@@ -221,7 +226,7 @@
       transform: translate(-2px, -2px);
     }
 
-    /* --- BUTTONS (3D Style) --- */
+    /* --- BUTTONS --- */
     button {
       width: 100%; height: 50px;
       background: #FFFFFF; color: var(--ink);
@@ -307,7 +312,6 @@
       animation: attention 4s infinite ease-in-out;
     }
     
-    /* Subtle breathing animation to urge click */
     @keyframes attention {
       0%, 90%, 100% { transform: scale(1); }
       95% { transform: scale(1.02) rotate(-1deg); }
@@ -389,10 +393,10 @@
 
     <div class="tab-nav">
       <button class="tab-btn" onclick="switchTab('tapri')" id="btn-tapri">
-        Water Cooler (PUBLIC)
+        Tapri (Public)
       </button>
       <button class="tab-btn active" onclick="switchTab('desk')" id="btn-desk">
-        My Desk (PRIVATE)
+        My Desk
         <span id="deskBadge" class="badge" style="display:none">0</span>
       </button>
     </div>
@@ -434,7 +438,7 @@
         <button id="sendBtn" onclick="handleSend()">DROP MSG</button>
       </div>
 
-      <div class="footer">CAN'T WAIT TO HEAR IT</div>
+      <div class="footer">ONCE IT’S OUT, IT STAYS OUT</div>
     </div>
   </div>
 
@@ -462,10 +466,25 @@
     let activeChats = []; 
     let activeTownhallPosts = [];
     const userExistenceCache = {};
+
+    // Helper: Calculate Time Left string
+    function getTownhallTimeLeft(createdAtTimestamp) {
+      if (!createdAtTimestamp) return "NEW";
+      const now = new Date();
+      const expiresAt = new Date(createdAtTimestamp.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
+      const diff = expiresAt - now;
+      if (diff <= 0) return "EXPIRED";
+      
+      const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      return `⏳ ${hrs}h ${mins}m`;
+    }
  
     // --- TIMER ---
     setInterval(() => {
       const now = new Date();
+
+      // Private Chats Timer
       activeChats.forEach(chat => {
         const el = document.getElementById(`timer-${chat.id}`);
         if (!el) return;
@@ -480,20 +499,25 @@
         }
       });
  
-      // Update existing Townhall posts
+      // Townhall Timer & Expired Cleanup
       activeTownhallPosts.forEach(post => {
          const el = document.getElementById(`th-timer-${post.id}`);
          if (!el) return;
+         
+         // Re-run expiry logic locally to catch second-by-second changes
          const expiresAt = new Date(post.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
          const diff = expiresAt - now;
-         
+
          if (diff <= 0) {
-             // It expired while looking at it
+             // 1. Visually hide immediately to stop flicker
+             const card = el.closest('.item');
+             if(card) card.style.display = 'none';
+             // 2. Actually delete
              deleteTownhallPost(post.id);
          } else {
              const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
              const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-             el.innerText = `⏳ ${hrs}h ${mins}m LEFT`;
+             el.innerText = `⏳ ${hrs}h ${mins}m`;
          }
       });
     }, 1000);
@@ -577,43 +601,36 @@
           const list = document.getElementById("townhallFeed");
           list.innerHTML = "";
           activeTownhallPosts = [];
+          const now = new Date();
  
           if (snapshot.empty) {
              list.innerHTML = "<div class='empty'>THE TOWN SQUARE IS SILENT</div>";
              return;
           }
  
-          const now = new Date();
- 
           snapshot.forEach(doc => {
              const data = doc.data();
+             const createdAt = data.createdAt || { toDate: () => new Date() }; // Latency fallback
              
-             // --- FLICKER FIX: Filter Expired Posts Immediately ---
-             const expiresAt = new Date(data.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
-             if (now >= expiresAt) {
-                 // Trigger background delete, DO NOT render to DOM
-                 deleteTownhallPost(doc.id);
-                 return; 
+             // --- FIX: Filter Expired Immediately ---
+             const expiresAt = new Date(createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
+             if (now > expiresAt) {
+                 return; // Skip rendering expired posts completely (stops flicker)
              }
              
-             // --- VISIBILITY FIX: Calculate Time Immediately ---
-             const diff = expiresAt - now;
-             const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-             const initialTimeStr = `⏳ ${hrs}h ${mins}m LEFT`;
- 
-             activeTownhallPosts.push({ id: doc.id, createdAt: data.createdAt });
+             activeTownhallPosts.push({ id: doc.id, createdAt: createdAt });
              
              const likedBy = data.likedBy || [];
              const isLiked = likedBy.includes(myEmail);
              const likesCount = likedBy.length;
              const comments = data.commentCount || 0;
+             const initialTime = getTownhallTimeLeft(createdAt); // FIX: Calculate time string immediately
  
              list.innerHTML += `
                <div class="item">
                  <div class="meta">
                     <span>ANONYMOUS</span>
-                    <span class="th-timer" id="th-timer-${doc.id}">${initialTimeStr}</span>
+                    <span class="th-timer" id="th-timer-${doc.id}">${initialTime}</span>
                  </div>
                  <div class="text" style="font-size:16px">${data.text}</div>
                  
@@ -638,8 +655,6 @@
         const user = auth.currentUser;
         if(!user) return;
         const ref = db.collection("townhall").doc(postId);
-        
-        // Use Firestore ArrayUnion to ensure unique likes
         ref.update({
             likedBy: firebase.firestore.FieldValue.arrayUnion(user.email)
         });
