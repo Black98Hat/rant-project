@@ -5,59 +5,72 @@
   <title>Goss · Encrypted</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* Palette */
-      --bg-color: #FFD600; /* Electric Yellow */
-      --accent: #FF4800;   /* Hot Orange */
-      --ink: #101010;      /* Pure Black */
-      --paper: #FFFFFF;
-      --me-bg: #101010;
-      --me-text: #FFD600;
-      --danger: #FF003C;
+      /* Premium Panic Palette */
+      --bg-gradient-start: #FFB300; /* Amber Warning */
+      --bg-gradient-end: #FF3D00;   /* Deep Orange */
+      --accent: #D50000;            /* Alarm Red */
+      --ink: #121212;               /* Soft Black */
+      --paper: #F4F1EA;             /* Archival Paper */
+      --paper-shadow: #BEBDB8;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      background-color: var(--bg-color);
-      background-image: radial-gradient(circle at center, #FFD600 0%, #FFC107 100%);
+      background-color: var(--bg-gradient-start);
+      background-image: linear-gradient(145deg, var(--bg-gradient-start), var(--bg-gradient-end));
       color: var(--ink);
       font-family: "JetBrains Mono", monospace;
       height: 100dvh; 
+      width: 100vw;
       display: flex;
       flex-direction: column;
       overflow: hidden; 
     }
 
+    /* --- ATMOSPHERE --- */
     .grain {
-      position: fixed; inset: 0; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-      z-index: 0; mix-blend-mode: multiply;
+      position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: 0.12;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+    .vignette {
+      position: fixed; inset: 0; pointer-events: none; z-index: 3;
+      background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.5) 100%);
     }
 
     /* --- HEADER --- */
     .top {
-      flex: 0 0 auto; background: var(--bg-color); border-bottom: 4px solid var(--ink);
-      padding: 12px 16px; z-index: 10; display: grid; grid-template-columns: 1fr auto 1fr;
-      align-items: center; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      flex: 0 0 auto; 
+      background: var(--paper); 
+      border-bottom: 4px solid var(--ink);
+      padding: 12px 16px; 
+      z-index: 10; 
+      display: grid; 
+      grid-template-columns: auto 1fr auto;
+      align-items: center; 
+      gap: 12px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
     .nuke-btn {
-      background: var(--danger); color: white; border: 2px solid var(--ink);
-      font-family: "Archivo", sans-serif; font-weight: 900; font-size: 12px;
+      background: var(--accent); color: white; border: 2px solid var(--ink);
+      font-family: "Archivo", sans-serif; font-weight: 900; font-size: 11px;
       padding: 8px 12px; text-transform: uppercase; box-shadow: 3px 3px 0 var(--ink);
-      cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      letter-spacing: 0.05em; transition: all 0.1s;
     }
     .nuke-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
     .timer-display {
-      text-align: center; font-family: "Archivo", sans-serif; font-weight: 900;
-      font-size: 20px; font-style: italic; color: var(--ink); border: 2px solid var(--ink);
-      background: var(--paper); padding: 4px 12px; min-width: 80px;
+      justify-self: center;
+      text-align: center; font-family: "JetBrains Mono", monospace; font-weight: 800;
+      font-size: 16px; color: var(--accent);
+      background: rgba(0,0,0,0.05); padding: 4px 12px; min-width: 80px;
+      border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);
     }
 
     .back-btn {
@@ -67,50 +80,76 @@
 
     /* --- MARQUEE --- */
     .participants-marquee {
-      background: var(--ink); color: var(--bg-color); font-size: 10px; font-weight: 700;
-      padding: 4px 0; white-space: nowrap; overflow: hidden; text-transform: uppercase; flex: 0 0 auto;
+      background: var(--ink); color: var(--paper); font-size: 10px; font-weight: 700;
+      padding: 6px 0; white-space: nowrap; overflow: hidden; text-transform: uppercase; flex: 0 0 auto;
+      border-bottom: 2px solid var(--accent); z-index: 5;
     }
     .marquee-content {
-      display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;
+      display: inline-block; padding-left: 100%; animation: scroll-left 20s linear infinite;
     }
     @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
     /* --- CHAT LOG --- */
     .log {
       flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column;
-      gap: 16px; position: relative; z-index: 1; scroll-behavior: smooth;
+      gap: 16px; position: relative; z-index: 4; scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch; padding-bottom: 20px;
     }
 
     .message {
-      max-width: 85%; padding: 12px 16px; position: relative;
-      border: 3px solid var(--ink); box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+      max-width: 85%; padding: 14px 16px; position: relative;
+      border: 3px solid var(--ink); 
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .message.them { align-self: flex-start; background: var(--paper); color: var(--ink); }
-    .message.me { align-self: flex-end; background: var(--me-bg); color: var(--me-text); border-color: var(--ink); }
     
-    .from { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; opacity: 0.7; }
-    .message.me .from { color: var(--accent); opacity: 1; }
-    .text { font-size: 14px; line-height: 1.4; font-weight: 600; white-space: pre-wrap; word-wrap: break-word; }
+    /* THEM: Paper Note Style */
+    .message.them { 
+      align-self: flex-start; 
+      background: var(--paper); 
+      color: var(--ink); 
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.15);
+      border-bottom-left-radius: 0;
+    }
+    
+    /* ME: Redacted/Black Ops Style */
+    .message.me { 
+      align-self: flex-end; 
+      background: var(--ink); 
+      color: var(--paper); 
+      border-color: var(--ink); 
+      box-shadow: 6px 6px 0 var(--accent);
+      border-bottom-right-radius: 0;
+    }
+    
+    .from { 
+      font-family: "Archivo", sans-serif;
+      font-size: 9px; font-weight: 800; text-transform: uppercase; 
+      margin-bottom: 6px; letter-spacing: 0.1em; opacity: 0.7; 
+    }
+    .message.me .from { color: var(--accent); opacity: 1; text-align: right; }
+    .text { font-size: 14px; line-height: 1.5; font-weight: 500; white-space: pre-wrap; word-wrap: break-word; }
 
     /* --- INPUT AREA --- */
     .input-area {
-      flex: 0 0 auto; background: var(--ink); border-top: 4px solid var(--accent);
+      flex: 0 0 auto; background: var(--paper); border-top: 4px solid var(--ink);
       padding: 12px 16px; z-index: 999; display: flex; gap: 12px; align-items: flex-end;
-      padding-bottom: max(12px, env(safe-area-inset-bottom)); box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+      padding-bottom: max(12px, env(safe-area-inset-bottom)); 
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
     }
+    
     .input-area textarea {
-      flex: 1; background: var(--paper); border: 2px solid var(--ink); padding: 12px;
+      flex: 1; background: #FFF; border: 2px solid var(--ink); padding: 12px;
       color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: 16px;
       resize: none; height: 50px; outline: none; border-radius: 0;
+      transition: all 0.2s;
     }
-    .input-area textarea:focus { background: #FFFDF0; border-color: var(--accent); }
+    .input-area textarea:focus { box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
 
     .send-btn {
-      width: 60px; height: 50px; background: var(--bg-color); border: 2px solid var(--paper);
-      color: var(--ink); font-family: "Archivo", sans-serif; font-weight: 900; font-size: 12px;
+      width: 60px; height: 50px; background: var(--ink); border: 2px solid var(--ink);
+      color: var(--paper); font-family: "Archivo", sans-serif; font-weight: 900; font-size: 12px;
       text-transform: uppercase; cursor: pointer; box-shadow: 4px 4px 0 var(--accent); flex-shrink: 0;
+      transition: all 0.1s;
     }
     .send-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
@@ -118,48 +157,51 @@
 
     /* --- NUKE UI --- */
     .overlay {
-      position: fixed; inset: 0; background: rgba(16, 16, 16, 0.9);
+      position: fixed; inset: 0; background: rgba(18, 18, 18, 0.95);
       backdrop-filter: blur(4px); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
     .overlay.active { opacity: 1; pointer-events: auto; }
 
     .bottom-sheet {
-      position: fixed; left: 0; right: 0; bottom: -100%; background: var(--bg-color);
+      position: fixed; left: 0; right: 0; bottom: -100%; background: var(--paper);
       border-top: 4px solid var(--ink); padding: 32px 24px 48px; z-index: 2001;
-      transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1); box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+      transition: bottom 0.3s cubic-bezier(0.19, 1, 0.22, 1); box-shadow: 0 -20px 50px rgba(0,0,0,0.8);
     }
     .bottom-sheet.active { bottom: 0; }
 
-    .bs-title { font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; margin-bottom: 12px; color: var(--danger); }
-    .bs-text { font-size: 14px; font-weight: 600; margin-bottom: 24px; line-height: 1.5; }
+    .bs-title { font-family: "Archivo", sans-serif; font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; margin-bottom: 12px; color: var(--accent); }
+    .bs-text { font-size: 14px; font-weight: 500; margin-bottom: 24px; line-height: 1.5; color: var(--ink); }
 
     .bs-btn-danger {
-      width: 100%; padding: 16px; background: var(--danger); color: white; border: 3px solid var(--ink);
-      font-weight: 800; font-family: "Archivo", sans-serif; text-transform: uppercase;
-      box-shadow: 4px 4px 0 var(--ink); cursor: pointer; margin-bottom: 8px;
+      width: 100%; padding: 16px; background: var(--accent); color: white; border: 3px solid var(--ink);
+      font-weight: 800; font-family: "Archivo", sans-serif; text-transform: uppercase; letter-spacing: 0.1em;
+      box-shadow: 6px 6px 0 var(--ink); cursor: pointer; margin-bottom: 8px;
     }
     .bs-btn-danger:active:not([disabled]) { transform: translate(2px, 2px); box-shadow: none; }
-    .bs-btn-danger[disabled] { opacity: 0.6; pointer-events: none; }
+    .bs-btn-danger[disabled] { opacity: 0.6; pointer-events: none; filter: grayscale(1); }
 
     .bs-btn-cancel {
       width: 100%; background: transparent; border: none; padding: 12px;
-      text-decoration: underline; font-weight: 700; cursor: pointer;
+      text-decoration: underline; font-weight: 700; cursor: pointer; color: var(--ink);
+      text-transform: uppercase; font-size: 10px;
     }
     
     .waiting-box {
       border: 2px dashed var(--ink); padding: 16px; text-align: center;
-      background: rgba(255,255,255,0.5); font-weight: 700; font-size: 12px; margin-bottom: 12px;
+      background: rgba(0,0,0,0.05); font-weight: 700; font-size: 12px; margin-bottom: 12px;
+      text-transform: uppercase; letter-spacing: 0.05em;
     }
   </style>
 </head>
 
 <body>
   <div class="grain"></div>
+  <div class="vignette"></div>
 
   <div class="top">
     <button class="nuke-btn" onclick="initiateNuke()">☢️ NUKE CHAT</button>
     <div class="timer-display" id="timer">--:--</div>
-    <a href="rant.html" class="back-btn">Exit</a>
+    <a href="rant.html" class="back-btn">EXIT FILE</a>
   </div>
 
   <div class="participants-marquee">
