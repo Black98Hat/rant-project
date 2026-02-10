@@ -349,7 +349,7 @@
       timerInterval = setInterval(update, 1000);
     }
 
-    // --- NUKE LOGIC (FIXED) ---
+    // --- NUKE LOGIC (FIXED END-TO-END) ---
 
     function handleNukeState(chat, myEmail) {
       const sheet = document.getElementById("nukeSheet");
@@ -461,10 +461,10 @@
       
       const btn = document.getElementById("confirmBtn");
       if(btn) {
-          btn.innerText = "DESTROYING...";
+          btn.innerText = "ERASING DATA...";
           btn.disabled = true;
       } else {
-          // Fallback if UI element missing (self chat)
+          // Fallback UI for self-chat
           const sheet = document.getElementById("nukeSheet");
           const overlay = document.getElementById("sheetOverlay");
           overlay.classList.add("active");
@@ -472,12 +472,30 @@
           sheet.innerHTML = `<div class="bs-title">GOODBYE.</div><div class="waiting-box">ERASING RECORDS...</div>`;
       }
 
-      db.collection("chats").doc(chatId).delete()
+      // 1. Fetch messages to delete them (Batch Delete for cleanliness)
+      db.collection("chats").doc(chatId).collection("messages").get()
+        .then(snapshot => {
+            const batch = db.batch();
+            
+            // 2. Add all messages to batch (Limit 450 to be safe under 500 op limit)
+            snapshot.docs.slice(0, 450).forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            // 3. Add Chat Document to batch
+            const chatRef = db.collection("chats").doc(chatId);
+            batch.delete(chatRef);
+
+            // 4. Commit Atomically
+            return batch.commit();
+        })
         .then(() => {
-           console.log("Document successfully deleted! Waiting for snapshot redirect...");
+           console.log("Nuke complete. Redirecting...");
+           // 5. Force redirect for the clicker immediately (fixes "nothing happening")
+           window.location.href = "rant.html";
         })
         .catch((error) => {
-           console.error("Error removing document: ", error);
+           console.error("Nuke failed: ", error);
            alert("NUKE FAILED: " + error.message);
            if(btn) {
                btn.innerText = "AGREE & DESTROY";
