@@ -136,17 +136,19 @@
     .bs-btn-danger {
       width: 100%; padding: 16px; background: var(--danger); color: white; border: 3px solid var(--ink);
       font-weight: 800; font-family: "Archivo", sans-serif; text-transform: uppercase;
-      box-shadow: 4px 4px 0 var(--ink); cursor: pointer;
+      box-shadow: 4px 4px 0 var(--ink); cursor: pointer; margin-bottom: 8px;
     }
-    .bs-btn-danger:active { transform: translate(2px, 2px); box-shadow: none; }
+    .bs-btn-danger:active:not([disabled]) { transform: translate(2px, 2px); box-shadow: none; }
+    .bs-btn-danger[disabled] { opacity: 0.6; pointer-events: none; }
 
     .bs-btn-cancel {
       width: 100%; background: transparent; border: none; padding: 12px;
-      text-decoration: underline; font-weight: 700; cursor: pointer; margin-top: 8px;
+      text-decoration: underline; font-weight: 700; cursor: pointer;
     }
+    
     .waiting-box {
       border: 2px dashed var(--ink); padding: 16px; text-align: center;
-      background: rgba(255,255,255,0.5); font-weight: 700; font-size: 12px;
+      background: rgba(255,255,255,0.5); font-weight: 700; font-size: 12px; margin-bottom: 12px;
     }
   </style>
 </head>
@@ -196,6 +198,7 @@
     // Global State for efficiency
     let currentChatData = null; 
     let timerInterval = null;
+    let nukeStateVersion = 0; // Helps avoid UI flicker
 
     // Force focus logic
     window.onload = function() {
@@ -215,13 +218,16 @@
       db.collection("chats").doc(chatId).onSnapshot(doc => {
         // --- KEY DESTRUCTION CHECK ---
         if (!doc.exists) {
-          // Chat deleted by nuke confirmation. Redirect immediately.
-          window.location.href = "rant.html";
+          console.log("Chat deleted. Redirecting...");
+          // Small delay to ensure browser handles the redirect smoothly
+          setTimeout(() => {
+             window.location.href = "rant.html";
+          }, 100);
           return;
         }
 
         const chat = doc.data();
-        currentChatData = chat; // Update global state
+        currentChatData = chat; 
 
         // Security Check
         if (!chat.users.includes(user.email)) {
@@ -244,8 +250,6 @@
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           const container = document.getElementById("messages");
-          // Efficient DOM update: clear and rebuild is fine for small chats, 
-          // allows exact sync with DB state
           container.innerHTML = "";
           
           snapshot.forEach(doc => {
@@ -265,7 +269,6 @@
     // --- LOGIC ---
 
     function hydrateSeed(chat) {
-       // Only run if empty to avoid infinite writes if seed fails to delete
        db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
          if(snap.empty && chat.seed) {
            const batch = db.batch();
@@ -281,7 +284,7 @@
 
     function startTimer(timestamp) {
       if(!timestamp) return;
-      if(timerInterval) clearInterval(timerInterval); // Prevent memory leaks
+      if(timerInterval) clearInterval(timerInterval); 
 
       const update = () => {
         const now = new Date();
@@ -300,20 +303,24 @@
         }
       };
       
-      update(); // Run immediately
+      update(); 
       timerInterval = setInterval(update, 1000);
     }
 
-    // --- NUKE LOGIC (OPTIMIZED) ---
+    // --- NUKE LOGIC (FIXED) ---
 
     function handleNukeState(chat, myEmail) {
       const sheet = document.getElementById("nukeSheet");
       const overlay = document.getElementById("sheetOverlay");
       
       if (chat.nukeRequest) {
-        // Active Nuke Request found in DB
         overlay.classList.add("active");
         sheet.classList.add("active");
+
+        // Prevent UI flickering if already showing the correct state
+        const newState = chat.nukeRequest === myEmail ? "WAITING" : "REQUEST";
+        if (sheet.dataset.state === newState) return;
+        sheet.dataset.state = newState;
 
         if (chat.nukeRequest === myEmail) {
           // I AM THE SENDER
@@ -332,31 +339,28 @@
             <div class="bs-text">
               Your partner wants to nuke this chat. If you agree, all records will be permanently erased immediately.
             </div>
-            <button class="bs-btn-danger" onclick="confirmDestruction()">AGREE & DESTROY</button>
+            <button id="confirmBtn" class="bs-btn-danger" onclick="confirmDestruction()">AGREE & DESTROY</button>
             <button class="bs-btn-cancel" onclick="cancelNuke()">REJECT</button>
           `;
         }
       } else {
-        // If we are locally showing the "Initiate?" prompt, don't close it. 
-        // Only close if we are not in the "initiating" phase locally.
-        // We detect this by checking if the sheet has specific DB-related content classes.
-        // But simpler: If the sheet was showing a DB state (Waiting/Request), close it.
-        const content = sheet.innerHTML;
-        if (content.includes("AWAITING") || content.includes("DESTRUCTION REQUEST")) {
+        // Only close if we are not initiating locally
+        if (sheet.dataset.state === "WAITING" || sheet.dataset.state === "REQUEST") {
             overlay.classList.remove("active");
             sheet.classList.remove("active");
+            sheet.dataset.state = "NONE";
         }
       }
     }
 
     function initiateNuke() {
-      // Use cached data to avoid network latency
       if(!currentChatData) return;
 
       const myEmail = auth.currentUser.email;
-      const distinctUsers = [...new Set(currentChatData.users)];
+      // Handle self-chat edge case strictly
+      const otherUsers = currentChatData.users.filter(u => u !== myEmail);
 
-      if(distinctUsers.length === 1 && distinctUsers[0] === myEmail) {
+      if(otherUsers.length === 0) {
           // Self Chat: Instant Kill
           confirmDestruction();
       } else {
@@ -364,12 +368,13 @@
           const sheet = document.getElementById("nukeSheet");
           const overlay = document.getElementById("sheetOverlay");
           
+          sheet.dataset.state = "INIT";
           sheet.innerHTML = `
             <div class="bs-title">INITIATE DESTRUCTION?</div>
             <div class="bs-text">
               This sends a request to your partner. If they agree, this chat vanishes for both of you instantly.
             </div>
-            <button class="bs-btn-danger" onclick="sendNukeRequest()">SEND DESTRUCT SIGNAL</button>
+            <button id="armBtn" class="bs-btn-danger" onclick="sendNukeRequest()">SEND DESTRUCT SIGNAL</button>
             <button class="bs-btn-cancel" onclick="closeSheet()">NEVER MIND</button>
           `;
           
@@ -381,17 +386,28 @@
     function closeSheet() {
       document.getElementById("sheetOverlay").classList.remove("active");
       document.getElementById("nukeSheet").classList.remove("active");
+      document.getElementById("nukeSheet").dataset.state = "NONE";
     }
 
     function sendNukeRequest() {
-      // Updates DB -> Triggers onSnapshot -> Updates UI to "Waiting"
+      console.log("Sending nuke request...");
+      const btn = document.getElementById("armBtn");
+      if(btn) {
+          btn.innerText = "ARMING...";
+          btn.disabled = true;
+      }
+
       db.collection("chats").doc(chatId).update({
         nukeRequest: auth.currentUser.email
+      }).catch(err => {
+         console.error("Error sending nuke request:", err);
+         alert("Could not arm nuke: " + err.message);
+         if(btn) { btn.innerText = "SEND DESTRUCT SIGNAL"; btn.disabled = false; }
       });
     }
 
     function cancelNuke() {
-      // Handles both "Cancel" (Sender) and "Reject" (Receiver)
+      console.log("Cancelling nuke request...");
       db.collection("chats").doc(chatId).update({
         nukeRequest: firebase.firestore.FieldValue.delete()
       });
@@ -399,16 +415,32 @@
     }
 
     function confirmDestruction() {
-      console.log("Attempting to delete chat: " + chatId);
+      console.log("Confirming destruction for chat: " + chatId);
       
+      const btn = document.getElementById("confirmBtn");
+      if(btn) {
+          btn.innerText = "DESTROYING...";
+          btn.disabled = true;
+      } else {
+          // Fallback if UI element missing (self chat)
+          const sheet = document.getElementById("nukeSheet");
+          const overlay = document.getElementById("sheetOverlay");
+          overlay.classList.add("active");
+          sheet.classList.add("active");
+          sheet.innerHTML = `<div class="bs-title">GOODBYE.</div><div class="waiting-box">ERASING RECORDS...</div>`;
+      }
+
       db.collection("chats").doc(chatId).delete()
         .then(() => {
-           console.log("Document successfully deleted!");
-           // The onSnapshot listener handles the redirect
+           console.log("Document successfully deleted! Waiting for snapshot redirect...");
         })
         .catch((error) => {
            console.error("Error removing document: ", error);
-           alert("NUKE FAILED: " + error.message); // This will tell us the exact reason
+           alert("NUKE FAILED: " + error.message);
+           if(btn) {
+               btn.innerText = "AGREE & DESTROY";
+               btn.disabled = false;
+           }
         });
     }
 
