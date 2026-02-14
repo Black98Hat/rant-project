@@ -329,7 +329,6 @@
     // Above was replced
 
     function hydrateSeed(chat) {
-       // Check if seed exists and has items
        if (!chat.seed || chat.seed.length === 0) return;
 
        db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
@@ -337,17 +336,31 @@
            const batch = db.batch();
            chat.seed.forEach(m => {
              const ref = db.collection("chats").doc(chatId).collection("messages").doc();
-             // Ensure createdAt is valid
+             
+             // FIX: Safe convert Timestamp to Date
+             let dateVal = new Date();
+             if (m.createdAt && typeof m.createdAt.toDate === 'function') {
+                dateVal = m.createdAt.toDate();
+             } else if (m.createdAt) {
+                dateVal = new Date(m.createdAt);
+             }
+
              batch.set(ref, { 
                  from: m.from, 
                  text: m.text, 
-                 createdAt: m.createdAt || new Date() 
+                 createdAt: dateVal
              });
            });
-           // Delete seed from parent so we don't re-hydrate
+           
            batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
            
-           batch.commit().catch(e => console.error("Hydration failed:", e));
+           // Added console logging for debugging
+           batch.commit()
+             .then(() => console.log("Hydration successful"))
+             .catch(e => {
+                 console.error("Hydration failed:", e);
+                 alert("Error loading history: " + e.message);
+             });
          }
        });
     }

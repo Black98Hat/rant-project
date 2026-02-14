@@ -876,12 +876,15 @@
 
     function acceptEchoInline(rantId) {
       const chatRef = db.collection("chats").doc();
+      const myEmail = auth.currentUser.email; // Capture exact auth email
+
       db.collection("rants").doc(rantId).get().then(doc => {
         const rant = doc.data();
         
         // 1. Prepare the chat creation promise
         const createChatPromise = chatRef.set({
-          users: [rant.from, rant.to], 
+          // Use myEmail for the sender to guarantee permission match
+          users: [myEmail, rant.to], 
           createdAt: new Date(),
           seed: [
             { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, 
@@ -903,7 +906,7 @@
           })
           .catch(err => {
              console.error("Error creating chat:", err);
-             alert("Failed to start chat. Try again.");
+             alert("Failed to start chat. Check console for details.");
           });
       });
     }
