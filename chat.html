@@ -309,16 +309,45 @@
 
     // --- LOGIC ---
 
+    //function hydrateSeed(chat) {
+      // Check if seed exists and has items
+      //if (!chat.seed || chat.seed.length === 0) return;
+
+       //db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
+         //if(snap.empty && chat.seed) {
+           //const batch = db.batch();
+           //chat.seed.forEach(m => {
+             //const ref = db.collection("chats").doc(chatId).collection("messages").doc();
+             //batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt });
+           //});
+           //batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
+           //batch.commit();
+         //}
+       //});
+    //}
+
+    // Above was replced
+
     function hydrateSeed(chat) {
+       // Check if seed exists and has items
+       if (!chat.seed || chat.seed.length === 0) return;
+
        db.collection("chats").doc(chatId).collection("messages").limit(1).get().then(snap => {
-         if(snap.empty && chat.seed) {
+         if(snap.empty) {
            const batch = db.batch();
            chat.seed.forEach(m => {
              const ref = db.collection("chats").doc(chatId).collection("messages").doc();
-             batch.set(ref, { from: m.from, text: m.text, createdAt: m.createdAt });
+             // Ensure createdAt is valid
+             batch.set(ref, { 
+                 from: m.from, 
+                 text: m.text, 
+                 createdAt: m.createdAt || new Date() 
+             });
            });
+           // Delete seed from parent so we don't re-hydrate
            batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
-           batch.commit();
+           
+           batch.commit().catch(e => console.error("Hydration failed:", e));
          }
        });
     }

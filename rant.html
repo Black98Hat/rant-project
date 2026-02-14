@@ -731,7 +731,7 @@
       const textEl = document.getElementById("rantText");
       const targetEl = document.getElementById("targetEmail");
       const text = textEl.value.trim();
-      const target = targetEl.value.trim();
+      const target = targetEl.value.trim().toLowerCase(); // <--- This is added new
       const user = auth.currentUser;
  
       if (!text || !target || !user) return;
@@ -859,16 +859,52 @@
       db.collection("rants").doc(rantId).update({ echo: input.value.trim(), status: "echoed", updatedAt: new Date() });
     }
  
+    //function acceptEchoInline(rantId) {
+      //const chatRef = db.collection("chats").doc();
+      //db.collection("rants").doc(rantId).get().then(doc => {
+        //const rant = doc.data();
+        //chatRef.set({
+          //users: [rant.from, rant.to], createdAt: new Date(),
+          //seed: [{ from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, { from: rant.to, text: rant.echo, createdAt: new Date() }]
+        //});
+        //db.collection("rants").doc(rantId).update({ status: "accepted", chatId: chatRef.id, updatedAt: new Date() })
+          //.then(() => window.location.href = `chat.html?chatId=${chatRef.id}`);
+      //});
+    //}
+
+    // This was added
+
     function acceptEchoInline(rantId) {
       const chatRef = db.collection("chats").doc();
       db.collection("rants").doc(rantId).get().then(doc => {
         const rant = doc.data();
-        chatRef.set({
-          users: [rant.from, rant.to], createdAt: new Date(),
-          seed: [{ from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, { from: rant.to, text: rant.echo, createdAt: new Date() }]
+        
+        // 1. Prepare the chat creation promise
+        const createChatPromise = chatRef.set({
+          users: [rant.from, rant.to], 
+          createdAt: new Date(),
+          seed: [
+            { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, 
+            { from: rant.to, text: rant.echo, createdAt: new Date() }
+          ]
         });
-        db.collection("rants").doc(rantId).update({ status: "accepted", chatId: chatRef.id, updatedAt: new Date() })
-          .then(() => window.location.href = `chat.html?chatId=${chatRef.id}`);
+
+        // 2. Prepare the rant update promise
+        const updateRantPromise = db.collection("rants").doc(rantId).update({ 
+            status: "accepted", 
+            chatId: chatRef.id, 
+            updatedAt: new Date() 
+        });
+
+        // 3. Wait for BOTH, then redirect
+        Promise.all([createChatPromise, updateRantPromise])
+          .then(() => {
+             window.location.href = `chat.html?chatId=${chatRef.id}`;
+          })
+          .catch(err => {
+             console.error("Error creating chat:", err);
+             alert("Failed to start chat. Try again.");
+          });
       });
     }
     
