@@ -371,7 +371,6 @@
     };
     try {
       firebase.initializeApp(firebaseConfig);
-      firebase.auth().signInAnonymously().catch(console.error);
     } catch(e) {}
 
     function enter() {
