@@ -295,7 +295,10 @@
           
           snapshot.forEach(doc => {
             const m = doc.data();
-            const isMe = m.from === user.email;
+            
+            // --- FIX: Case-insensitive check ---
+            const isMe = m.from.toLowerCase() === user.email.toLowerCase();
+            
             container.innerHTML += `
               <div class="message ${isMe ? "me" : "them"}">
                 <div class="from">${isMe ? "YOU" : "THEY"}</div>
@@ -337,7 +340,6 @@
            chat.seed.forEach(m => {
              const ref = db.collection("chats").doc(chatId).collection("messages").doc();
              
-             // FIX: Safe convert Timestamp to Date
              let dateVal = new Date();
              if (m.createdAt && typeof m.createdAt.toDate === 'function') {
                 dateVal = m.createdAt.toDate();
@@ -346,21 +348,14 @@
              }
 
              batch.set(ref, { 
-                 from: m.from, 
+                 from: m.from.toLowerCase(), // <--- FIX: Lowercase this
                  text: m.text, 
-                 createdAt: dateVal
+                 createdAt: dateVal 
              });
            });
            
            batch.update(db.collection("chats").doc(chatId), { seed: firebase.firestore.FieldValue.delete() });
-           
-           // Added console logging for debugging
-           batch.commit()
-             .then(() => console.log("Hydration successful"))
-             .catch(e => {
-                 console.error("Hydration failed:", e);
-                 alert("Error loading history: " + e.message);
-             });
+           batch.commit().catch(e => console.error("Hydration failed:", e));
          }
        });
     }
