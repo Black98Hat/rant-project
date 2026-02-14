@@ -390,7 +390,28 @@
          if(typeof firebase !== 'undefined') {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider)
-              .then(() => window.location.href = "rant.html")
+              .then((result) => {
+                const email = result.user.email.toLowerCase();
+                const bannedDomains = [
+                  "gmail.com",
+                  "yahoo.com",
+                  "outlook.com",
+                  "hotmail.com",
+                  "proton.me",
+                  "icloud.com"
+                ];
+
+                const domain = email.split("@")[1];
+
+                if (bannedDomains.includes(domain)) {
+                  alert("Work email required.");
+                  firebase.auth().signOut();
+                  return;
+                 }
+
+    window.location.href = "rant.html";
+              })
+              
               .catch((e) => {
                  btn.innerHTML = "ACCESS DENIED";
                  btn.style.background = "var(--accent)";
