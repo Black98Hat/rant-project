@@ -376,53 +376,63 @@
     function enter() {
       const btn = document.querySelector('button');
       const originalText = btn.innerText;
-      
+
+      // 1. Start the UI effects immediately
       btn.innerHTML = "CONNECTING...";
-      btn.style.transform = "translate(8px, 8px)"; // Keep it pressed
+      btn.style.transform = "translate(8px, 8px)";
       btn.style.boxShadow = "none";
-      
+
       const a = document.getElementById("ambience");
-      a.volume = 0.2;
-      a.play().catch(()=>{});
+      if (a) {
+        a.volume = 0.2;
+        a.play().catch(() => {});
+      }
 
-      // Simulate delay for drama
-      setTimeout(() => {
-         if(typeof firebase !== 'undefined') {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-              .then((result) => {
-                const email = result.user.email.toLowerCase();
-                const bannedDomains = [
-                  "yahoo.com",
-                  "outlook.com",
-                  "hotmail.com",
-                  "proton.me",
-                  "icloud.com"
-                ];
+      // 2. Check for Firebase and trigger popup IMMEDIATELY (No setTimeout)
+      if (typeof firebase !== 'undefined') {
+      const provider = new firebase.auth.GoogleAuthProvider();
 
-                const domain = email.split("@")[1];
+        firebase.auth().signInWithPopup(provider)
+          .then((result) => {
+            // The user has successfully logged in by this point
+            const email = result.user.email.toLowerCase();
+            const bannedDomains = [
+              "yahoo.com",
+              "outlook.com",
+              "hotmail.com",
+              "proton.me",
+              "icloud.com"
+            ];
 
-                if (bannedDomains.includes(domain)) {
-                  alert("Work email required.");
-                  firebase.auth().signOut();
-                  return;
-                 }
+          const domain = email.split("@")[1];
 
-    window.location.href = "rant.html";
-              })
+          if (bannedDomains.includes(domain)) {
+            alert("Work email required.");
+            firebase.auth().signOut();
+            // Reset button if they fail validation
+            btn.innerHTML = originalText;
+            btn.style = "";
+            return;
+          }
 
-              .catch((e) => {
-                 btn.innerHTML = "ACCESS DENIED";
-                 btn.style.background = "var(--accent)";
-                 btn.style.color = "white";
-                 setTimeout(() => {
-                   btn.innerHTML = originalText;
-                   btn.style = ""; // Reset styles
-                 }, 2000);
-              });
-         }
-      }, 500);
-    }
+        // 3. OPTIONAL: You can put the drama delay HERE if you want a pause before page load
+        // setTimeout(() => { 
+           window.location.href = "rant.html";
+        // }, 1000); 
+
+      })
+      .catch((e) => {
+        // Handle errors or if user closes the popup
+        btn.innerHTML = "ACCESS DENIED";
+        btn.style.background = "var(--accent)"; // Ensure this var is defined in CSS
+        btn.style.color = "white";
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style = ""; // Reset styles
+        }, 2000);
+      });
+  }
+}
   </script>
 </body>
 </html>
