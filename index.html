@@ -393,7 +393,6 @@
               .then((result) => {
                 const email = result.user.email.toLowerCase();
                 const bannedDomains = [
-                  "gmail.com",
                   "yahoo.com",
                   "outlook.com",
                   "hotmail.com",
@@ -411,7 +410,7 @@
 
     window.location.href = "rant.html";
               })
-              
+
               .catch((e) => {
                  btn.innerHTML = "ACCESS DENIED";
                  btn.style.background = "var(--accent)";
