@@ -586,35 +586,8 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
  
-    // --- SECURITY HELPERS ---
-    // P0 FIX: Prevent XSS attacks. Never trust user text in innerHTML.
-    function safe(str) {
-      if (!str) return '';
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    // --- FIREBASE SETUP ---
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     auth.onAuthStateChanged(user => {
-      // P0 FIX: Strict Domain Gatekeeper
       if (!user) { window.location.href = "index.html"; return; }
-      
-      const email = user.email.toLowerCase();
-      // Ensure this matches your index.html list + logic
-      const isPublic = email.match(/@(gmail|yahoo|outlook|hotmail|proton|icloud)\./);
-      
-      if (isPublic) {
-         auth.signOut();
-         window.location.href = "index.html"; 
-         return;
-      }
-
-      // If safe, proceed
       db.collection("users").doc(user.uid).set({ email: user.email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
       loadInboxInline(user.email);
       loadSentInline(user.email);
