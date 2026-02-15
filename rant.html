@@ -453,11 +453,56 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // --- CONFIGURATION ---
+    // --- 1. CONFIGURATION ---
     const PRIVATE_TTL_MINS = 15; 
-    const PUBLIC_TTL_HOURS = 1; 
+    const PUBLIC_TTL_HOURS = 24; // Increased to 24h for better engagement
  
-    // --- Global State ---
+    // --- 2. FIREBASE INIT ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", 
+      authDomain: "rant-2me.firebaseapp.com",
+      projectId: "rant-2me"
+    };
+ 
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // --- 3. THE GATEKEEPER (SECURITY CHECK) ---
+    // This runs immediately. If no user, or bad domain, KICK THEM OUT.
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        // Double check domain logic here just in case
+        const isCorporate = !user.email.match(/@(gmail|yahoo|outlook|hotmail|proton|icloud)\./);
+        if (!isCorporate) {
+            alert("Restricted Access: Work Email Only");
+            auth.signOut().then(() => window.location.href = "index.html");
+            return;
+        }
+        
+        // Safe to load app
+        initApp(user);
+      }
+    });
+
+    // --- 4. APP INITIALIZATION ---
+    function initApp(user) {
+      // Update user 'last seen' for existence checks
+      db.collection("users").doc(user.uid).set({ 
+          email: user.email, 
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp() 
+      }, { merge: true });
+
+      // Load Data Streams
+      loadInboxInline(user.email);
+      loadSentInline(user.email);
+      loadChats(user.email);
+      loadTownhall(user.email);
+    }
+
+    // --- 5. GLOBAL STATE & TIMERS ---
     window.__hotInboxPending = 0;
     window.__hotSentPending = 0;
     window.__inboxReady = false;
@@ -467,7 +512,6 @@
     let activeTownhallPosts = [];
     const userExistenceCache = {};
 
-    // Helper: Calculate Time Left string
     function getTownhallTimeLeft(createdAtTimestamp) {
       if (!createdAtTimestamp) return "NEW";
       const now = new Date();
@@ -476,11 +520,9 @@
       if (diff <= 0) return "EXPIRED";
       
       const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      return `⏳ ${hrs}h ${mins}m`;
+      return `⏳ ${hrs}h left`;
     }
  
-    // --- TIMER ---
     setInterval(() => {
       const now = new Date();
 
@@ -499,38 +541,27 @@
         }
       });
  
-      // Townhall Timer & Expired Cleanup
+      // Townhall Timer
       activeTownhallPosts.forEach(post => {
          const el = document.getElementById(`th-timer-${post.id}`);
          if (!el) return;
-         
-         // Re-run expiry logic locally to catch second-by-second changes
          const expiresAt = new Date(post.createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
          const diff = expiresAt - now;
-
          if (diff <= 0) {
-             // 1. Visually hide immediately to stop flicker
-             const card = el.closest('.item');
-             if(card) card.style.display = 'none';
-             // 2. Actually delete
-             deleteTownhallPost(post.id);
+             document.getElementById(`post-${post.id}`).style.display = 'none'; // Visual hide
          } else {
-             const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-             el.innerText = `⏳ ${hrs}h ${mins}m`;
+             el.innerText = getTownhallTimeLeft(post.createdAt);
          }
       });
     }, 1000);
  
     function deleteChat(chatId) { db.collection("chats").doc(chatId).delete().catch(console.error); }
-    function deleteTownhallPost(postId) { db.collection("townhall").doc(postId).delete().catch(console.error); }
  
-    // --- TAB & UI LOGIC ---
+    // --- 6. UI LOGIC ---
     function switchTab(tabName) {
       currentTab = tabName;
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById(`view-${tabName}`).classList.add('active');
-      
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(`btn-${tabName}`).classList.add('active');
  
@@ -551,15 +582,13 @@
       const isCollapsed = document.getElementById('mainComposer').classList.contains('collapsed');
       const header = document.getElementById('composerHeader');
       const toggle = document.getElementById('composerToggle');
-      const nudge = document.getElementById('composerNudge');
- 
+      
       if (isCollapsed) {
          header.innerText = "GOT A SECRET?";
          toggle.innerText = "▲ WRITE";
       } else {
          header.innerText = "SPILL THE TEA";
          toggle.innerText = "▼ MINIMIZE";
-         nudge.innerText = "Make them panic. Or make them laugh. Just make it stick.";
       }
     }
  
@@ -574,72 +603,51 @@
         updateComposerText();
       });
     });
- 
-    // --- FIREBASE ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqwklNFPF09IiE1Gh6_ckJr2Jz6F0V2f8", 
-      authDomain: "rant-2me.firebaseapp.com",
-      projectId: "rant-2me"
-    };
- 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
- 
-    auth.onAuthStateChanged(user => {
-      if (!user) { window.location.href = "index.html"; return; }
-      db.collection("users").doc(user.uid).set({ email: user.email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      loadInboxInline(user.email);
-      loadSentInline(user.email);
-      loadChats(user.email);
-      loadTownhall(user.email);
-    });
- 
-    // --- TOWNHALL LOGIC ---
+
+    // --- 7. DATA STREAMS ---
+
+    // TOWN HALL
     function loadTownhall(myEmail) {
+      // NOTE: Only shows last 50. If you see an error in console, click the link to create Index.
       db.collection("townhall").orderBy("createdAt", "desc").limit(50).onSnapshot(snapshot => {
           const list = document.getElementById("townhallFeed");
           list.innerHTML = "";
           activeTownhallPosts = [];
-          const now = new Date();
- 
+          
           if (snapshot.empty) {
              list.innerHTML = "<div class='empty'>THE TOWN SQUARE IS SILENT</div>";
              return;
           }
- 
+          
+          const now = new Date();
+
           snapshot.forEach(doc => {
              const data = doc.data();
-             const createdAt = data.createdAt || { toDate: () => new Date() }; // Latency fallback
+             const createdAt = data.createdAt || { toDate: () => new Date() };
              
-             // --- FIX: Filter Expired Immediately ---
+             // Expired check
              const expiresAt = new Date(createdAt.toDate().getTime() + (PUBLIC_TTL_HOURS * 60 * 60 * 1000));
-             if (now > expiresAt) {
-                 return; // Skip rendering expired posts completely (stops flicker)
-             }
+             if (now > expiresAt) return;
              
              activeTownhallPosts.push({ id: doc.id, createdAt: createdAt });
              
              const likedBy = data.likedBy || [];
              const isLiked = likedBy.includes(myEmail);
-             const likesCount = likedBy.length;
-             const comments = data.commentCount || 0;
-             const initialTime = getTownhallTimeLeft(createdAt); // FIX: Calculate time string immediately
- 
+             
              list.innerHTML += `
-               <div class="item">
+               <div class="item" id="post-${doc.id}">
                  <div class="meta">
                     <span>ANONYMOUS</span>
-                    <span class="th-timer" id="th-timer-${doc.id}">${initialTime}</span>
+                    <span class="th-timer" id="th-timer-${doc.id}">${getTownhallTimeLeft(createdAt)}</span>
                  </div>
                  <div class="text" style="font-size:16px">${data.text}</div>
                  
                  <div class="townhall-actions">
                      <div class="action-pill ${isLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
-                         ${isLiked ? '❤️' : '♡'} ${likesCount}
+                         ${isLiked ? '❤️' : '♡'} ${likedBy.length}
                      </div>
                      <div class="action-pill" onclick="openThread('${doc.id}', '${escape(data.text)}')">
-                         💬 ${comments}
+                         💬 ${data.commentCount || 0}
                      </div>
                      <div class="action-pill" onclick="sharePost('${escape(data.text)}')">
                          📢 SHARE
@@ -648,138 +656,105 @@
                </div>
              `;
           });
-
-          if (list.innerHTML === "") {
-             list.innerHTML = "<div class='empty'>WAITING FOR SOME SPICY GOSS</div>";
-          }
-
-        });
-    }
- 
-    function likePost(postId) {
-        const user = auth.currentUser;
-        if(!user) return;
-        const ref = db.collection("townhall").doc(postId);
-        ref.update({
-            likedBy: firebase.firestore.FieldValue.arrayUnion(user.email)
-        });
-    }
- 
-    function sharePost(escapedText) {
-        const text = unescape(escapedText);
-        const subject = "👀 You know what is being circulated today?";
-        const body = `Saw this on the townhall just now:\n\n"${text}"\n\nIt vanishes in a few hours. Check it out: https://oh-my-goss.netlify.app/`;
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }
- 
-    function openThread(postId, escapedText) {
-        const text = unescape(escapedText);
-        const container = document.getElementById('sheetContent');
-        
-        container.innerHTML = `
-           <div class="bs-title">Gossip Thread</div>
-           <div style="background:#FFFDF0; padding:16px; border:2px solid black; margin-bottom:20px;">"${text}"</div>
-           <div class="bs-title" style="font-size:16px; border:none;">Comments</div>
-           <div id="bs-comments" class="comment-list"><div class="empty">Loading whispers...</div></div>
-           <textarea id="threadComment" placeholder="Add your whisper..." style="margin-bottom:8px;"></textarea>
-           <button class="bs-btn" onclick="postComment('${postId}')">REPLY TO THREAD</button>
-        `;
-        
-        document.getElementById('sheetOverlay').classList.add('active');
-        document.getElementById('dynamicSheet').classList.add('active');
- 
-        db.collection("townhall").doc(postId).collection("comments").orderBy("createdAt", "asc").onSnapshot(snap => {
-              const list = document.getElementById("bs-comments");
-              list.innerHTML = "";
-              if(snap.empty) { list.innerHTML = "<div class='empty'>No comments yet. Start the drama.</div>"; return; }
-              snap.forEach(d => {
-                  list.innerHTML += `<div class="comment-item"><div class="comment-meta">ANONYMOUS · JUST NOW</div><div>${d.data().text}</div></div>`;
-              });
-        });
-    }
- 
-    function postComment(postId) {
-        const input = document.getElementById('threadComment');
-        const text = input.value.trim();
-        if(!text) return;
- 
-        const batch = db.batch();
-        const postRef = db.collection("townhall").doc(postId);
-        const commentRef = postRef.collection("comments").doc();
- 
-        batch.set(commentRef, { text: text, createdAt: new Date() });
-        batch.update(postRef, { commentCount: firebase.firestore.FieldValue.increment(1) });
-        batch.commit().then(() => { input.value = ""; });
-    }
- 
-    // --- SENDING LOGIC ---
-    function handleSend() {
-        if (currentTab === 'tapri') sendTownhallPost();
-        else sendPrivateRant();
-    }
- 
-    function sendTownhallPost() {
-        const textEl = document.getElementById("rantText");
-        const text = textEl.value.trim();
-        if(!text) return;
-        if (text.length > 2000) return;
- 
-        db.collection("townhall").add({
-            text: text, createdAt: new Date(), likedBy: [], commentCount: 0
-        }).then(() => {
-            textEl.value = ""; toggleComposer();
-            if(currentTab !== 'tapri') switchTab('tapri');
-        });
-    }
- 
-    function sendPrivateRant() {
-      const textEl = document.getElementById("rantText");
-      const targetEl = document.getElementById("targetEmail");
-      const text = textEl.value.trim();
-      const target = targetEl.value.trim().toLowerCase(); // <--- This is added new
-      const user = auth.currentUser;
- 
-      if (!text || !target || !user) return;
-      if (text.length > 2000) return;
- 
-      db.collection("rants").add({
-        from: user.email, to: target, text, status: "pending", createdAt: new Date()
-      }).then(() => {
-        textEl.value = ""; targetEl.value = ""; toggleComposer();
-        checkUserExists(target).then(exists => {
-          if (!exists) {
-             document.getElementById('sheetContent').innerHTML = `
-                <div class="bs-title">They aren't here yet</div>
-                <div class="bs-body">This person hasn't signed up. Your whisper is pending, but they won't see it until they join.</div>
-                <button class="bs-btn" onclick="sendInviteEmail('${target}')">SEND MYSTERIOUS INVITE</button>
-                <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
-             `;
-             document.getElementById('sheetOverlay').classList.add('active');
-             document.getElementById('dynamicSheet').classList.add('active');
-          }
-        });
       });
     }
-    
-    async function checkUserExists(email) {
-      if (userExistenceCache[email] !== undefined) return userExistenceCache[email];
-      try {
-        const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-        userExistenceCache[email] = !snap.empty;
-        return !snap.empty;
-      } catch (e) { return false; }
+
+    function likePost(postId) {
+        if(!auth.currentUser) return;
+        db.collection("townhall").doc(postId).update({
+            likedBy: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.email)
+        }).catch(err => console.log("Like failed", err));
     }
+
+    // INBOX (Rants received)
+    function loadInboxInline(email) {
+      db.collection("rants").where("to", "==", email).onSnapshot(snapshot => {
+          window.__hotInboxPending = 0; 
+          window.__inboxReady = true;
+          const container = document.getElementById("inboxList");
+          container.innerHTML = "";
+          
+          const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
+          
+          docs.forEach(doc => {
+            const rant = doc.data();
+            if (rant.status === "accepted") return;
+            if (rant.status === "pending" || rant.status === "echoed") window.__hotInboxPending++;
  
-    function closeBottomSheet() {
-      document.getElementById('sheetOverlay').classList.remove('active');
-      document.getElementById('dynamicSheet').classList.remove('active');
+            let block = "";
+            if (rant.status === "pending") {
+              block = `
+                <div class="prompt">ACTION REQUIRED</div>
+                <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
+                <div class="action"><button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button></div>`;
+            } else if (rant.status === "echoed") {
+              block = `<div class="reply-box">${rant.echo}</div><div class="status">WAITING ON SENDER TO UNLOCK</div>`;
+            }
+ 
+            container.innerHTML += `<div class="item"><div class="meta">INCOMING · ANONYMOUS</div><div class="text">${rant.text}</div>${block}</div>`;
+          });
+          updateHotGossVisibility();
+        });
     }
- 
-    function sendInviteEmail(target) {
-      window.location.href = `mailto:${target}?subject=Someone is talking about you 🤫&body=Someone dropped a hot goss about you. Check it out: https://oh-my-goss.netlify.app/`;
-      closeBottomSheet();
+
+    // OUTBOX (Rants sent)
+    function loadSentInline(email) {
+      db.collection("rants").where("from", "==", email).onSnapshot(snapshot => {
+          window.__hotSentPending = 0; 
+          window.__sentReady = true;
+          const container = document.getElementById("sentInline");
+          container.innerHTML = "";
+          
+          const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
+          
+          docs.forEach(doc => {
+            const rant = doc.data();
+            if (rant.status === "accepted") return;
+            if (rant.status === "pending" || rant.status === "echoed") window.__hotSentPending++;
+            
+            const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
+            const statusText = rant.status === "pending" ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>" : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
+            
+            let actionBlock = "";
+            if (rant.status === "echoed") {
+                actionBlock = `<div class="action"><button onclick="acceptEchoInline('${doc.id}', '${rant.to}', '${escape(rant.text)}', '${escape(rant.echo)}')">UNLOCK & START CHAT</button></div>`;
+            }
+            
+            container.innerHTML += `
+              <div class="item">
+                <div class="meta">OUTGOING · TO ${rant.to}</div>
+                <div class="text">${rant.text}</div>
+                <div class="status">STATUS: ${statusText}</div>
+                ${echoBlock} ${actionBlock}
+              </div>`;
+          });
+          updateHotGossVisibility();
+        });
     }
- 
+
+    // ACTIVE CHATS
+    function loadChats(userEmail) {
+      db.collection("chats").where("users", "array-contains", userEmail).onSnapshot(snapshot => {
+          const list = document.getElementById("chatList");
+          list.innerHTML = ""; activeChats = [];
+          if (snapshot.empty) { list.innerHTML = "<div class='empty'>NO ACTIVE CHATS</div>"; return; }
+          
+          snapshot.forEach(doc => {
+            const chat = doc.data();
+            activeChats.push({ id: doc.id, createdAt: chat.createdAt });
+            const peer = chat.users.find(u => u !== userEmail);
+            list.innerHTML += `
+                <div class="chat-item" onclick="openChat('${doc.id}')">
+                    <div class="chat-row">
+                        <div class="chat-peer">${peer}</div>
+                        <div class="countdown-timer" id="timer-${doc.id}">...</div>
+                    </div>
+                    <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div>
+                </div>`;
+          });
+        });
+    }
+
     function updateHotGossVisibility() {
       if (!window.__inboxReady || !window.__sentReady) return;
       const hot = document.getElementById("hotGoss");
@@ -797,141 +772,172 @@
         badgeEl.style.display = "none";
       }
     }
- 
-    // --- DESK DATA LOADER (No Empty States shown) ---
-    function loadSentInline(email) {
-      db.collection("rants").where("from", "==", email).onSnapshot(snapshot => {
-          window.__hotSentPending = 0; window.__sentReady = true;
-          const container = document.getElementById("sentInline");
-          container.innerHTML = "";
-          const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
-          
-          docs.forEach(doc => {
-            const rant = doc.data();
-            if (rant.status === "accepted") return;
-            if (rant.status === "pending" || rant.status === "echoed") window.__hotSentPending++;
-            
-            const echoBlock = rant.echo ? `<div class="reply-box">${rant.echo}</div>` : "";
-            const statusText = rant.status === "pending" ? "<span style='color:var(--accent)'>WAITING FOR REPLY</span>" : rant.status === "echoed" ? "REPLY RECEIVED" : rant.status;
-            
-            let actionBlock = "";
-            if (rant.status === "echoed") {
-                actionBlock = `<div class="action"><button onclick="acceptEchoInline('${doc.id}')">UNLOCK & START CHAT</button></div>`;
-            }
-            
-            container.innerHTML += `
-              <div class="item">
-                <div class="meta">OUTGOING · TO ${rant.to}</div>
-                <div class="text">${rant.text}</div>
-                <div class="status">STATUS: ${statusText}</div>
-                ${echoBlock} ${actionBlock}
-              </div>`;
-          });
-          updateHotGossVisibility();
+
+    // --- 8. ACTIONS ---
+
+    function handleSend() {
+        if (currentTab === 'tapri') sendTownhallPost();
+        else sendPrivateRant();
+    }
+
+    function sendTownhallPost() {
+        const textEl = document.getElementById("rantText");
+        const text = textEl.value.trim();
+        if(!text) return;
+        
+        db.collection("townhall").add({
+            text: text, 
+            createdAt: new Date(), 
+            likedBy: [], 
+            commentCount: 0
+        }).then(() => {
+            textEl.value = ""; 
+            toggleComposer();
+            if(currentTab !== 'tapri') switchTab('tapri');
         });
     }
+
+    function sendPrivateRant() {
+      const textEl = document.getElementById("rantText");
+      const targetEl = document.getElementById("targetEmail");
+      const text = textEl.value.trim();
+      const target = targetEl.value.trim().toLowerCase(); // FIX: FORCE LOWERCASE
+      const user = auth.currentUser;
  
-    function loadInboxInline(email) {
-      db.collection("rants").where("to", "==", email).onSnapshot(snapshot => {
-          window.__hotInboxPending = 0; window.__inboxReady = true;
-          const container = document.getElementById("inboxList");
-          container.innerHTML = "";
-          
-          const docs = snapshot.docs.sort((a, b) => (b.data().createdAt?.toMillis() || 0) - (a.data().createdAt?.toMillis() || 0));
-          docs.forEach(doc => {
-            const rant = doc.data();
-            if (rant.status === "accepted") return;
-            if (rant.status === "pending" || rant.status === "echoed") window.__hotInboxPending++;
+      if (!text || !target || !user) return;
  
-            let block = "";
-            if (rant.status === "pending") {
-              block = `<div class="prompt">ACTION REQUIRED</div>
-                <textarea id="echo-${doc.id}" placeholder="Reply to unlock this chat..."></textarea>
-                <div class="action"><button onclick="submitEcho('${doc.id}')">REPLY TO UNLOCK</button></div>`;
-            } else if (rant.status === "echoed") {
-              block = `<div class="reply-box">${rant.echo}</div><div class="status">WAITING ON SENDER TO UNLOCK</div>`;
-            }
- 
-            container.innerHTML += `<div class="item"><div class="meta">INCOMING · ANONYMOUS</div><div class="text">${rant.text}</div>${block}</div>`;
-          });
-          updateHotGossVisibility();
+      db.collection("rants").add({
+        from: user.email, 
+        to: target, 
+        text: text, 
+        status: "pending", 
+        createdAt: new Date()
+      }).then(() => {
+        textEl.value = ""; targetEl.value = ""; toggleComposer();
+        
+        // Show UX for "Sent"
+        checkUserExists(target).then(exists => {
+          if (!exists) {
+             showBottomSheet(`
+                <div class="bs-title">They aren't here yet</div>
+                <div class="bs-body">This person hasn't signed up. Your whisper is pending, but they won't see it until they join.</div>
+                <button class="bs-btn" onclick="sendInviteEmail('${target}')">SEND MYSTERIOUS INVITE</button>
+                <button class="bs-btn-secondary" onclick="closeBottomSheet()">I'll wait for them</button>
+             `);
+          }
         });
+      }).catch(err => {
+         console.error(err);
+         alert("Error sending. Check permissions.");
+      });
     }
- 
+
     function submitEcho(rantId) {
       const input = document.getElementById(`echo-${rantId}`);
       if (!input || !input.value.trim()) return;
-      db.collection("rants").doc(rantId).update({ echo: input.value.trim(), status: "echoed", updatedAt: new Date() });
-    }
- 
-    //function acceptEchoInline(rantId) {
-      //const chatRef = db.collection("chats").doc();
-      //db.collection("rants").doc(rantId).get().then(doc => {
-        //const rant = doc.data();
-        //chatRef.set({
-          //users: [rant.from, rant.to], createdAt: new Date(),
-          //seed: [{ from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, { from: rant.to, text: rant.echo, createdAt: new Date() }]
-        //});
-        //db.collection("rants").doc(rantId).update({ status: "accepted", chatId: chatRef.id, updatedAt: new Date() })
-          //.then(() => window.location.href = `chat.html?chatId=${chatRef.id}`);
-      //});
-    //}
-
-    // This was added
-
-    function acceptEchoInline(rantId) {
-      const chatRef = db.collection("chats").doc();
-      const myEmail = auth.currentUser.email; // Capture exact auth email
-
-      db.collection("rants").doc(rantId).get().then(doc => {
-        const rant = doc.data();
-        
-        // 1. Prepare the chat creation promise
-        const createChatPromise = chatRef.set({
-          // Use myEmail for the sender to guarantee permission match
-          users: [myEmail, rant.to], 
-          createdAt: new Date(),
-          seed: [
-            { from: rant.from, text: rant.text, createdAt: rant.createdAt || new Date() }, 
-            { from: rant.to, text: rant.echo, createdAt: new Date() }
-          ]
-        });
-
-        // 2. Prepare the rant update promise
-        const updateRantPromise = db.collection("rants").doc(rantId).update({ 
-            status: "accepted", 
-            chatId: chatRef.id, 
-            updatedAt: new Date() 
-        });
-
-        // 3. Wait for BOTH, then redirect
-        Promise.all([createChatPromise, updateRantPromise])
-          .then(() => {
-             window.location.href = `chat.html?chatId=${chatRef.id}`;
-          })
-          .catch(err => {
-             console.error("Error creating chat:", err);
-             alert("Failed to start chat. Check console for details.");
-          });
+      
+      db.collection("rants").doc(rantId).update({ 
+          echo: input.value.trim(), 
+          status: "echoed", 
+          updatedAt: new Date() 
       });
     }
+
+    function acceptEchoInline(rantId, toEmail, escText, escEcho) {
+      const chatRef = db.collection("chats").doc();
+      const myEmail = auth.currentUser.email;
+
+      // Create Chat
+      const p1 = chatRef.set({
+          users: [myEmail, toEmail],
+          createdAt: new Date(),
+          seed: [
+            { from: myEmail, text: unescape(escText), createdAt: new Date() },
+            { from: toEmail, text: unescape(escEcho), createdAt: new Date() }
+          ]
+      });
+
+      // Update Rant
+      const p2 = db.collection("rants").doc(rantId).update({ 
+          status: "accepted", 
+          chatId: chatRef.id, 
+          updatedAt: new Date() 
+      });
+
+      Promise.all([p1, p2])
+        .then(() => window.location.href = `chat.html?chatId=${chatRef.id}`)
+        .catch(err => alert("Error starting chat: " + err.message));
+    }
+
+    async function checkUserExists(email) {
+      if (userExistenceCache[email] !== undefined) return userExistenceCache[email];
+      try {
+        const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+        userExistenceCache[email] = !snap.empty;
+        return !snap.empty;
+      } catch (e) { return false; }
+    }
+
+    // --- 9. HELPERS ---
+    function openChat(chatId) { window.location.href = `chat.html?chatId=${chatId}`; }
     
-    function loadChats(userEmail) {
-      db.collection("chats").where("users", "array-contains", userEmail).onSnapshot(snapshot => {
-          const list = document.getElementById("chatList");
-          list.innerHTML = ""; activeChats = [];
-          if (snapshot.empty) { list.innerHTML = "<div class='empty'>NO LATEST GOSS?</div>"; return; }
-          snapshot.forEach(doc => {
-            const chat = doc.data();
-            activeChats.push({ id: doc.id, createdAt: chat.createdAt });
-            const peer = chat.users.find(u => u !== userEmail);
-            list.innerHTML += `<div class="chat-item" onclick="openChat('${doc.id}')">
-                <div class="chat-row"><div class="chat-peer">${peer}</div><div class="countdown-timer" id="timer-${doc.id}">...</div></div>
-                <div class="chat-preview">/// ENCRYPTED - TAP TO VIEW</div></div>`;
-          });
+    function sendInviteEmail(target) {
+      window.location.href = `mailto:${target}?subject=Someone is talking about you 🤫&body=Someone dropped a hot goss about you. Check it out: https://oh-my-goss.netlify.app/`;
+      closeBottomSheet();
+    }
+    
+    function sharePost(escapedText) {
+        const text = unescape(escapedText);
+        const subject = "👀 Goss Leak";
+        const body = `Saw this on the townhall:\n\n"${text}"\n\nhttps://oh-my-goss.netlify.app/`;
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function openThread(postId, escapedText) {
+        const text = unescape(escapedText);
+        showBottomSheet(`
+           <div class="bs-title">Gossip Thread</div>
+           <div style="background:#FFFDF0; padding:16px; border:2px solid black; margin-bottom:20px;">"${text}"</div>
+           <div class="bs-title" style="font-size:16px; border:none;">Comments</div>
+           <div id="bs-comments" class="comment-list"><div class="empty">Loading whispers...</div></div>
+           <textarea id="threadComment" placeholder="Add your whisper..." style="margin-bottom:8px;"></textarea>
+           <button class="bs-btn" onclick="postComment('${postId}')">REPLY TO THREAD</button>
+        `);
+ 
+        db.collection("townhall").doc(postId).collection("comments").orderBy("createdAt", "asc").onSnapshot(snap => {
+              const list = document.getElementById("bs-comments");
+              list.innerHTML = "";
+              if(snap.empty) { list.innerHTML = "<div class='empty'>No comments yet.</div>"; return; }
+              snap.forEach(d => {
+                  list.innerHTML += `<div class="comment-item"><div class="comment-meta">ANONYMOUS</div><div>${d.data().text}</div></div>`;
+              });
         });
     }
-    function openChat(chatId) { window.location.href = `chat.html?chatId=${chatId}`; }
+
+    function postComment(postId) {
+        const input = document.getElementById('threadComment');
+        const text = input.value.trim();
+        if(!text) return;
+ 
+        const batch = db.batch();
+        const postRef = db.collection("townhall").doc(postId);
+        const commentRef = postRef.collection("comments").doc();
+ 
+        batch.set(commentRef, { text: text, createdAt: new Date() });
+        batch.update(postRef, { commentCount: firebase.firestore.FieldValue.increment(1) });
+        batch.commit().then(() => { input.value = ""; });
+    }
+
+    function showBottomSheet(html) {
+        document.getElementById('sheetContent').innerHTML = html;
+        document.getElementById('sheetOverlay').classList.add('active');
+        document.getElementById('dynamicSheet').classList.add('active');
+    }
+
+    function closeBottomSheet() {
+      document.getElementById('sheetOverlay').classList.remove('active');
+      document.getElementById('dynamicSheet').classList.remove('active');
+    }
   </script>
 </body>
 </html>
